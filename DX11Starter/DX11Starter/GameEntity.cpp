@@ -62,6 +62,9 @@ void GameEntity::ResetGameEntity()
 
 void GameEntity::SetWorld()
 {
+	DirectX::XMFLOAT3 determinate = { 1,1,1 };
+	DirectX::XMVECTOR deter = DirectX::XMLoadFloat3(&determinate);
+
 	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(transform.position.x, transform.position.y, transform.position.z);
 	DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(transform.rotation.y, transform.rotation.x, transform.rotation.z);
 	DirectX::XMMATRIX scaleMat = DirectX::XMMatrixScaling(transform.scale.x, transform.scale.y, transform.scale.z);
@@ -70,7 +73,10 @@ void GameEntity::SetWorld()
 
 	world = DirectX::XMMatrixTranspose(world);
 
+	DirectX::XMMATRIX invTrans = DirectX::XMMatrixInverse(&deter, DirectX::XMMatrixTranspose(world));
+
 	DirectX::XMStoreFloat4x4(&renderingComponent.worldMat, world);
+	DirectX::XMStoreFloat4x4(&renderingComponent.worldInvTrans, invTrans);
 }
 
 void GameEntity::Update(float dt)

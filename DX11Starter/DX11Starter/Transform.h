@@ -47,15 +47,19 @@ struct Transform {
 		scale.z += sca;
 	}
 	void CalculateDirections(){
-		DirectX::XMVECTOR f = DirectX::XMLoadFloat3(&foward);
-		DirectX::XMVECTOR u = DirectX::XMLoadFloat3(&up);
-		DirectX::XMVECTOR r = DirectX::XMLoadFloat3(&right);
+		DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(rotation.y, rotation.x, rotation.z);
 
-		r = DirectX::XMVector3Cross(f, u);
-		u = DirectX::XMVector3Cross(r, f);
+		DirectX::XMFLOAT3 genF = { 0.0f, 0.0f, 1.0f };
+		DirectX::XMFLOAT3 genU = { 0.0f, 1.0f, 0.0f };
+		DirectX::XMFLOAT3 genR = { 1.0f, 0.0f, 0.0f };
 
-		r = DirectX::XMVector3Normalize(r);
-		u = DirectX::XMVector3Normalize(u);
+		DirectX::XMVECTOR f = DirectX::XMLoadFloat3(&genF);
+		DirectX::XMVECTOR u = DirectX::XMLoadFloat3(&genU);
+		DirectX::XMVECTOR r = DirectX::XMLoadFloat3(&genR);
+
+		f = DirectX::XMVector3Transform(f, rotMat);
+		u = DirectX::XMVector3Transform(u, rotMat);
+		r = DirectX::XMVector3Transform(r, rotMat);
 
 		DirectX::XMStoreFloat3(&foward, f);
 		DirectX::XMStoreFloat3(&up, u);

@@ -67,7 +67,7 @@ void Game::Init()
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Helix"), rend));
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Cube"), rend));
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Sphere"), rend));
-	//gameObjects.push_back(new GameEntity(rend->GetMesh("RainbowRoad"), rend));
+	gameObjects.push_back(new GameEntity(rend->GetMesh("RainbowRoad"), rend));
 
 	gameObjects[2]->transform.Translate(0, 3, 4);
 	gameObjects[3]->transform.Translate(0, -3, 1);
@@ -137,7 +137,7 @@ void Game::CreateBasicGeometry()
 	rend->LoadMesh(new Mesh("Models/quad.obj", "Quad", device));
 	rend->LoadMesh(new Mesh("Models/teapot.obj", "Teapot", device));
 	rend->LoadMesh(new Mesh("Models/HaloSword.obj", "HaloSword", device));
-	//rend->LoadMesh(new Mesh("Models/RainbowRoad.obj", "RainbowRoad", device));
+	rend->LoadMesh(new Mesh("Models/RainbowRoad.obj", "RainbowRoad", device));
 
 }
 
@@ -206,11 +206,11 @@ void Game::Update(float deltaTime, float totalTime)
 
 	if (GetAsyncKeyState(65)) //A
 	{
-		cam->rigidBody.ApplyForce(cam->transform.right.x * cam->camSpeed, cam->transform.right.y * cam->camSpeed, cam->transform.right.z * cam->camSpeed);
+		cam->rigidBody.ApplyForce(cam->transform.right.x * -cam->camSpeed, cam->transform.right.y * -cam->camSpeed, cam->transform.right.z * -cam->camSpeed);
 	}
 	if (GetAsyncKeyState(68)) //D
 	{
-		cam->rigidBody.ApplyForce(cam->transform.right.x * -cam->camSpeed, cam->transform.right.y * -cam->camSpeed, cam->transform.right.z * -cam->camSpeed);
+		cam->rigidBody.ApplyForce(cam->transform.right.x * cam->camSpeed, cam->transform.right.y * cam->camSpeed, cam->transform.right.z * cam->camSpeed);
 	}
 	if (GetAsyncKeyState(87)) //W
 	{
@@ -248,7 +248,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 			float distInfront = 2.0f;
 			DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
-			SpawnGameObject("HaloSword", spawnPoint, true);
+			SpawnGameObject("RayGun", spawnPoint, false);
 			enterPressed = true;
 		}
 	}
@@ -346,10 +346,11 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
+	float sensitivity = 0.005f;
 	// Add any custom code here...
 	if (click) 
 	{
-		cam->transform.rotation = { cam->transform.rotation.x + ((x - prevMousePos.x)*0.0001f), cam->transform.rotation.y - ((y - prevMousePos.y)*0.0001f), 0 };
+		cam->transform.rotation = { cam->transform.rotation.x + ((x - prevMousePos.x) * sensitivity), cam->transform.rotation.y + ((y - prevMousePos.y) * sensitivity), 0 };
 		cam->transform.foward = {(sinf((cam->transform.rotation.x *180) / (2.0f*3.14f))), (sinf((cam->transform.rotation.y * 180) / (2.0f*3.14f))), (cosf((cam->transform.rotation.x * 180) / (2.0f*3.14f))) };
 	}
 	// Save the previous mouse position, so we have it for the future
@@ -376,6 +377,7 @@ void Game::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool can
 		float bulletSpeed = 40000;
 		//obj->rigidBody.applyFriction = false;
 		obj->rigidBody.ApplyForce(cam->transform.foward.x * bulletSpeed, cam->transform.foward.y * bulletSpeed, cam->transform.foward.z * bulletSpeed);
+		obj->transform.rotation = cam->transform.rotation;
 	}
 
 	gameObjects.push_back(obj);

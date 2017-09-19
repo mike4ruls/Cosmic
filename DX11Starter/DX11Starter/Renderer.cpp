@@ -14,6 +14,7 @@ Renderer::Renderer(Camera * c, ID3D11Device * dev, ID3D11DeviceContext * con, ID
 	backBufferRTV = backB;
 	depthStencilView = depthS;
 
+
 	Init();
 	SetWireFrame();
 }
@@ -136,6 +137,7 @@ void Renderer::Render(float dt)
 							if (x.second->rendComponents[i]->mat.materialType != Material::Transulcent) 
 							{
 								XMStoreFloat4x4(&localInstanceData[count].worldMat, XMLoadFloat4x4(&x.second->rendComponents[i]->worldMat));
+								XMStoreFloat4x4(&localInstanceData[count].invTrans, XMLoadFloat4x4(&x.second->rendComponents[i]->worldInvTrans));
 								count++;
 							}
 						}
@@ -310,6 +312,10 @@ void Renderer::DrawForwardPass(RenderingComponent* component)
 	vertexShader->SetMatrix4x4("world", component->worldMat);
 	vertexShader->SetMatrix4x4("view", cam->viewMatrix);
 	vertexShader->SetMatrix4x4("projection", cam->projectionMatrix);
+	vertexShader->SetMatrix4x4("worldInvTrans", component->worldInvTrans);
+
+	vertexShader->SetFloat3("camPosition",cam->transform.position);
+	vertexShader->SetFloat3("dirLight", {1.0f,-1.0f,0.0f});
 
 	vertexShader->CopyAllBufferData();
 
@@ -356,6 +362,9 @@ void Renderer::DrawFInstance(std::string meshName, InstanceData * components, un
 
 	instanceVShader->SetMatrix4x4("view", cam->viewMatrix);
 	instanceVShader->SetMatrix4x4("projection", cam->projectionMatrix);
+
+	instanceVShader->SetFloat3("camPosition", cam->transform.position);
+	instanceVShader->SetFloat3("dirLight", { 1.0f,-1.0f,0.0f });
 
 	instanceVShader->CopyAllBufferData();
 

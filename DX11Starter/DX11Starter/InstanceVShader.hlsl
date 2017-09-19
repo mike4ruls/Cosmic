@@ -10,6 +10,13 @@ cbuffer externalData : register(b0)
 	//matrix world;
 	matrix view;
 	matrix projection;
+	float3 camPosition;
+	float3 dirLight;
+};
+
+struct InstanceData {
+	matrix world;
+	matrix worldInvTrans;
 };
 
 // Struct representing a single vertex worth of data
@@ -29,7 +36,7 @@ struct VertexShaderInput
 	float2 uv			: UV;			// UV color
 	float4 color		: COLOR;        // RGBA color
 
-	matrix instanceWorld : WORLD_PER_INSTANCE;
+	InstanceData instanceWorld : WORLD_PER_INSTANCE;
 };
 
 // Struct representing the data we're sending down the pipeline
@@ -47,7 +54,9 @@ struct VertexToPixel
 	float4 position		: SV_POSITION;	// XYZW position (System Value Position)
 	float3 normal		: NORMAL;       // Norm color
 	float2 uv			: UV;			// UV color
-	float4 color		: COLOR;        // RGBA color
+	float4 color		: COLOR0;        // RGBA color
+	float3 lightDir		: COLOR1;
+	float3 camPos		: COLOR2;
 };
 
 // --------------------------------------------------------
@@ -69,7 +78,7 @@ VertexToPixel main( VertexShaderInput input )
 	//
 	// First we multiply them together to get a single matrix which represents
 	// all of those transformations (world to view to projection space)
-	matrix worldViewProj = mul(mul(input.instanceWorld, view), projection);
+	matrix worldViewProj = mul(mul(input.instanceWorld.world, view), projection);
 
 	// Then we convert our 3-component position vector to a 4-component vector
 	// and multiply it by our final 4x4 matrix.
@@ -82,6 +91,10 @@ VertexToPixel main( VertexShaderInput input )
 	// - The values will be interpolated per-pixel by the rasterizer
 	// - We don't need to alter it here, but we do need to send it to the pixel shader
 	output.color = input.color;
+	output.camPos = camPosition;
+	output.normal = mul(input.normal, (float3x3)input.instanceWorld.worldInvTrans);
+	output.normal = normalize(output.normal);
+	output.lightDir = dirLight;
 
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)

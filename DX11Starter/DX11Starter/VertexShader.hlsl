@@ -10,6 +10,9 @@ cbuffer externalData : register(b0)
 	matrix world;
 	matrix view;
 	matrix projection;
+	matrix worldInvTrans;
+	float3 camPosition;
+	float3 dirLight;
 };
 
 // Struct representing a single vertex worth of data
@@ -45,7 +48,9 @@ struct VertexToPixel
 	float4 position		: SV_POSITION;	// XYZW position (System Value Position)
 	float3 normal		: NORMAL;       // Norm color
 	float2 uv			: UV;			// UV color
-	float4 color		: COLOR;        // RGBA color
+	float4 color		: COLOR0;        // RGBA color
+	float3 lightDir		: COLOR1;
+	float3 camPos		: COLOR2;
 };
 
 // --------------------------------------------------------
@@ -80,6 +85,10 @@ VertexToPixel main( VertexShaderInput input )
 	// - The values will be interpolated per-pixel by the rasterizer
 	// - We don't need to alter it here, but we do need to send it to the pixel shader
 	output.color = input.color;
+	output.normal = mul(input.normal, (float3x3)worldInvTrans);
+	output.normal = normalize(output.normal);
+	output.camPos = camPosition;
+	output.lightDir = dirLight;
 
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)

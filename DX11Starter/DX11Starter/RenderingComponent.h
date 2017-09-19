@@ -4,6 +4,7 @@
 struct RenderingComponent {
 	std::string meshName;
 	DirectX::XMFLOAT4X4 worldMat;
+	DirectX::XMFLOAT4X4 worldInvTrans;
 	Material mat;
 	bool canRender;
 };

@@ -14,7 +14,9 @@ struct VertexToPixel
 	float4 position		: SV_POSITION;
 	float3 normal		: NORMAL;       // Norm color
 	float2 uv			: UV;			// UV color
-	float4 color		: COLOR;
+	float4 color		: COLOR0;
+	float3 lightDir		: COLOR1;
+	float3 camPos		: COLOR2;
 };
 
 // --------------------------------------------------------
@@ -32,5 +34,20 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// - This color (like most values passing through the rasterizer) is 
 	//   interpolated for each pixel between the corresponding vertices 
 	//   of the triangle we're rendering
-	return input.color;
+
+	//float4 color = float4(0.8f, 0.8f, 0.8f, 1.0f);
+	float4 color = float4(0.5f, 0.5f, 0.5f, 1.0f);
+	float4 ambient = float4(0.1f,0.1f,0.1f,1.0f);
+
+	//float3 E = input.position.xyz - input.camPos;
+	float3 L = input.lightDir;
+	//float3 H = normalize(-L + E);
+
+	float halfWay = saturate(dot(input.normal, -L));
+	float specAmt = pow(halfWay, 4.0f);
+
+	color = ambient + (color * dot(input.normal, halfWay)) +specAmt;
+	//color = float4(input.normal, 1.0);
+
+	return color;
 }
