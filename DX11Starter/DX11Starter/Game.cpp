@@ -254,7 +254,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 			float distInfront = 2.0f;
 			DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
-			SpawnGameObject("HaloSword", spawnPoint, true);
+			SpawnGameObject("Cube", spawnPoint, true);
 			enterPressed = true;
 		}
 	}
@@ -282,6 +282,9 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(99))
 	{
 		dayTime -= 1.0f * deltaTime;
+
+		/*DirectX::XMFLOAT3 p = rend->pointLights[0].lightPos;
+		rend->pointLights[0].lightPos = {0.0f, 0.0f, p.z + 0.1f};*/
 	}
 
 
@@ -298,10 +301,10 @@ void Game::Update(float deltaTime, float totalTime)
 	gameObjects[2]->transform.Rotate(1.0f * deltaTime, 1.0f * deltaTime, 1.0f * deltaTime);
 	gameObjects[3]->transform.scale = { scale,scale,scale };
 
-	rend->sunLight->dLComponent.lightDir = { sin(dayTime),cos(dayTime),0.0f };
+	rend->sunLight->ligComponent->lightDir = { sin(dayTime),cos(dayTime),0.0f };
 
 	cam->Update(deltaTime);
-	//printf("\nRight Vector - (%f, %f, %f)", cam->transform.right.x, cam->transform.right.y, cam->transform.right.z);
+	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();

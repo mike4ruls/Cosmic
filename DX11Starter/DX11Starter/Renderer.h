@@ -18,9 +18,11 @@ public:
 	std::map<std::string, Mesh*> meshStorage;
 
 	std::vector<RenderingComponent*> transRendComponents;
-	std::vector<Light*> directionalLights;
-	std::vector<Light*> pointLights;
-	std::vector<Light*> spotLights;
+	std::vector<Light*> allLights;
+
+	std::vector<Light::LightComponent> directionalLights;
+	std::vector<Light::LightComponent> pointLights;
+	std::vector<Light::LightComponent> spotLights;
 
 	Camera* cam;
 	ID3D11Device* device;
@@ -47,15 +49,15 @@ public:
 	ID3D11Buffer* instanceWorldMatrixBuffer;
 	Light* sunLight;
 
-	Light::DirectionalLight dArr[10];
+	/*Light::DirectionalLight dArr[10];
 	Light::PointLight pArr[10];
-	Light::SpotLight sArr[10];
+	Light::SpotLight sArr[10];*/
 
 	int maxSize;
 
-	int ligDcount = 0;
-	int ligPcount = 0;
-	int ligScount = 0;
+	int maxDLights = 10;
+	int maxPLights = 10;
+	int maxSLights = 10;
 
 	void Init();
 	void Render(float dt);

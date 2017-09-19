@@ -27,17 +27,9 @@ Renderer::~Renderer()
 		if (x.second) { delete x.second; x.second = nullptr; }
 	}
 
-	for(unsigned int i = 0; i < directionalLights.size(); i++)
+	for(unsigned int i = 0; i < allLights.size(); i++)
 	{
-		if (directionalLights[i] != nullptr) { delete directionalLights[i]; directionalLights[i] = nullptr; }
-	}
-	for (unsigned int i = 0; i < pointLights.size(); i++)
-	{
-		if (pointLights[i] != nullptr) { delete pointLights[i]; pointLights[i] = nullptr; }
-	}
-	for (unsigned int i = 0; i < spotLights.size(); i++)
-	{
-		if (spotLights[i] != nullptr) { delete spotLights[i]; spotLights[i] = nullptr; }
+		if (allLights[i] != nullptr) { delete allLights[i]; allLights[i] = nullptr; }
 	}
 
 	directionalLights.clear();
@@ -47,8 +39,9 @@ Renderer::~Renderer()
 	delete vertexShader;
 	delete instanceVShader;
 	delete pixelShader;
-	instanceWorldMatrixBuffer->Release();
 	delete[] localInstanceData;
+
+	instanceWorldMatrixBuffer->Release();
 	wireFrame->Release();
 	fillFrame->Release();
 }
@@ -62,12 +55,11 @@ void Renderer::Init()
 	wireFrameOn = false;
 	prevWireStatus = wireFrameOn;
 	instanceThreshold = 5;
+
 	LoadShaders();
 	sunLight = CreateDirectionalLight({0.0f,-1.0f,0.0f });
-	//sunLight->lightColor = { 0.5f, 0.0f, 0.0f, 1.0f };
-	sunLight->dLComponent.lightAmb = {0.3f, 0.3f, 0.3f, 1.0f};
-
-	CreateDirectionalLight({ 1.0f,-1.0f,1.0f });
+	//sunLight->ligComponent->lightColor = { 0.05f, 0.5f, 0.0f, 1.0f };
+	sunLight->ligComponent->lightAmb = {0.3f, 0.3f, 0.3f, 1.0f};
 
 	maxSize = 10;
 
@@ -286,49 +278,69 @@ unsigned int Renderer::PushToTranslucent(RenderingComponent * com)
 
 Light * Renderer::CreateLight(Light::LightType lType)
 {
+	if (allLights.size() == (maxDLights + maxPLights + maxSLights)) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
+
 	Light* newLight = new Light();
 
 	if (lType == Light::Directional)
 	{
-		newLight->lightType = Light::Directional;
+		newLight->lightID = (unsigned int)allLights.size();
+		newLight->compID = (unsigned int)directionalLights.size();
 
-		newLight->dLComponent.lightDir = { 1.0f, -1.0f, 0.0f };
-		newLight->dLComponent.lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
-		newLight->dLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-		newLight->dLComponent.lightIntensity = 4.0f;
+		allLights.push_back(newLight);
+		directionalLights.push_back(Light::LightComponent());
+
+		newLight->ligComponent = &directionalLights[newLight->compID];
+
+		newLight->lightType = Light::Directional;
 		newLight->lightOn = true;
 
-		newLight->lightID = (unsigned int)directionalLights.size();
+		newLight->ligComponent->lightDir = { 1.0f, -1.0f, 0.0f };
+		newLight->ligComponent->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->ligComponent->lightIntensity = 4.0f;
 
-		directionalLights.push_back(newLight);
+
 	}
 	else if(lType == Light::Point)
 	{
-		newLight->lightType = Light::Point;
+		newLight->lightID = (unsigned int)allLights.size();
+		newLight->compID = (unsigned int)pointLights.size();
 
-		newLight->pLComponent.lightPos = { 0.0f, 0.0f, 0.0f };
-		newLight->pLComponent.lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
-		newLight->pLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-		newLight->pLComponent.lightIntensity = 4.0f;
+		allLights.push_back(newLight);
+		pointLights.push_back(Light::LightComponent());
+
+		newLight->ligComponent = &pointLights[newLight->compID];
+
+		newLight->lightType = Light::Point;
 		newLight->lightOn = true;
 
-		newLight->lightID = (unsigned int)pointLights.size();
+		newLight->ligComponent->lightPos = { 0.0f, 0.0f, 0.0f };
+		newLight->ligComponent->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->ligComponent->lightIntensity = 4.0f;
 
-		pointLights.push_back(newLight);
+
+
 	}
 	else if(lType == Light::Spot)
 	{
-		newLight->lightType = Light::Spot;
+		newLight->lightID = (unsigned int)allLights.size();
+		newLight->compID = (unsigned int)spotLights.size();
 
-		newLight->sLComponent.lightPos = { 0.0f, 0.0f, 0.0f };
-		newLight->sLComponent.lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
-		newLight->sLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-		newLight->sLComponent.lightIntensity = 4.0f;
+		allLights.push_back(newLight);
+		spotLights.push_back(Light::LightComponent());
+
+		newLight->ligComponent = &spotLights[newLight->compID];
+
+		newLight->lightType = Light::Spot;
 		newLight->lightOn = true;
 
-		newLight->lightID = (unsigned int)spotLights.size();
+		newLight->ligComponent->lightPos = { 0.0f, 0.0f, 0.0f };
+		newLight->ligComponent->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->ligComponent->lightIntensity = 4.0f;
 
-		spotLights.push_back(newLight);
 	}
 
 	return newLight;
@@ -336,183 +348,252 @@ Light * Renderer::CreateLight(Light::LightType lType)
 
 Light * Renderer::CreateDirectionalLight(DirectX::XMFLOAT3 direction)
 {
-	Light* newLight = new Light();
-	newLight->dLComponent.lightDir = direction;
-	newLight->lightType = Light::Directional;
+	if (directionalLights.size() == maxDLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->dLComponent.lightColor = {0.5f, 0.5f, 0.5f, 0.5f};
-	newLight->dLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-	newLight->dLComponent.lightIntensity = 4.0f;
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)directionalLights.size();
+
+	allLights.push_back(newLight);
+	directionalLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &directionalLights[newLight->compID];
+
+	newLight->lightType = Light::Directional;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)directionalLights.size();
-
-	directionalLights.push_back(newLight);
+	newLight->ligComponent->lightDir = direction;
+	newLight->ligComponent->lightColor = {0.5f, 0.5f, 0.5f, 0.5f};
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->ligComponent->lightIntensity = 4.0f;
 
 	return newLight;
 }
 
 Light * Renderer::CreateDirectionalLight(DirectX::XMFLOAT3 direction, DirectX::XMFLOAT4 ligColor)
 {
-	Light* newLight = new Light();
-	newLight->dLComponent.lightDir = direction;
-	newLight->dLComponent.lightColor = ligColor;
-	newLight->lightType = Light::Directional;
+	if (directionalLights.size() == maxDLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->dLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-	newLight->dLComponent.lightIntensity = 4.0f;
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)directionalLights.size();
+
+	allLights.push_back(newLight);
+	directionalLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &directionalLights[newLight->compID];
+
+
+	newLight->lightType = Light::Directional;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)directionalLights.size();
-
-	directionalLights.push_back(newLight);
+	newLight->ligComponent->lightDir = direction;
+	newLight->ligComponent->lightColor = ligColor;
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->ligComponent->lightIntensity = 4.0f;
 
 	return newLight;
 }
 
 Light * Renderer::CreateDirectionalLight(DirectX::XMFLOAT3 direction, DirectX::XMFLOAT4 ligColor, float inten)
 {
-	Light* newLight = new Light();
-	newLight->dLComponent.lightDir = direction;
-	newLight->dLComponent.lightColor = ligColor;
-	newLight->dLComponent.lightIntensity = inten;
-	newLight->lightType = Light::Directional;
+	if (directionalLights.size() == maxDLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->dLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)directionalLights.size();
+
+	allLights.push_back(newLight);
+	directionalLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &directionalLights[newLight->compID];
+
+	newLight->lightType = Light::Directional;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)directionalLights.size();
-
-	directionalLights.push_back(newLight);
+	newLight->ligComponent->lightDir = direction;
+	newLight->ligComponent->lightColor = ligColor;
+	newLight->ligComponent->lightIntensity = inten;
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
 
 	return newLight;
 }
 
 Light * Renderer::CreatePointLight(DirectX::XMFLOAT3 position)
 {
-	Light* newLight = new Light();
-	newLight->pLComponent.lightPos = position;
-	newLight->lightType = Light::Point;
+	if (pointLights.size() == maxPLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->pLComponent.lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
-	newLight->pLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-	newLight->pLComponent.lightIntensity = 4.0f;
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)pointLights.size();
+
+	allLights.push_back(newLight);
+	pointLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &pointLights[newLight->compID];
+
+
+	newLight->lightType = Light::Point;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)pointLights.size();
-
-	pointLights.push_back(newLight);
+	newLight->ligComponent->lightPos = position;
+	newLight->ligComponent->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->ligComponent->lightIntensity = 4.0f;
 
 	return newLight;
 }
 
 Light * Renderer::CreatePointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT4 ligColor)
 {
-	Light* newLight = new Light();
-	newLight->pLComponent.lightPos = position;
-	newLight->pLComponent.lightColor = ligColor;
-	newLight->lightType = Light::Point;
+	if (pointLights.size() == maxPLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->pLComponent.lightPos = { 0.0f, 0.0f, 0.0f };
-	newLight->pLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-	newLight->pLComponent.lightIntensity = 4.0f;
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)pointLights.size();
+
+	allLights.push_back(newLight);
+	pointLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &pointLights[newLight->compID];
+
+	newLight->lightType = Light::Point;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)pointLights.size();
-
-	pointLights.push_back(newLight);
+	newLight->ligComponent->lightPos = position;
+	newLight->ligComponent->lightColor = ligColor;
+	newLight->ligComponent->lightPos = { 0.0f, 0.0f, 0.0f };
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->ligComponent->lightIntensity = 4.0f;
 
 	return newLight;
 }
 
 Light * Renderer::CreatePointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT4 ligColor, float inten)
 {
-	Light* newLight = new Light();
-	newLight->pLComponent.lightPos = position;
-	newLight->pLComponent.lightColor = ligColor;
-	newLight->pLComponent.lightIntensity = inten;
-	newLight->lightType = Light::Point;
+	if (pointLights.size() == maxPLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->pLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)pointLights.size();
+
+	allLights.push_back(newLight);
+	pointLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &pointLights[newLight->compID];
+
+	newLight->lightType = Light::Point;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)pointLights.size();
-
-	pointLights.push_back(newLight);
+	newLight->ligComponent->lightPos = position;
+	newLight->ligComponent->lightColor = ligColor;
+	newLight->ligComponent->lightIntensity = inten;
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
 
 	return newLight;
 }
 
 Light * Renderer::CreateSpotLight(DirectX::XMFLOAT3 position)
 {
-	Light* newLight = new Light();
-	newLight->sLComponent.lightPos = position;
-	newLight->lightType = Light::Spot;
+	if (spotLights.size() == maxSLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->sLComponent.lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
-	newLight->sLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-	newLight->sLComponent.lightIntensity = 4.0f;
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)spotLights.size();
+
+	allLights.push_back(newLight);
+	spotLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &spotLights[newLight->compID];
+
+	newLight->lightType = Light::Spot;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)spotLights.size();
-
-	spotLights.push_back(newLight);
+	newLight->ligComponent->lightPos = position;
+	newLight->ligComponent->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->ligComponent->lightIntensity = 4.0f;
 
 	return newLight;
 }
 
 Light * Renderer::CreateSpotLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT4 ligColor)
 {
-	Light* newLight = new Light();
-	newLight->sLComponent.lightPos = position;
-	newLight->sLComponent.lightColor = ligColor;
-	newLight->lightType = Light::Spot;
+	if (spotLights.size() == maxSLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->sLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
-	newLight->sLComponent.lightIntensity = 4.0f;
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)spotLights.size();
+
+	allLights.push_back(newLight);
+	spotLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &spotLights[newLight->compID];
+
+	newLight->lightType = Light::Spot;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)spotLights.size();
-
-	spotLights.push_back(newLight);
+	newLight->ligComponent->lightPos = position;
+	newLight->ligComponent->lightColor = ligColor;
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->ligComponent->lightIntensity = 4.0f;
 
 	return newLight;
 }
 
 Light * Renderer::CreateSpotLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT4 ligColor, float inten)
 {
-	Light* newLight = new Light();
-	newLight->sLComponent.lightPos = position;
-	newLight->sLComponent.lightColor = ligColor;
-	newLight->sLComponent.lightIntensity = inten;
-	newLight->lightType = Light::Spot;
+	if (spotLights.size() == maxSLights) { return nullptr; printf("ERROR: Could not create new light.\nReason: Maximum capacity"); }
 
-	newLight->sLComponent.lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	Light* newLight = new Light();
+
+	newLight->lightID = (unsigned int)allLights.size();
+	newLight->compID = (unsigned int)spotLights.size();
+
+	allLights.push_back(newLight);
+	spotLights.push_back(Light::LightComponent());
+
+	newLight->ligComponent = &spotLights[newLight->compID];
+
+	newLight->lightType = Light::Spot;
 	newLight->lightOn = true;
 
-	newLight->lightID = (unsigned int)spotLights.size();
-
-	spotLights.push_back(newLight);
+	newLight->ligComponent->lightPos = position;
+	newLight->ligComponent->lightColor = ligColor;
+	newLight->ligComponent->lightIntensity = inten;
+	newLight->ligComponent->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
 
 	return newLight;
 }
 
 void Renderer::RemoveLight(Light * light)
 {
-	unsigned int Id = light->lightID;
+	allLights.erase(allLights.begin() + light->lightID);
+
+
 
 	if(light->lightType == Light::Directional)
 	{
-		directionalLights.erase(directionalLights.begin() + Id);
+		directionalLights.erase(directionalLights.begin() + light->compID);
 	}
 	else if(light->lightType == Light::Point)
 	{
-		pointLights.erase(pointLights.begin() + Id);
+		pointLights.erase(pointLights.begin() + light->compID);
 	}
 	else if(light->lightType == Light::Spot)
 	{
-		spotLights.erase(spotLights.begin() + Id);
+		spotLights.erase(spotLights.begin() + light->compID);
 	}
+
+
 
 	if (light != nullptr) { delete light; light = nullptr; }
 }
@@ -573,65 +654,43 @@ void Renderer::ToggleWireFrame()
 
 void Renderer::CompileLights()
 {
-	ligDcount = 0;
-	ligPcount = 0;
-	ligScount = 0;
-
-	for (unsigned int i = 0; i < directionalLights.size(); i++)
+	for (unsigned int i = 0; i < allLights.size(); i++)
 	{
-		if (directionalLights[i]->lightOn)
+		if (allLights[i]->lightOn)
 		{
-			dArr[ligDcount] = directionalLights[i]->dLComponent;
-			if (ligDcount == maxSize)
+			//dArr[ligDcount] = directionalLights[i]->dLComponent;
+			/*if (ligDcount == maxSize)
 			{
 				break;
 			}
-			ligDcount++;
+			ligDcount++;*/
 		}
 	}
-
-	for (unsigned int i = 0; i < pointLights.size(); i++)
-	{
-		if (pointLights[i]->lightOn)
-		{
-			pArr[ligPcount] = pointLights[i]->pLComponent;
-			if (ligPcount == maxSize)
-			{
-				break;
-			}
-			ligPcount++;
-		}
-	}
-
-	for (unsigned int i = 0; i < spotLights.size(); i++)
-	{
-		if (spotLights[i]->lightOn)
-		{
-			sArr[ligScount] = spotLights[i]->sLComponent;
-			if (ligScount == maxSize)
-			{
-				break;
-			}
-			ligScount++;
-		}
-	}
-
 }
 
 void Renderer::SetLights()
 {
-
-	pixelShader->SetInt("dCount", ligDcount);
-	pixelShader->SetData("dirLights", &dArr, sizeof(dArr));
-
-
-
-	pixelShader->SetInt("pCount", ligPcount);
-	pixelShader->SetData("pointLights",pArr, sizeof(pArr));
+	int dCount = (int)directionalLights.size();
+	if (dCount != 0)
+	{
+		pixelShader->SetInt("dCount", dCount);
+		pixelShader->SetData("dirLights", &directionalLights[0], sizeof(Light::LightComponent) * maxDLights);
+	}
 
 
-	pixelShader->SetInt("sCount", ligScount);
-	pixelShader->SetData("spotLights", sArr, sizeof(sArr));
+	int pCount = (int)pointLights.size();
+	if (pCount != 0)
+	{
+		pixelShader->SetInt("pCount", pCount);
+		pixelShader->SetData("pointLights", &pointLights[0], sizeof(Light::LightComponent) * maxPLights);
+	}
+
+	int sCount = (int)spotLights.size();
+	if (sCount != 0)
+	{
+		pixelShader->SetInt("sCount", sCount);
+		pixelShader->SetData("spotLights", &spotLights[0], sizeof(Light::LightComponent) * maxSLights);
+	}
 }
 
 void Renderer::DrawSkyBox()

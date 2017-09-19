@@ -45,6 +45,7 @@ struct VertexToPixel
 	//  |    |                |
 	//  v    v                v
 	float4 position		: SV_POSITION;	// XYZW position (System Value Position)
+	float3 worldPos		: POSITION;
 	float3 normal		: NORMAL;       // Norm color
 	float2 uv			: UV;			// UV color
 	float4 color		: COLOR0;        // RGBA color
@@ -78,6 +79,7 @@ VertexToPixel main( VertexShaderInput input )
 	// The result is essentially the position (XY) of the vertex on our 2D 
 	// screen and the distance (Z) from the camera (the "depth" of the pixel)
 	output.position = mul(float4(input.position, 1.0f), worldViewProj);
+	output.worldPos = mul(float4(input.position, 1.0f), world).xyz;
 
 	// Pass the color through 
 	// - The values will be interpolated per-pixel by the rasterizer

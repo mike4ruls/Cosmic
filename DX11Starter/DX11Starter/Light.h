@@ -10,32 +10,33 @@ struct Light {
 		Spot
 	}lightType;
 	unsigned int lightID;
+	unsigned int compID;
 	bool lightOn;
 	
-	struct DirectionalLight {
+	struct LightComponent {
 		DirectX::XMFLOAT4 lightColor;
 		DirectX::XMFLOAT4 lightAmb;
+		DirectX::XMFLOAT3 lightPos;
+		float lightIntensity;
 		DirectX::XMFLOAT3 lightDir;
-		float lightIntensity;
-	}dLComponent;
-	
-	struct PointLight {
-		DirectX::XMFLOAT4 lightColor;
-		DirectX::XMFLOAT4 lightAmb;
-		DirectX::XMFLOAT3 lightPos;
-		float lightIntensity;
-	}pLComponent;
-	
-	struct SpotLight {
-		DirectX::XMFLOAT4 lightColor;
-		DirectX::XMFLOAT4 lightAmb;
-		DirectX::XMFLOAT3 lightPos;
-		float lightIntensity;
-	}sLComponent;
+		float pad;
 
+	}* ligComponent;
 };
 
-
+//struct PointLight {
+//	DirectX::XMFLOAT4 lightColor;
+//	DirectX::XMFLOAT4 lightAmb;
+//	DirectX::XMFLOAT3 lightPos;
+//	float lightIntensity;
+//};
+//
+//struct SpotLight {
+//	DirectX::XMFLOAT4 lightColor;
+//	DirectX::XMFLOAT4 lightAmb;
+//	DirectX::XMFLOAT3 lightPos;
+//	float lightIntensity;
+//};
 
 //enum LightType {
 //	Directional,
