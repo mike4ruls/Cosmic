@@ -58,7 +58,7 @@ void Game::Init()
 	//  - You'll be expanding and/or replacing these later
 	cam = new Camera();
 	cam->Init(width, height);
-	rend = new Renderer(cam,device,context);
+	rend = new Renderer(cam,device,context,backBufferRTV,depthStencilView);
 	CreateBasicGeometry();
 	click = false;
 
@@ -195,6 +195,15 @@ void Game::Update(float deltaTime, float totalTime)
 	/////////////////////////
 	//CAMERA MOVEMENT
 	/////////////////////////
+	if (GetAsyncKeyState(VK_LSHIFT)) //A
+	{
+		cam->camSpeed = cam->runSpeed;
+	}
+	else
+	{
+		cam->camSpeed = cam->normSpeed;
+	}
+
 	if (GetAsyncKeyState(65)) //A
 	{
 		cam->rigidBody.ApplyForce(cam->transform.right.x * cam->camSpeed, cam->transform.right.y * cam->camSpeed, cam->transform.right.z * cam->camSpeed);
@@ -220,17 +229,46 @@ void Game::Update(float deltaTime, float totalTime)
 		cam->rigidBody.ApplyForce(0.0f, -cam->camSpeed, 0.0f);
 	}
 
-	if (GetAsyncKeyState(VK_RETURN))
+	if (GetAsyncKeyState(VK_RETURN) || GetAsyncKeyState(69))
 	{
 		if (!enterPressed)
 		{
-			SpawnGameObject(cam->transform.position);
+			//"Triangle"
+			//"Square"
+			//"Sphere"
+			//"Cube"
+			//"Cone"
+			//"Torus"
+			//"Helix"
+			//"RayGun"
+			//"Plane"
+			//"Quad"
+			//"Teapot"
+			//"HaloSword"
+
+			float distInfront = 2.0f;
+			DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
+			SpawnGameObject("HaloSword", spawnPoint, true);
 			enterPressed = true;
 		}
 	}
-	else {
+	else
+	{
 		enterPressed = false;
 	}
+	if (GetAsyncKeyState(70))
+	{
+		if(!fPressed)
+		{
+			rend->ToggleWireFrame();
+			fPressed = true;
+		}
+	}
+	else
+	{
+		fPressed = false;
+	}
+
 
 	/////////////////////////
 	//UPDATES
@@ -247,7 +285,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 
 	cam->Update(deltaTime);
-	printf("\nRight Vector - (%f, %f, %f)", cam->transform.right.x, cam->transform.right.y, cam->transform.right.z);
+	//printf("\nRight Vector - (%f, %f, %f)", cam->transform.right.x, cam->transform.right.y, cam->transform.right.z);
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
@@ -259,7 +297,7 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 
-	rend->Render(backBufferRTV, depthStencilView);
+	rend->Render(deltaTime);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
@@ -328,12 +366,19 @@ void Game::OnMouseWheel(float wheelDelta, int x, int y)
 {
 	// Add any custom code here...
 }
-void Game::SpawnGameObject(DirectX::XMFLOAT3 pos) 
+void Game::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot)
 {
-	std::string meshName = "Teapot";
 	GameEntity* obj = new GameEntity(rend->meshStorage[meshName], rend);
 	obj->transform.position = pos;
+
+	if (canShoot)
+	{
+		float bulletSpeed = 40000;
+		//obj->rigidBody.applyFriction = false;
+		obj->rigidBody.ApplyForce(cam->transform.foward.x * bulletSpeed, cam->transform.foward.y * bulletSpeed, cam->transform.foward.z * bulletSpeed);
+	}
+
 	gameObjects.push_back(obj);
-	printf("%d\n",rend->meshStorage[meshName]->instances);
+	printf("\nNum of '%ss': %d", &meshName[0], rend->meshStorage[meshName]->instances);
 }
 #pragma endregion

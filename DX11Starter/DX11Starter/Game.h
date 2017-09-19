@@ -24,6 +24,7 @@ public:
 
 	bool click;
 	bool enterPressed;
+	bool fPressed;
 
 	// Overridden setup and game loop methods, which
 	// will be called automatically
@@ -31,7 +32,7 @@ public:
 	void OnResize();
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
-	void SpawnGameObject(DirectX::XMFLOAT3 pos);
+	void SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot);
 
 	// Overridden mouse input helper methods
 	void OnMouseDown (WPARAM buttonState, int x, int y);

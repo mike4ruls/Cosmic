@@ -15,6 +15,8 @@ public:
 	Transform transform;
 	RigidBody rigidBody;
 
+	float normSpeed;
+	float runSpeed;
 	float camSpeed;
 
 	// Size of the window's client area

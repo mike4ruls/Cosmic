@@ -30,7 +30,9 @@ void Camera::Init(unsigned int w, unsigned int h)
 
 	width = w;
 	height = h;
-	camSpeed = 10.0f;
+	normSpeed = 10.0f;
+	runSpeed = 30.0f;
+	camSpeed = normSpeed;
 	SetMatricies();
 }
 

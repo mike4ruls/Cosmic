@@ -23,9 +23,14 @@ GameEntity::GameEntity(Mesh * m, Renderer* r)
 	rend = r;
 	name = "";
 	renderingComponent.canRender = true;
+	renderingComponent.mat.materialType = Material::Opaque;
+	renderingComponent.meshName = myMesh->meshName;
+
+	prevMatType = renderingComponent.mat.materialType;
+	isTranslucent = false;
 
 	ResetGameEntity();
-	rendID = rend->PushToRenderer(myMesh->meshName, &renderingComponent);
+	rendID = rend->PushToRenderer(&renderingComponent);
 }
 
 
@@ -71,5 +76,24 @@ void GameEntity::SetWorld()
 void GameEntity::Update(float dt)
 {
 	rigidBody.UpdateVelocity(&transform, dt);
+	CheckMatType();
 	SetWorld();
+}
+
+void GameEntity::CheckMatType()
+{
+	if(prevMatType != renderingComponent.mat.materialType)
+	{
+		if(renderingComponent.mat.materialType == Material::Transulcent)
+		{
+			rend->PushToTranslucent(&renderingComponent);
+			isTranslucent = true;
+		}
+		else if(isTranslucent)
+		{
+			rend->RemoveFromTranslucent(renderingComponent.mat.translucentID);
+			isTranslucent = false;
+		}
+		prevMatType = renderingComponent.mat.materialType;
+	}
 }

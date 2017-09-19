@@ -23,8 +23,10 @@ public:
 	void ResetGameEntity();
 	void SetWorld();
 	void Update(float dt);
+	void CheckMatType();
 
 private:
-
+	Material::MatType prevMatType;
+	bool isTranslucent;
 };
 
