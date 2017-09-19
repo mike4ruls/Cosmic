@@ -47,6 +47,16 @@ public:
 	ID3D11Buffer* instanceWorldMatrixBuffer;
 	Light* sunLight;
 
+	Light::DirectionalLight dArr[10];
+	Light::PointLight pArr[10];
+	Light::SpotLight sArr[10];
+
+	int maxSize;
+
+	int ligDcount = 0;
+	int ligPcount = 0;
+	int ligScount = 0;
+
 	void Init();
 	void Render(float dt);
 	void LoadMesh(Mesh* newMesh);
@@ -75,6 +85,9 @@ public:
 	void LoadShaders();
 	void SetWireFrame();
 	void ToggleWireFrame();
+
+	void CompileLights();
+	void SetLights();
 
 	void DrawSkyBox();
 

@@ -70,7 +70,7 @@ void Game::Init()
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Helix"), rend));
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Cube"), rend));
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Sphere"), rend));
-	//gameObjects.push_back(new GameEntity(rend->GetMesh("RainbowRoad"), rend));
+	gameObjects.push_back(new GameEntity(rend->GetMesh("RainbowRoad"), rend));
 
 	gameObjects[2]->transform.Translate(0, 3, 4);
 	gameObjects[3]->transform.Translate(0, -3, 1);
@@ -143,7 +143,7 @@ void Game::CreateBasicGeometry()
 	rend->LoadMesh(new Mesh("Models/quad.obj", "Quad", device));
 	rend->LoadMesh(new Mesh("Models/teapot.obj", "Teapot", device));
 	rend->LoadMesh(new Mesh("Models/HaloSword.obj", "HaloSword", device));
-	//rend->LoadMesh(new Mesh("Models/RainbowRoad.obj", "RainbowRoad", device));
+	rend->LoadMesh(new Mesh("Models/RainbowRoad.obj", "RainbowRoad", device));
 
 }
 
@@ -254,7 +254,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 			float distInfront = 2.0f;
 			DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
-			SpawnGameObject("Sphere", spawnPoint, true);
+			SpawnGameObject("HaloSword", spawnPoint, true);
 			enterPressed = true;
 		}
 	}
@@ -298,7 +298,7 @@ void Game::Update(float deltaTime, float totalTime)
 	gameObjects[2]->transform.Rotate(1.0f * deltaTime, 1.0f * deltaTime, 1.0f * deltaTime);
 	gameObjects[3]->transform.scale = { scale,scale,scale };
 
-	rend->sunLight->lightDir = { sin(dayTime),cos(dayTime),0.0f };
+	rend->sunLight->dLComponent.lightDir = { sin(dayTime),cos(dayTime),0.0f };
 
 	cam->Update(deltaTime);
 	//printf("\nRight Vector - (%f, %f, %f)", cam->transform.right.x, cam->transform.right.y, cam->transform.right.z);
