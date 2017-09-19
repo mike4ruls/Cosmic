@@ -210,6 +210,21 @@ Mesh::Mesh(const char* fileName, std::string name, ID3D11Device * device)
 	// Close the file and create the actual buffers
 	obj.close();
 
+	/*for(unsigned int i = 0; i < indices.size(); )
+	{
+		XMFLOAT3 norm1 = verts[indices[i]].Normal;
+		XMFLOAT3 norm2 = verts[indices[i+1]].Normal;
+		XMFLOAT3 norm3 = verts[indices[i+2]].Normal;
+
+		XMFLOAT3 normFinal = {(norm1.x + norm2.x + norm3.x) / 3,(norm1.y + norm2.y + norm3.y) / 3,(norm1.z + norm2.z + norm3.z) / 3 };
+
+		verts[indices[i]].Normal = normFinal;
+		verts[indices[i + 1]].Normal = normFinal;
+		verts[indices[i + 2]].Normal = normFinal;
+
+		i += 3;
+	}*/
+
 	indCount = vertCounter;
 	meshName = name;
 	instances = 0;

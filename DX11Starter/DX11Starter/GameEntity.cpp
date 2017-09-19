@@ -24,6 +24,7 @@ GameEntity::GameEntity(Mesh * m, Renderer* r)
 	name = "";
 	renderingComponent.canRender = true;
 	renderingComponent.mat.materialType = Material::Opaque;
+	renderingComponent.mat.surfaceColor = {1.0f, 1.0f, 1.0f, 1.0f};
 	renderingComponent.meshName = myMesh->meshName;
 
 	prevMatType = renderingComponent.mat.materialType;

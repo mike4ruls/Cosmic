@@ -26,6 +26,24 @@ Renderer::~Renderer()
 	{
 		if (x.second) { delete x.second; x.second = nullptr; }
 	}
+
+	for(unsigned int i = 0; i < directionalLights.size(); i++)
+	{
+		if (directionalLights[i] != nullptr) { delete directionalLights[i]; directionalLights[i] = nullptr; }
+	}
+	for (unsigned int i = 0; i < pointLights.size(); i++)
+	{
+		if (pointLights[i] != nullptr) { delete pointLights[i]; pointLights[i] = nullptr; }
+	}
+	for (unsigned int i = 0; i < spotLights.size(); i++)
+	{
+		if (spotLights[i] != nullptr) { delete spotLights[i]; spotLights[i] = nullptr; }
+	}
+
+	directionalLights.clear();
+	pointLights.clear();
+	spotLights.clear();
+
 	delete vertexShader;
 	delete instanceVShader;
 	delete pixelShader;
@@ -45,6 +63,9 @@ void Renderer::Init()
 	prevWireStatus = wireFrameOn;
 	instanceThreshold = 5;
 	LoadShaders();
+	sunLight = CreateDirectionalLight({0.0f,-1.0f,0.0f });
+	//sunLight->lightColor = { 0.5f, 0.0f, 0.0f, 1.0f };
+	sunLight->lightAmb = {0.3f, 0.3f, 0.3f, 1.0f};
 
 	D3D11_RASTERIZER_DESC fillDesc;
 	fillDesc.FillMode = D3D11_FILL_SOLID;
@@ -138,6 +159,7 @@ void Renderer::Render(float dt)
 							{
 								XMStoreFloat4x4(&localInstanceData[count].worldMat, XMLoadFloat4x4(&x.second->rendComponents[i]->worldMat));
 								XMStoreFloat4x4(&localInstanceData[count].invTrans, XMLoadFloat4x4(&x.second->rendComponents[i]->worldInvTrans));
+								XMStoreFloat4(&localInstanceData[count].color, XMLoadFloat4(&x.second->rendComponents[i]->mat.surfaceColor));
 								count++;
 							}
 						}
@@ -251,6 +273,278 @@ unsigned int Renderer::PushToTranslucent(RenderingComponent * com)
 	return pos;
 }
 
+#pragma region Light Stuff
+
+Light * Renderer::CreateLight(Light::LightType lType)
+{
+	Light* newLight = new Light();
+
+	if (lType == Light::Directional)
+	{
+		newLight->lightType = Light::Directional;
+
+		newLight->lightDir = { 1.0f, -1.0f, 0.0f };
+		newLight->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->transform.position = { 0.0f, 0.0f, 0.0f };
+		newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+		newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+		newLight->lightIntensity = 4.0f;
+		newLight->lightOn = true;
+
+		newLight->lightID = (unsigned int)directionalLights.size();
+
+		directionalLights.push_back(newLight);
+	}
+	else if(lType == Light::Point)
+	{
+		newLight->lightType = Light::Point;
+
+		newLight->lightDir = { 0.0f, 0.0f, 0.0f };
+		newLight->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->transform.position = { 0.0f, 0.0f, 0.0f };
+		newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+		newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+		newLight->lightIntensity = 4.0f;
+		newLight->lightOn = true;
+
+		newLight->lightID = (unsigned int)pointLights.size();
+
+		pointLights.push_back(newLight);
+	}
+	else if(lType == Light::Spot)
+	{
+		newLight->lightType = Light::Spot;
+
+		newLight->lightDir = { 0.0f, 0.0f, 0.0f };
+		newLight->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+		newLight->transform.position = { 0.0f, 0.0f, 0.0f };
+		newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+		newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+		newLight->lightIntensity = 4.0f;
+		newLight->lightOn = true;
+
+		newLight->lightID = (unsigned int)spotLights.size();
+
+		spotLights.push_back(newLight);
+	}
+
+	return newLight;
+}
+
+Light * Renderer::CreateDirectionalLight(DirectX::XMFLOAT3 direction)
+{
+	Light* newLight = new Light();
+	newLight->lightDir = direction;
+	newLight->lightType = Light::Directional;
+
+	newLight->lightColor = {0.5f, 0.5f, 0.5f, 0.5f};
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->transform.position = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightIntensity = 4.0f;
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)directionalLights.size();
+
+	directionalLights.push_back(newLight);
+
+	return newLight;
+}
+
+Light * Renderer::CreateDirectionalLight(DirectX::XMFLOAT3 direction, DirectX::XMFLOAT4 ligColor)
+{
+	Light* newLight = new Light();
+	newLight->lightDir = direction;
+	newLight->lightColor = ligColor;
+	newLight->lightType = Light::Directional;
+
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->transform.position = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightIntensity = 4.0f;
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)directionalLights.size();
+
+	directionalLights.push_back(newLight);
+
+	return newLight;
+}
+
+Light * Renderer::CreateDirectionalLight(DirectX::XMFLOAT3 direction, DirectX::XMFLOAT4 ligColor, float inten)
+{
+	Light* newLight = new Light();
+	newLight->lightDir = direction;
+	newLight->lightColor = ligColor;
+	newLight->lightIntensity = inten;
+	newLight->lightType = Light::Directional;
+
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->transform.position = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)directionalLights.size();
+
+	directionalLights.push_back(newLight);
+
+	return newLight;
+}
+
+Light * Renderer::CreatePointLight(DirectX::XMFLOAT3 position)
+{
+	Light* newLight = new Light();
+	newLight->transform.position = position;
+	newLight->lightType = Light::Point;
+
+	newLight->lightDir = { 0.0f, 0.0f, 0.0f };
+	newLight->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightIntensity = 4.0f;
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)pointLights.size();
+
+	pointLights.push_back(newLight);
+
+	return newLight;
+}
+
+Light * Renderer::CreatePointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT4 ligColor)
+{
+	Light* newLight = new Light();
+	newLight->transform.position = position;
+	newLight->lightColor = ligColor;
+	newLight->lightType = Light::Point;
+
+	newLight->lightDir = { 0.0f, 0.0f, 0.0f };
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightIntensity = 4.0f;
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)pointLights.size();
+
+	pointLights.push_back(newLight);
+
+	return newLight;
+}
+
+Light * Renderer::CreatePointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT4 ligColor, float inten)
+{
+	Light* newLight = new Light();
+	newLight->transform.position = position;
+	newLight->lightColor = ligColor;
+	newLight->lightIntensity = inten;
+	newLight->lightType = Light::Point;
+
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->lightDir = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)pointLights.size();
+
+	pointLights.push_back(newLight);
+
+	return newLight;
+}
+
+Light * Renderer::CreateSpotLight(DirectX::XMFLOAT3 position)
+{
+	Light* newLight = new Light();
+	newLight->transform.position = position;
+	newLight->lightType = Light::Spot;
+
+	newLight->lightDir = { 0.0f, 0.0f, 0.0f };
+	newLight->lightColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightIntensity = 4.0f;
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)spotLights.size();
+
+	spotLights.push_back(newLight);
+
+	return newLight;
+}
+
+Light * Renderer::CreateSpotLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT4 ligColor)
+{
+	Light* newLight = new Light();
+	newLight->transform.position = position;
+	newLight->lightColor = ligColor;
+	newLight->lightType = Light::Spot;
+
+	newLight->lightDir = { 0.0f, 0.0f, 0.0f };	
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightIntensity = 4.0f;
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)spotLights.size();
+
+	spotLights.push_back(newLight);
+
+	return newLight;
+}
+
+Light * Renderer::CreateSpotLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT4 ligColor, float inten)
+{
+	Light* newLight = new Light();
+	newLight->transform.position = position;
+	newLight->lightColor = ligColor;
+	newLight->lightIntensity = inten;
+	newLight->lightType = Light::Spot;
+
+	newLight->lightAmb = { 0.5f, 0.5f, 0.5f, 0.5f };
+	newLight->lightDir = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.rotation = { 0.0f, 0.0f, 0.0f };
+	newLight->transform.scale = { 1.0f, 1.0f, 1.0f };
+	newLight->lightOn = true;
+
+	newLight->lightID = (unsigned int)spotLights.size();
+
+	spotLights.push_back(newLight);
+
+	return newLight;
+}
+
+void Renderer::RemoveLight(Light * light)
+{
+	unsigned int Id = light->lightID;
+
+	if(light->lightType == Light::Directional)
+	{
+		directionalLights.erase(directionalLights.begin() + Id);
+	}
+	else if(light->lightType == Light::Point)
+	{
+		pointLights.erase(pointLights.begin() + Id);
+	}
+	else if(light->lightType == Light::Spot)
+	{
+		spotLights.erase(spotLights.begin() + Id);
+	}
+
+	if (light != nullptr) { delete light; light = nullptr; }
+}
+
+#pragma endregion
+
 void Renderer::RemoveFromRenderer(std::string meshName, unsigned int Id)
 {
 	if (meshStorage[meshName]->rendComponents[Id]->mat.materialType == Material::Transulcent)
@@ -314,8 +608,11 @@ void Renderer::DrawForwardPass(RenderingComponent* component)
 	vertexShader->SetMatrix4x4("projection", cam->projectionMatrix);
 	vertexShader->SetMatrix4x4("worldInvTrans", component->worldInvTrans);
 
+	vertexShader->SetFloat4("surColor", component->mat.surfaceColor);
+	vertexShader->SetFloat4("lightColor", directionalLights[0]->lightColor);
 	vertexShader->SetFloat3("camPosition",cam->transform.position);
-	vertexShader->SetFloat3("dirLight", {1.0f,-1.0f,0.0f});
+	vertexShader->SetFloat3("dirLight", directionalLights[0]->lightDir);
+	vertexShader->SetFloat4("amb", directionalLights[0]->lightAmb);
 
 	vertexShader->CopyAllBufferData();
 
@@ -364,7 +661,9 @@ void Renderer::DrawFInstance(std::string meshName, InstanceData * components, un
 	instanceVShader->SetMatrix4x4("projection", cam->projectionMatrix);
 
 	instanceVShader->SetFloat3("camPosition", cam->transform.position);
-	instanceVShader->SetFloat3("dirLight", { 1.0f,-1.0f,0.0f });
+	instanceVShader->SetFloat3("dirLight", directionalLights[0]->lightDir);
+	vertexShader->SetFloat4("lightColor", directionalLights[0]->lightColor);
+	instanceVShader->SetFloat4("amb", directionalLights[0]->lightAmb);
 
 	instanceVShader->CopyAllBufferData();
 

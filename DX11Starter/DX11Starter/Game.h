@@ -3,6 +3,8 @@
 #include "DXCore.h"
 #include <DirectXMath.h>
 #include <vector>
+#include <random>
+#include <ctime>
 #include "Mesh.h"
 #include "GameEntity.h"
 #include "Camera.h"
@@ -22,6 +24,7 @@ public:
 	Camera* cam;
 	Renderer* rend;
 
+	float dayTime;
 	bool click;
 	bool enterPressed;
 	bool fPressed;

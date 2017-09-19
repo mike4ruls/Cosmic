@@ -60,17 +60,23 @@ void Game::Init()
 	cam->Init(width, height);
 	rend = new Renderer(cam,device,context,backBufferRTV,depthStencilView);
 	CreateBasicGeometry();
+	dayTime = 0.0f;
 	click = false;
+
+	srand((unsigned int)time(NULL));
 
 	// Creating game objects
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Triangle"), rend));
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Helix"), rend));
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Cube"), rend));
 	gameObjects.push_back(new GameEntity(rend->GetMesh("Sphere"), rend));
-	gameObjects.push_back(new GameEntity(rend->GetMesh("RainbowRoad"), rend));
+	//gameObjects.push_back(new GameEntity(rend->GetMesh("RainbowRoad"), rend));
 
 	gameObjects[2]->transform.Translate(0, 3, 4);
 	gameObjects[3]->transform.Translate(0, -3, 1);
+
+	gameObjects[2]->renderingComponent.mat.surfaceColor = {1.0f, 0.0f, 0.0f, 1.0f};
+	gameObjects[1]->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
 
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -137,7 +143,7 @@ void Game::CreateBasicGeometry()
 	rend->LoadMesh(new Mesh("Models/quad.obj", "Quad", device));
 	rend->LoadMesh(new Mesh("Models/teapot.obj", "Teapot", device));
 	rend->LoadMesh(new Mesh("Models/HaloSword.obj", "HaloSword", device));
-	rend->LoadMesh(new Mesh("Models/RainbowRoad.obj", "RainbowRoad", device));
+	//rend->LoadMesh(new Mesh("Models/RainbowRoad.obj", "RainbowRoad", device));
 
 }
 
@@ -248,7 +254,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 			float distInfront = 2.0f;
 			DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
-			SpawnGameObject("RayGun", spawnPoint, false);
+			SpawnGameObject("Sphere", spawnPoint, true);
 			enterPressed = true;
 		}
 	}
@@ -269,6 +275,15 @@ void Game::Update(float deltaTime, float totalTime)
 		fPressed = false;
 	}
 
+	if (GetAsyncKeyState(97))
+	{
+		dayTime += 1.0f * deltaTime;
+	}
+	if (GetAsyncKeyState(99))
+	{
+		dayTime -= 1.0f * deltaTime;
+	}
+
 
 	/////////////////////////
 	//UPDATES
@@ -283,6 +298,7 @@ void Game::Update(float deltaTime, float totalTime)
 	gameObjects[2]->transform.Rotate(1.0f * deltaTime, 1.0f * deltaTime, 1.0f * deltaTime);
 	gameObjects[3]->transform.scale = { scale,scale,scale };
 
+	rend->sunLight->lightDir = { sin(dayTime),cos(dayTime),0.0f };
 
 	cam->Update(deltaTime);
 	//printf("\nRight Vector - (%f, %f, %f)", cam->transform.right.x, cam->transform.right.y, cam->transform.right.z);
@@ -370,17 +386,20 @@ void Game::OnMouseWheel(float wheelDelta, int x, int y)
 void Game::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot)
 {
 	GameEntity* obj = new GameEntity(rend->meshStorage[meshName], rend);
+	
+	obj->renderingComponent.mat.surfaceColor = { (float)(std::rand() % 100) * 0.01f, (float)(std::rand() % 100)* 0.01f, (float)(std::rand() % 100) * 0.01f, 1.0f };
 	obj->transform.position = pos;
+	obj->transform.rotation = cam->transform.rotation;
 
 	if (canShoot)
 	{
 		float bulletSpeed = 40000;
 		//obj->rigidBody.applyFriction = false;
 		obj->rigidBody.ApplyForce(cam->transform.foward.x * bulletSpeed, cam->transform.foward.y * bulletSpeed, cam->transform.foward.z * bulletSpeed);
-		obj->transform.rotation = cam->transform.rotation;
 	}
 
 	gameObjects.push_back(obj);
 	printf("\nNum of '%ss': %d", &meshName[0], rend->meshStorage[meshName]->instances);
+	//printf("\nColor - %f, %f, %f", obj->renderingComponent.mat.surfaceColor.x, obj->renderingComponent.mat.surfaceColor.y, obj->renderingComponent.mat.surfaceColor.z);
 }
 #pragma endregion
