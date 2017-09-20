@@ -76,7 +76,7 @@ void Renderer::Init()
 	wireFrameOn = false;
 	prevWireStatus = wireFrameOn;
 	instanceThreshold = 5;
-	skyBoxNum = 0;
+	skyBoxNum = 2;
 
 	LoadShaders();
 	sunLight = CreateDirectionalLight({0.0f,-1.0f,0.0f });
