@@ -133,17 +133,17 @@ void Game::CreateBasicGeometry()
 
 	rend->LoadMesh(new Mesh(vertices, indices, vSize, iSize, "Triangle", device));
 	rend->LoadMesh(new Mesh(vertices2, indices2, vSize2, iSize2, "Square", device));
-	rend->LoadMesh(new Mesh("Models/sphere.obj", "Sphere", device));
-	rend->LoadMesh(new Mesh("Models/cube.obj", "Cube", device));
-	rend->LoadMesh(new Mesh("Models/cone.obj", "Cone", device));
-	rend->LoadMesh(new Mesh("Models/torus.obj", "Torus", device));
-	rend->LoadMesh(new Mesh("Models/helix.obj", "Helix",device));
-	rend->LoadMesh(new Mesh("Models/raygun.obj", "RayGun", device));
-	rend->LoadMesh(new Mesh("Models/plane.obj", "Plane", device));
-	rend->LoadMesh(new Mesh("Models/quad.obj", "Quad", device));
-	rend->LoadMesh(new Mesh("Models/teapot.obj", "Teapot", device));
-	rend->LoadMesh(new Mesh("Models/HaloSword.obj", "HaloSword", device));
-	rend->LoadMesh(new Mesh("Models/RainbowRoad.obj", "RainbowRoad", device));
+	rend->LoadMesh(new Mesh("Assets/Models/sphere.obj", "Sphere", device));
+	rend->LoadMesh(new Mesh("Assets/Models/cube.obj", "Cube", device));
+	rend->LoadMesh(new Mesh("Assets/Models/cone.obj", "Cone", device));
+	rend->LoadMesh(new Mesh("Assets/Models/torus.obj", "Torus", device));
+	rend->LoadMesh(new Mesh("Assets/Models/helix.obj", "Helix",device));
+	rend->LoadMesh(new Mesh("Assets/Models/raygun.obj", "RayGun", device));
+	rend->LoadMesh(new Mesh("Assets/Models/plane.obj", "Plane", device));
+	rend->LoadMesh(new Mesh("Assets/Models/quad.obj", "Quad", device));
+	rend->LoadMesh(new Mesh("Assets/Models/teapot.obj", "Teapot", device));
+	rend->LoadMesh(new Mesh("Assets/Models/HaloSword.obj", "HaloSword", device));
+	rend->LoadMesh(new Mesh("Assets/Models/RainbowRoad.obj", "RainbowRoad", device));
 
 }
 
@@ -254,7 +254,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 			float distInfront = 2.0f;
 			DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
-			SpawnGameObject("Cube", spawnPoint, true);
+			SpawnGameObject("Cube", spawnPoint, false);
 			enterPressed = true;
 		}
 	}

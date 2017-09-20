@@ -36,9 +36,21 @@ Renderer::~Renderer()
 	pointLights.clear();
 	spotLights.clear();
 
-	delete vertexShader;
-	delete instanceVShader;
-	delete pixelShader;
+	delete  vertexFShader;
+	delete  instanceFVShader;
+	delete  vertexDShader;
+	delete  instanceDVShader;
+	delete  skyVShader;
+	delete  quadVShader;
+
+
+	delete pixelFShader;
+	delete pixelDShader;
+	delete pLightingShader;
+	delete skyPShader;
+	delete bloomShader;
+	delete hdrShader;
+
 	delete[] localInstanceData;
 
 	instanceWorldMatrixBuffer->Release();
@@ -59,7 +71,7 @@ void Renderer::Init()
 	LoadShaders();
 	sunLight = CreateDirectionalLight({0.0f,-1.0f,0.0f });
 	//sunLight->ligComponent->lightColor = { 0.05f, 0.5f, 0.0f, 1.0f };
-	sunLight->ligComponent->lightAmb = {0.3f, 0.3f, 0.3f, 1.0f};
+	sunLight->ligComponent->lightAmb = {0.2f, 0.2f, 0.2f, 1.0f};
 
 	maxSize = 10;
 
@@ -620,16 +632,50 @@ void Renderer::RemoveFromTranslucent(unsigned int Id)
 
 void Renderer::LoadShaders()
 {
+	//=================================================
+	// Init Vertex Shaders
+	//=================================================
 
-	vertexShader = new SimpleVertexShader(device, context);
-	vertexShader->LoadShaderFile(L"VertexShader.cso");
+	vertexFShader = new SimpleVertexShader(device, context);
+	vertexFShader->LoadShaderFile(L"Shaders/FowardShaders/VertexFShader.cso");
+
+	instanceFVShader = new SimpleVertexShader(device, context);
+	instanceFVShader->LoadShaderFile(L"Shaders/FowardShaders/InstanceFVShader.cso");
+
+	vertexDShader = new SimpleVertexShader(device, context);
+	vertexDShader->LoadShaderFile(L"Shaders/DefferedShaders/VertexDShader.cso");
+
+	instanceDVShader = new SimpleVertexShader(device, context);
+	instanceDVShader->LoadShaderFile(L"Shaders/DefferedShaders/InstanceDVShader.cso");
+
+	skyVShader = new SimpleVertexShader(device, context);
+	skyVShader->LoadShaderFile(L"Shaders/SkyBoxShaders/SkyVShader.cso");
+
+	quadVShader = new SimpleVertexShader(device, context);
+	quadVShader->LoadShaderFile(L"Shaders/PostProcessShaders/QuadVShader.cso");
 
 
-	pixelShader = new SimplePixelShader(device, context);
-	pixelShader->LoadShaderFile(L"PixelShader.cso");
+	//=================================================
+	// Init Pixel Shaders
+	//=================================================
 
-	instanceVShader = new SimpleVertexShader(device, context);
-	instanceVShader->LoadShaderFile(L"InstanceVShader.cso");
+	pixelFShader = new SimplePixelShader(device, context);
+	pixelFShader->LoadShaderFile(L"Shaders/FowardShaders/PixelFShader.cso");
+
+	pixelDShader = new SimplePixelShader(device, context);
+	pixelDShader->LoadShaderFile(L"Shaders/DefferedShaders/PixelDShader.cso");
+
+	pLightingShader = new SimplePixelShader(device, context);
+	pLightingShader->LoadShaderFile(L"Shaders/DefferedShaders/PLightingShader.cso");
+
+	skyPShader = new SimplePixelShader(device, context);
+	skyPShader->LoadShaderFile(L"Shaders/SkyBoxShaders/SkyPShader.cso");
+
+	bloomShader = new SimplePixelShader(device, context);
+	bloomShader->LoadShaderFile(L"Shaders/PostProcessShaders/BloomPShader.cso");
+
+	hdrShader = new SimplePixelShader(device, context);
+	hdrShader->LoadShaderFile(L"Shaders/PostProcessShaders/HdrPShader.cso");
 
 }
 
@@ -673,23 +719,23 @@ void Renderer::SetLights()
 	int dCount = (int)directionalLights.size();
 	if (dCount != 0)
 	{
-		pixelShader->SetInt("dCount", dCount);
-		pixelShader->SetData("dirLights", &directionalLights[0], sizeof(Light::LightComponent) * maxDLights);
+		pixelFShader->SetInt("dCount", dCount);
+		pixelFShader->SetData("dirLights", &directionalLights[0], sizeof(Light::LightComponent) * maxDLights);
 	}
 
 
 	int pCount = (int)pointLights.size();
 	if (pCount != 0)
 	{
-		pixelShader->SetInt("pCount", pCount);
-		pixelShader->SetData("pointLights", &pointLights[0], sizeof(Light::LightComponent) * maxPLights);
+		pixelFShader->SetInt("pCount", pCount);
+		pixelFShader->SetData("pointLights", &pointLights[0], sizeof(Light::LightComponent) * maxPLights);
 	}
 
 	int sCount = (int)spotLights.size();
 	if (sCount != 0)
 	{
-		pixelShader->SetInt("sCount", sCount);
-		pixelShader->SetData("spotLights", &spotLights[0], sizeof(Light::LightComponent) * maxSLights);
+		pixelFShader->SetInt("sCount", sCount);
+		pixelFShader->SetData("spotLights", &spotLights[0], sizeof(Light::LightComponent) * maxSLights);
 	}
 }
 
@@ -699,21 +745,21 @@ void Renderer::DrawSkyBox()
 
 void Renderer::DrawForwardPass(RenderingComponent* component)
 {
-	vertexShader->SetMatrix4x4("world", component->worldMat);
-	vertexShader->SetMatrix4x4("view", cam->viewMatrix);
-	vertexShader->SetMatrix4x4("projection", cam->projectionMatrix);
-	vertexShader->SetMatrix4x4("worldInvTrans", component->worldInvTrans);
+	vertexFShader->SetMatrix4x4("world", component->worldMat);
+	vertexFShader->SetMatrix4x4("view", cam->viewMatrix);
+	vertexFShader->SetMatrix4x4("projection", cam->projectionMatrix);
+	vertexFShader->SetMatrix4x4("worldInvTrans", component->worldInvTrans);
 
-	vertexShader->SetFloat4("surColor", component->mat.surfaceColor);
-	vertexShader->SetFloat3("camPosition",cam->transform.position);
+	vertexFShader->SetFloat4("surColor", component->mat.surfaceColor);
+	vertexFShader->SetFloat3("camPosition",cam->transform.position);
 
-	vertexShader->CopyAllBufferData();
+	vertexFShader->CopyAllBufferData();
 
 	SetLights();
-	pixelShader->CopyAllBufferData();
+	pixelFShader->CopyAllBufferData();
 
-	vertexShader->SetShader();
-	pixelShader->SetShader();
+	vertexFShader->SetShader();
+	pixelFShader->SetShader();
 
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
@@ -753,18 +799,18 @@ void Renderer::DrawFInstance(std::string meshName, InstanceData * components, un
 	context->IASetVertexBuffers(0, 2, vbs, strides, offsets);
 	context->IASetIndexBuffer(meshStorage[meshName]->indArr, DXGI_FORMAT_R32_UINT, 0);
 
-	instanceVShader->SetMatrix4x4("view", cam->viewMatrix);
-	instanceVShader->SetMatrix4x4("projection", cam->projectionMatrix);
-
-	instanceVShader->SetFloat3("camPosition", cam->transform.position);
-
-	instanceVShader->CopyAllBufferData();
+	instanceFVShader->SetMatrix4x4("view", cam->viewMatrix);
+	instanceFVShader->SetMatrix4x4("projection", cam->projectionMatrix);
+			
+	instanceFVShader->SetFloat3("camPosition", cam->transform.position);
+			
+	instanceFVShader->CopyAllBufferData();
 
 	SetLights();
-	pixelShader->CopyAllBufferData();
+	pixelFShader->CopyAllBufferData();
 
-	instanceVShader->SetShader();
-	pixelShader->SetShader();
+	instanceFVShader->SetShader();
+	pixelFShader->SetShader();
 
 	context->DrawIndexedInstanced(
 		meshStorage[meshName]->indCount, // Number of indices from index buffer

@@ -1,0 +1,24 @@
+﻿  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\DefferedShaders\InstanceDVShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\DefferedShaders\PixelDShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\DefferedShaders\PLightingShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\DefferedShaders\VertexDShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\FowardShaders\InstanceFVShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\FowardShaders\PixelFShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\FowardShaders\VertexFShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\PostProcessShaders\BloomPShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\PostProcessShaders\HdrPShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\PostProcessShaders\QuadVShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\SkyBoxShaders\SkyPShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\SkyBoxShaders\SkyVShader.cso
+  SimpleShader.cpp
+  Renderer.cpp
+  Mesh.cpp
+  Material.cpp
+  Main.cpp
+  GameEntity.cpp
+  Game.cpp
+  DXCore.cpp
+  Camera.cpp
+  Generating Code...
+  DX11Starter.vcxproj -> G:\DX11Starter\x64\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> G:\DX11Starter\x64\Debug\DX11Starter.pdb (Partial PDB)

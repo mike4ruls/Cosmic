@@ -15,6 +15,18 @@
     <Filter Include="Structs">
       <UniqueIdentifier>{a39241bb-311d-478f-8744-97d4910e1c02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\DefferedShaders">
+      <UniqueIdentifier>{e454059a-7914-44e4-bf40-de93d172936b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\ForwardShaders">
+      <UniqueIdentifier>{1181fb11-9680-4e4b-8bf8-b4e76f622d43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\PostProcessShaders">
+      <UniqueIdentifier>{bb241e18-d416-4e7d-afa6-c8873f8b95f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\SkyBoxShaders">
+      <UniqueIdentifier>{de7d775d-3cce-4175-80ae-28e38338189d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -90,14 +102,41 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="PixelShader.hlsl">
-      <Filter>Shaders</Filter>
+    <FxCompile Include="Shaders\DefferedShaders\InstanceDVShader.hlsl">
+      <Filter>Shaders\DefferedShaders</Filter>
     </FxCompile>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Shaders</Filter>
+    <FxCompile Include="Shaders\DefferedShaders\PixelDShader.hlsl">
+      <Filter>Shaders\DefferedShaders</Filter>
     </FxCompile>
-    <FxCompile Include="InstanceVShader.hlsl">
-      <Filter>Shaders</Filter>
+    <FxCompile Include="Shaders\DefferedShaders\VertexDShader.hlsl">
+      <Filter>Shaders\DefferedShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ForwardShaders\InstanceFVShader.hlsl">
+      <Filter>Shaders\ForwardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ForwardShaders\PixelFShader.hlsl">
+      <Filter>Shaders\ForwardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ForwardShaders\VertexFShader.hlsl">
+      <Filter>Shaders\ForwardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkyBoxShaders\SkyPShader.hlsl">
+      <Filter>Shaders\SkyBoxShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkyBoxShaders\SkyVShader.hlsl">
+      <Filter>Shaders\SkyBoxShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PostProcessShaders\BloomPShader.hlsl">
+      <Filter>Shaders\PostProcessShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PostProcessShaders\HdrPShader.hlsl">
+      <Filter>Shaders\PostProcessShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PostProcessShaders\QuadVShader.hlsl">
+      <Filter>Shaders\PostProcessShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\DefferedShaders\PLightingShader.hlsl">
+      <Filter>Shaders\DefferedShaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -33,9 +33,21 @@ public:
 	ID3D11RasterizerState* wireFrame;
 	ID3D11RasterizerState* fillFrame;
 
-	SimpleVertexShader* vertexShader;
-	SimpleVertexShader* instanceVShader;
-	SimplePixelShader* pixelShader;
+
+	SimpleVertexShader* vertexFShader;
+	SimpleVertexShader* instanceFVShader;
+	SimpleVertexShader* vertexDShader;
+	SimpleVertexShader* instanceDVShader;
+	SimpleVertexShader* skyVShader;
+	SimpleVertexShader* quadVShader;
+
+
+	SimplePixelShader* pixelFShader;
+	SimplePixelShader* pixelDShader;
+	SimplePixelShader* pLightingShader;
+	SimplePixelShader* skyPShader;
+	SimplePixelShader* bloomShader;
+	SimplePixelShader* hdrShader;
 
 	unsigned int instanceThreshold;
 	bool instanceRenderingOn;
