@@ -1,4 +1,6 @@
 #include "Renderer.h"
+#include "WICTextureLoader.h"
+#include "DDSTextureLoader.h"
 
 
 
@@ -16,6 +18,7 @@ Renderer::Renderer(Camera * c, ID3D11Device * dev, ID3D11DeviceContext * con, ID
 
 
 	Init();
+	InitSkyBox();
 	SetWireFrame();
 }
 
@@ -54,8 +57,14 @@ Renderer::~Renderer()
 	delete[] localInstanceData;
 
 	instanceWorldMatrixBuffer->Release();
-	wireFrame->Release();
-	fillFrame->Release();
+
+	if (wireFrame != nullptr) { wireFrame->Release(); wireFrame = nullptr; }
+	if (fillFrame != nullptr) { fillFrame->Release(); fillFrame = nullptr; }
+	if (SVR != nullptr) { SVR->Release(); SVR = nullptr; }
+	if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
+	if (sample != nullptr) { sample->Release(); sample = nullptr; }
+	if (skyRast != nullptr) { skyRast->Release(); skyRast = nullptr; }
+	if (skyDepth != nullptr) { skyDepth->Release(); skyDepth = nullptr; }
 }
 
 void Renderer::Init()
@@ -67,6 +76,7 @@ void Renderer::Init()
 	wireFrameOn = false;
 	prevWireStatus = wireFrameOn;
 	instanceThreshold = 5;
+	skyBoxNum = 0;
 
 	LoadShaders();
 	sunLight = CreateDirectionalLight({0.0f,-1.0f,0.0f });
@@ -208,6 +218,11 @@ void Renderer::Render(float dt)
 				}
 			}
 		}
+	////////////////////////////////////////
+	//DRAWING SKY BOX
+	////////////////////////////////////////
+
+	DrawSkyBox();
 
 	////////////////////////////////////////
 	//POST PROCESSING
@@ -243,11 +258,7 @@ void Renderer::Render(float dt)
 		/*Insert code here*/
 	}
 
-	////////////////////////////////////////
-	//DRAWING SKY BOX
-	////////////////////////////////////////
 
-	DrawSkyBox();
 
 	}
 
@@ -739,10 +750,6 @@ void Renderer::SetLights()
 	}
 }
 
-void Renderer::DrawSkyBox()
-{
-}
-
 void Renderer::DrawForwardPass(RenderingComponent* component)
 {
 	vertexFShader->SetMatrix4x4("world", component->worldMat);
@@ -824,5 +831,103 @@ void Renderer::DrawDefferedPass(RenderingComponent * component)
 
 void Renderer::DrawDInstance(std::string meshName, InstanceData * components, unsigned int count)
 {
+}
+
+void Renderer::InitSkyBox()
+{
+	D3D11_SAMPLER_DESC sDes = {};
+	sDes.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sDes.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sDes.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sDes.Filter = D3D11_FILTER_ANISOTROPIC;
+	sDes.MaxAnisotropy = 16;
+	sDes.MaxLOD = D3D11_FLOAT32_MAX;
+
+	device->CreateSamplerState(&sDes, &sample);
+
+	// Create a rasterizer state so we can render backfaces
+	D3D11_RASTERIZER_DESC rsDesc = {};
+	rsDesc.FillMode = D3D11_FILL_SOLID;
+	rsDesc.CullMode = D3D11_CULL_FRONT;
+	rsDesc.DepthClipEnable = true;
+	device->CreateRasterizerState(&rsDesc, &skyRast);
+
+	// Create a depth state so that we can accept pixels
+	// at a depth less than or EQUAL TO an existing depth
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Make sure we can see the sky (at max depth)
+	device->CreateDepthStencilState(&dsDesc, &skyDepth);
+
+	LoadSkyBox();
+}
+
+void Renderer::LoadSkyBox()
+{
+	skyBoxNum += 1;
+	if (skyBoxNum > 3)
+	{
+		skyBoxNum = 1;
+	}
+
+	if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
+	switch (skyBoxNum)
+	{
+	case 1:
+	{
+		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/SunnyCubeMap.dds", 0, &skyBoxSVR);
+		//CreateDDSTextureFromFile(device, L"Textures/Mars.dds", 0, &skyBoxSVR);
+		break;
+	}
+	case 2:
+	{
+		
+		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/Mars.dds", 0, &skyBoxSVR);
+		break;
+	}
+	case 3:
+	{
+		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/space.dds", 0, &skyBoxSVR);
+		break;
+	}
+	}
+}
+
+void Renderer::DrawSkyBox()
+{
+	ID3D11RasterizerState* oldR;
+
+	context->RSGetState(&oldR);
+
+	ID3D11Buffer* skyVB = meshStorage["Cube"]->GetVertexBuffer();
+	ID3D11Buffer* skyIB = meshStorage["Cube"]->GetIndicesBuffer();
+	unsigned int count = meshStorage["Cube"]->indCount;
+
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+
+	context->IASetVertexBuffers(0, 1, &skyVB, &stride, &offset);
+	context->IASetIndexBuffer(skyIB, DXGI_FORMAT_R32_UINT, 0);
+
+	skyVShader->SetMatrix4x4("view", cam->viewMatrix);
+	skyVShader->SetMatrix4x4("projection", cam->projectionMatrix);
+	skyVShader->CopyAllBufferData();
+	skyVShader->SetShader();
+		 
+	skyPShader->SetShaderResourceView("Sky", skyBoxSVR);
+	skyPShader->SetSamplerState("Sampler", sample);
+	skyPShader->CopyAllBufferData();
+	skyPShader->SetShader();
+
+	context->RSSetState(skyRast);
+	context->OMSetDepthStencilState(skyDepth, 0);
+
+	context->DrawIndexed(count, 0, 0);
+
+	context->RSSetState(oldR);
+	context->OMSetDepthStencilState(0, 0);
+
+	oldR->Release();
 }
 

@@ -262,6 +262,18 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		enterPressed = false;
 	}
+	if (GetAsyncKeyState(VK_TAB))
+	{
+		if (!tabPressed)
+		{
+			rend->LoadSkyBox();
+			tabPressed = true;
+		}
+	}
+	else
+	{
+		tabPressed = false;
+	}
 	if (GetAsyncKeyState(70))
 	{
 		if(!fPressed)

@@ -28,6 +28,7 @@ public:
 	bool click;
 	bool enterPressed;
 	bool fPressed;
+	bool tabPressed;
 
 	// Overridden setup and game loop methods, which
 	// will be called automatically

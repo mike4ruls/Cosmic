@@ -30,8 +30,8 @@ public:
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
 
-	ID3D11RasterizerState* wireFrame;
-	ID3D11RasterizerState* fillFrame;
+	ID3D11RasterizerState* wireFrame = nullptr;
+	ID3D11RasterizerState* fillFrame = nullptr;
 
 
 	SimpleVertexShader* vertexFShader;
@@ -49,6 +49,14 @@ public:
 	SimplePixelShader* bloomShader;
 	SimplePixelShader* hdrShader;
 
+	ID3D11ShaderResourceView* SVR = nullptr;
+	ID3D11SamplerState* sample = nullptr;
+
+
+	ID3D11ShaderResourceView* skyBoxSVR = nullptr;
+	ID3D11RasterizerState* skyRast = nullptr;
+	ID3D11DepthStencilState* skyDepth = nullptr;
+
 	unsigned int instanceThreshold;
 	bool instanceRenderingOn;
 	bool defferedRenderingOn;
@@ -65,6 +73,7 @@ public:
 	Light::PointLight pArr[10];
 	Light::SpotLight sArr[10];*/
 
+	int skyBoxNum;
 	int maxSize;
 
 	int maxDLights = 10;
@@ -103,13 +112,15 @@ public:
 	void CompileLights();
 	void SetLights();
 
-	void DrawSkyBox();
-
 	void DrawForwardPass(RenderingComponent* component);
 	void DrawFInstance(std::string meshName, InstanceData* components, unsigned int count);
 
 	void DrawDefferedPass(RenderingComponent* component);
 	void DrawDInstance(std::string meshName, InstanceData* components, unsigned int count);
+
+	void InitSkyBox();
+	void LoadSkyBox();
+	void DrawSkyBox();
 
 
 private:
