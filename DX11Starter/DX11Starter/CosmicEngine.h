@@ -9,6 +9,7 @@
 #include "GameEntity.h"
 #include "Camera.h"
 #include "Renderer.h"
+#include "Game.h"
 
 
 class CosmicEngine
@@ -19,16 +20,15 @@ public:
 	CosmicEngine(HINSTANCE hInstance);
 	~CosmicEngine();
 
-	std::vector<GameEntity*> gameObjects;
+	std::map<int, int> keys;
 
-	Camera* cam;
 	Renderer* rend;
+	Camera* cam;
+	Game* currentScene;
 
 	float dayTime;
 	bool click;
-	bool enterPressed;
-	bool fPressed;
-	bool tabPressed;
+	bool initFinished = false;
 
 	// Overridden setup and game loop methods, which
 	// will be called automatically
@@ -36,7 +36,18 @@ public:
 	void OnResize();
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
-	void SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot);
+
+	GameEntity* CreateGameObject(std::string name);
+
+	// Loading new scenes
+	void LoadScene(Game* newScene);
+	void QuitLevel();
+
+	// Key inputs
+	void SetKeyInputs();
+	void UpdateInput();
+	bool IsKeyDown(int keyCode);
+	bool IsKeyPressed(int keyCode);
 
 	// Overridden mouse input helper methods
 	void OnMouseDown(WPARAM buttonState, int x, int y);

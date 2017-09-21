@@ -35,16 +35,8 @@ CosmicEngine::CosmicEngine(HINSTANCE hInstance)
 // --------------------------------------------------------
 CosmicEngine::~CosmicEngine()
 {
-	if (cam) { delete cam; cam = nullptr; }
 	if (rend) { delete rend; rend = nullptr; }
-	if (gameObjects.size() != 0) {
-		for (unsigned int i = 0; i < gameObjects.size(); i++) {
-			if (gameObjects[i]) { delete gameObjects[i]; gameObjects[i] = nullptr; }
-		}
-	}
-	//if (rend) { delete rend; rend = nullptr; }
-	// Delete our simple shader objects, which
-	// will clean up their own internal DirectX stuff
+	QuitLevel();
 }
 
 // --------------------------------------------------------
@@ -53,34 +45,19 @@ CosmicEngine::~CosmicEngine()
 // --------------------------------------------------------
 void CosmicEngine::Init()
 {
-	// Helper methods for loading shaders, creating some basic
-	// geometry to draw and some simple camera matrices.
-	//  - You'll be expanding and/or replacing these later
-	cam = new Camera();
-	cam->Init(width, height);
 	rend = new Renderer(cam, device, context, backBufferRTV, depthStencilView);
+
 	CreateBasicGeometry();
+	SetKeyInputs();
+
 	dayTime = 0.0f;
 	click = false;
 
 	srand((unsigned int)time(NULL));
 
-	// Creating game objects
-	gameObjects.push_back(new GameEntity(rend->GetMesh("Triangle"), rend));
-	gameObjects.push_back(new GameEntity(rend->GetMesh("Helix"), rend));
-	gameObjects.push_back(new GameEntity(rend->GetMesh("Cube"), rend));
-	gameObjects.push_back(new GameEntity(rend->GetMesh("Sphere"), rend));
-	gameObjects.push_back(new GameEntity(rend->GetMesh("RainbowRoad"), rend));
+	currentScene->Init();
+	initFinished = true;
 
-	gameObjects[2]->transform.Translate(0, 3, 4);
-	gameObjects[3]->transform.Translate(0, -3, 1);
-
-	gameObjects[2]->renderingComponent.mat.surfaceColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-	gameObjects[1]->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
-
-	// Tell the input assembler stage of the pipeline what kind of
-	// geometric primitives (points, lines or triangles) we want to draw.  
-	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
@@ -171,155 +148,27 @@ void CosmicEngine::OnResize()
 // --------------------------------------------------------
 void CosmicEngine::Update(float deltaTime, float totalTime)
 {
-	/////////////////////////
-	//GAME OBJECT MOVEMENT
-	/////////////////////////
-	if (GetAsyncKeyState(VK_LEFT))
-	{
-		//triangleObj->transform.Translate(-1.0f * deltaTime,0.0f,0.0f);
-		gameObjects[0]->rigidBody.ApplyForce(-1.0f, 0.0f, 0.0f);
-	}
-	if (GetAsyncKeyState(VK_RIGHT))
-	{
-		//triangleObj->transform.Translate(1.0f * deltaTime, 0.0f, 0.0f);
-		gameObjects[0]->rigidBody.ApplyForce(1.0f, 0.0f, 0.0f);
-	}
-	if (GetAsyncKeyState(VK_UP))
-	{
-		//triangleObj->transform.Translate(0.0f, 1.0f * deltaTime, 0.0f);
-		gameObjects[0]->rigidBody.ApplyForce(0.0f, 1.0f, 0.0f);
-	}
-	if (GetAsyncKeyState(VK_DOWN))
-	{
-		//triangleObj->transform.Translate(0.0f, -1.0f * deltaTime, 0.0f);
-		gameObjects[0]->rigidBody.ApplyForce(0.0f, -1.0f, 0.0f);
-	}
-	for (unsigned int i = 0; i < gameObjects.size(); i++) {
-		gameObjects[i]->Update(deltaTime);
-	}
 
-	/////////////////////////
-	//CAMERA MOVEMENT
-	/////////////////////////
-	if (GetAsyncKeyState(VK_LSHIFT)) //A
+	if (IsKeyPressed(VK_TAB))
 	{
-		cam->camSpeed = cam->runSpeed;
+		rend->LoadSkyBox();
 	}
-	else
+	if (IsKeyPressed(70))
 	{
-		cam->camSpeed = cam->normSpeed;
+		rend->ToggleWireFrame();
 	}
-
-	if (GetAsyncKeyState(65)) //A
-	{
-		cam->rigidBody.ApplyForce(cam->transform.right.x * -cam->camSpeed, cam->transform.right.y * -cam->camSpeed, cam->transform.right.z * -cam->camSpeed);
-	}
-	if (GetAsyncKeyState(68)) //D
-	{
-		cam->rigidBody.ApplyForce(cam->transform.right.x * cam->camSpeed, cam->transform.right.y * cam->camSpeed, cam->transform.right.z * cam->camSpeed);
-	}
-	if (GetAsyncKeyState(87)) //W
-	{
-		cam->rigidBody.ApplyForce(cam->transform.foward.x * cam->camSpeed, cam->transform.foward.y * cam->camSpeed, cam->transform.foward.z * cam->camSpeed);
-	}
-	if (GetAsyncKeyState(83)) //S
-	{
-		cam->rigidBody.ApplyForce(cam->transform.foward.x * -cam->camSpeed, -cam->transform.foward.y * -cam->camSpeed, cam->transform.foward.z * -cam->camSpeed);
-	}
-	if (GetAsyncKeyState(VK_SPACE))
-	{
-		cam->rigidBody.ApplyForce(0.0f, cam->camSpeed, 0.0f);
-	}
-	if (GetAsyncKeyState(88))
-	{
-		cam->rigidBody.ApplyForce(0.0f, -cam->camSpeed, 0.0f);
-	}
-
-	if (GetAsyncKeyState(VK_RETURN) || GetAsyncKeyState(69))
-	{
-		if (!enterPressed)
-		{
-			//"Triangle"
-			//"Square"
-			//"Sphere"
-			//"Cube"
-			//"Cone"
-			//"Torus"
-			//"Helix"
-			//"RayGun"
-			//"Plane"
-			//"Quad"
-			//"Teapot"
-			//"HaloSword"
-
-			float distInfront = 2.0f;
-			DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
-			SpawnGameObject("Cube", spawnPoint, false);
-			enterPressed = true;
-		}
-	}
-	else
-	{
-		enterPressed = false;
-	}
-	if (GetAsyncKeyState(VK_TAB))
-	{
-		if (!tabPressed)
-		{
-			rend->LoadSkyBox();
-			tabPressed = true;
-		}
-	}
-	else
-	{
-		tabPressed = false;
-	}
-	if (GetAsyncKeyState(70))
-	{
-		if (!fPressed)
-		{
-			rend->ToggleWireFrame();
-			fPressed = true;
-		}
-	}
-	else
-	{
-		fPressed = false;
-	}
-
-	if (GetAsyncKeyState(97))
-	{
-		dayTime += 1.0f * deltaTime;
-	}
-	if (GetAsyncKeyState(99))
-	{
-		dayTime -= 1.0f * deltaTime;
-
-		/*DirectX::XMFLOAT3 p = rend->pointLights[0].lightPos;
-		rend->pointLights[0].lightPos = {0.0f, 0.0f, p.z + 0.1f};*/
-	}
-
-
-	/////////////////////////
-	//UPDATES
-	/////////////////////////
-	for (unsigned int i = 0; i < gameObjects.size(); i++)
-	{
-		gameObjects[i]->Update(deltaTime);
-	}
-	float scale = std::sin(((totalTime / 10)*180.0f) / (2.0f*3.14f));
-
-	gameObjects[1]->transform.Rotate(0.0f, 0.0f, 1.0f * deltaTime);
-	gameObjects[2]->transform.Rotate(1.0f * deltaTime, 1.0f * deltaTime, 1.0f * deltaTime);
-	gameObjects[3]->transform.scale = { scale,scale,scale };
 
 	rend->sunLight->ligComponent->lightDir = { sin(dayTime),cos(dayTime),0.0f };
-
+	currentScene->Update(deltaTime, totalTime);
 	cam->Update(deltaTime);
+	UpdateInput();
 	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
+
 	// Quit if the escape key is pressed
-	if (GetAsyncKeyState(VK_ESCAPE))
+	if (IsKeyDown(VK_ESCAPE))
+	{
 		Quit();
+	}
 }
 
 // --------------------------------------------------------
@@ -398,23 +247,81 @@ void CosmicEngine::OnMouseWheel(float wheelDelta, int x, int y)
 {
 	// Add any custom code here...
 }
-void CosmicEngine::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot)
+GameEntity * CosmicEngine::CreateGameObject(std::string name)
 {
-	GameEntity* obj = new GameEntity(rend->meshStorage[meshName], rend);
+	 GameEntity* newObj = new GameEntity(rend->GetMesh(name), rend);
+	
+	return newObj;
+}
+void CosmicEngine::LoadScene(Game* newScene)
+{
+	currentScene = newScene;
+	cam = currentScene->cam;
+	cam->Init(width, height);
 
-	obj->renderingComponent.mat.surfaceColor = { (float)(std::rand() % 100) * 0.01f, (float)(std::rand() % 100)* 0.01f, (float)(std::rand() % 100) * 0.01f, 1.0f };
-	obj->transform.position = pos;
-	obj->transform.rotation = cam->transform.rotation;
-
-	if (canShoot)
+	if (initFinished)
 	{
-		float bulletSpeed = 40000;
-		//obj->rigidBody.applyFriction = false;
-		obj->rigidBody.ApplyForce(cam->transform.foward.x * bulletSpeed, cam->transform.foward.y * bulletSpeed, cam->transform.foward.z * bulletSpeed);
+		currentScene->Init();
 	}
+}
+void CosmicEngine::QuitLevel()
+{
+	if (currentScene != nullptr) { delete currentScene; currentScene = nullptr; }
+}
+void CosmicEngine::SetKeyInputs()
+{
+	keys[VK_LEFT] = 0;
+	keys[VK_UP] = 0;
+	keys[VK_RIGHT] = 0;
+	keys[VK_DOWN] = 0;
+	keys[VK_LSHIFT] = 0;
+	keys[VK_SPACE] = 0;
+	keys[VK_RETURN] = 0;
+	keys[VK_TAB] = 0;
+	keys[VK_ESCAPE] = 0;
+	keys[65] = 0;
+	keys[68] = 0;
+	keys[69] = 0;
+	keys[87] = 0;
+	keys[83] = 0;
+	keys[88] = 0;
+	keys[70] = 0;
+	keys[97] = 0;
+	keys[99] = 0;
+}
+void CosmicEngine::UpdateInput()
+{
+	for (auto& x : keys)
+	{
+		bool pressed = GetAsyncKeyState(x.first) ? true : false;
 
-	gameObjects.push_back(obj);
-	printf("\nNum of '%ss': %d", &meshName[0], rend->meshStorage[meshName]->instances);
-	//printf("\nColor - %f, %f, %f", obj->renderingComponent.mat.surfaceColor.x, obj->renderingComponent.mat.surfaceColor.y, obj->renderingComponent.mat.surfaceColor.z);
+		if(pressed)
+		{
+			// if being held down
+			if (x.second == 1)
+			{
+				x.second = 2;
+			}
+			// if it's the first press
+			else if (x.second == 0)
+			{
+				x.second = 1;
+			}
+		}
+		// if it's not being pressed
+		else
+		{
+			x.second = 0;
+		}
+
+	}
+}
+bool CosmicEngine::IsKeyDown(int keyCode)
+{
+	return keys.find(keyCode)->second >= 1 ? true : false;
+}
+bool CosmicEngine::IsKeyPressed(int keyCode)
+{
+	return keys.find(keyCode)->second == 1 ? true : false;
 }
 #pragma endregion
