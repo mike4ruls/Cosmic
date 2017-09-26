@@ -24,7 +24,7 @@ public:
 
 	Renderer* rend;
 	Camera* cam;
-	Game* currentScene;
+	Game* currentScene = nullptr;
 
 	float dayTime;
 	bool click;
@@ -40,6 +40,7 @@ public:
 	GameEntity* CreateGameObject(std::string name);
 
 	// Loading new scenes
+	void LoadDefaultScene(Game* newScene);
 	void LoadScene(Game* newScene);
 	void QuitLevel();
 

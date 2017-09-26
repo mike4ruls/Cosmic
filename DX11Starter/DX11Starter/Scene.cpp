@@ -9,13 +9,6 @@ Scene::Scene(CosmicEngine* eng):Game()
 
 Scene::~Scene()
 {
-	if (cam) { delete cam; cam = nullptr; }
-
-	if (gameObjects.size() != 0) {
-		for (unsigned int i = 0; i < gameObjects.size(); i++) {
-			if (gameObjects[i]) { delete gameObjects[i]; gameObjects[i] = nullptr; }
-		}
-	}
 }
 
 void Scene::Init()
@@ -36,6 +29,8 @@ void Scene::Init()
 
 	gameObjects[2]->renderingComponent.mat.surfaceColor = { 1.0f, 0.0f, 0.0f, 1.0f };
 	gameObjects[1]->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+
+	engine->rend->LoadSkyBox(3);
 }
 void Scene::Update(float deltaTime, float totalTime)
 {
@@ -137,13 +132,24 @@ void Scene::CheckInputs(float deltaTime)
 		DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
 		SpawnGameObject("Cube", spawnPoint, true);
 	}
-	if (engine->IsKeyDown(97))
+	if (engine->IsKeyDown(49))
 	{
 		engine->dayTime += 1.0f * deltaTime;
 	}
-	if (engine->IsKeyDown(99))
+	if (engine->IsKeyDown(50))
 	{
 		engine->dayTime -= 1.0f * deltaTime;
+	}
+	if (engine->IsKeyDown(96))
+	{
+		DefaultScene* defaultLevel = new DefaultScene(engine);
+		engine->rend->LoadSkyBox(1);
+		engine->LoadScene(defaultLevel);
+	}
+	else if (engine->IsKeyDown(98))
+	{
+		Scene2* level2 = new Scene2(engine);
+		engine->LoadScene(level2);
 	}
 }
 

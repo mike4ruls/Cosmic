@@ -27,6 +27,15 @@
     <Filter Include="Shaders\SkyBoxShaders">
       <UniqueIdentifier>{de7d775d-3cce-4175-80ae-28e38338189d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{11e9ed83-262e-4c88-95db-d144a32c91cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Headers">
+      <UniqueIdentifier>{542b6c6e-3d2a-4ad7-a652-d836b1d925d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Source">
+      <UniqueIdentifier>{d1c26fce-8792-40c1-9c98-c1ffcff79e3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -57,7 +66,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Scenes\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene2.cpp">
+      <Filter>Scenes\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultScene.cpp">
+      <Filter>Scenes\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,8 +121,14 @@
     <ClInclude Include="CosmicEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Scene2.h">
+      <Filter>Scenes\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Header Files</Filter>
+      <Filter>Scenes\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultScene.h">
+      <Filter>Scenes\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

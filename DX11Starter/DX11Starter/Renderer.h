@@ -86,6 +86,7 @@ public:
 	Mesh* GetMesh(std::string name);
 	unsigned int PushToRenderer(RenderingComponent* com);
 	unsigned int PushToTranslucent(RenderingComponent* com);
+	void Flush();
 
 	Light* CreateLight(Light::LightType lType);
 
@@ -119,7 +120,8 @@ public:
 	void DrawDInstance(std::string meshName, InstanceData* components, unsigned int count);
 
 	void InitSkyBox();
-	void LoadSkyBox();
+	void ToggleSkyBox();
+	void LoadSkyBox(int skyNum);
 	void DrawSkyBox();
 
 

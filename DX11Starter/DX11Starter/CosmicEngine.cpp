@@ -151,7 +151,7 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 
 	if (IsKeyPressed(VK_TAB))
 	{
-		rend->LoadSkyBox();
+		rend->ToggleSkyBox();
 	}
 	if (IsKeyPressed(70))
 	{
@@ -231,7 +231,9 @@ void CosmicEngine::OnMouseMove(WPARAM buttonState, int x, int y)
 	if (click)
 	{
 		cam->transform.rotation = { cam->transform.rotation.x + ((x - prevMousePos.x) * sensitivity), cam->transform.rotation.y + ((y - prevMousePos.y) * sensitivity), 0 };
-		cam->transform.foward = { (sinf((cam->transform.rotation.x * 180) / (2.0f*3.14f))), (sinf((cam->transform.rotation.y * 180) / (2.0f*3.14f))), (cosf((cam->transform.rotation.x * 180) / (2.0f*3.14f))) };
+
+		float newX = sinf((cam->transform.rotation.x * 180) / (2.0f*3.14f));
+		cam->transform.foward = { newX, (sinf((cam->transform.rotation.y * 180) / (2.0f*3.14f))), (cosf((cam->transform.rotation.x * 180) / (2.0f*3.14f))) };
 	}
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
@@ -253,20 +255,31 @@ GameEntity * CosmicEngine::CreateGameObject(std::string name)
 	
 	return newObj;
 }
-void CosmicEngine::LoadScene(Game* newScene)
+void CosmicEngine::LoadDefaultScene(Game * newScene)
 {
 	currentScene = newScene;
 	cam = currentScene->cam;
 	cam->Init(width, height);
+}
+void CosmicEngine::LoadScene(Game* newScene)
+{
 
-	if (initFinished)
-	{
-		currentScene->Init();
-	}
+	QuitLevel();
+
+	currentScene = newScene;
+	cam = currentScene->cam;
+	cam->Init(width, height);
+	rend->cam = cam;
+
+	currentScene->Init();
 }
 void CosmicEngine::QuitLevel()
 {
 	if (currentScene != nullptr) { delete currentScene; currentScene = nullptr; }
+	if (rend != nullptr)
+	{
+		rend->Flush();
+	}
 }
 void CosmicEngine::SetKeyInputs()
 {
@@ -279,15 +292,29 @@ void CosmicEngine::SetKeyInputs()
 	keys[VK_RETURN] = 0;
 	keys[VK_TAB] = 0;
 	keys[VK_ESCAPE] = 0;
-	keys[65] = 0;
-	keys[68] = 0;
-	keys[69] = 0;
-	keys[87] = 0;
-	keys[83] = 0;
-	keys[88] = 0;
-	keys[70] = 0;
-	keys[97] = 0;
-	keys[99] = 0;
+
+	keys[49] = 0; // 1
+	keys[50] = 0; // 2
+
+	//Num pad
+	keys[96] = 0; // NumPad 0
+	keys[97] = 0; // NumPad 1
+	keys[98] = 0; // NumPad 2
+	keys[99] = 0; // NumPad 3
+	keys[100] = 0; // NumPad 4
+	keys[101] = 0; // NumPad 5
+
+	keys[87] = 0; // W
+	keys[65] = 0; // A
+	keys[83] = 0; // S
+	keys[68] = 0; // D
+
+	keys[69] = 0; // E
+	keys[88] = 0; // X
+	keys[70] = 0; // F
+
+	//keys[97] = 0; // A
+	//keys[99] = 0; // A
 }
 void CosmicEngine::UpdateInput()
 {

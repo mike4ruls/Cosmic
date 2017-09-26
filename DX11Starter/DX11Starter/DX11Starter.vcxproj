@@ -114,6 +114,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CosmicEngine.cpp" />
+    <ClCompile Include="DefaultScene.cpp" />
     <ClCompile Include="DXCore.cpp" />
     <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -121,11 +122,13 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Scene2.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CosmicEngine.h" />
+    <ClInclude Include="DefaultScene.h" />
     <ClInclude Include="DXCore.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameEntity.h" />
@@ -137,6 +140,7 @@
     <ClInclude Include="RenderingComponent.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Scene2.h" />
     <ClInclude Include="SimpleShader.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vertex.h" />

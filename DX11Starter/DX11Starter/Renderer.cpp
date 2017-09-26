@@ -35,6 +35,7 @@ Renderer::~Renderer()
 		if (allLights[i] != nullptr) { delete allLights[i]; allLights[i] = nullptr; }
 	}
 
+	allLights.clear();
 	directionalLights.clear();
 	pointLights.clear();
 	spotLights.clear();
@@ -76,7 +77,7 @@ void Renderer::Init()
 	wireFrameOn = false;
 	prevWireStatus = wireFrameOn;
 	instanceThreshold = 5;
-	skyBoxNum = 2;
+	skyBoxNum = 1;
 
 	LoadShaders();
 	sunLight = CreateDirectionalLight({0.0f,-1.0f,0.0f });
@@ -295,6 +296,33 @@ unsigned int Renderer::PushToTranslucent(RenderingComponent * com)
 	unsigned int pos = (unsigned int)transRendComponents.size();
 	transRendComponents.push_back(com);
 	return pos;
+}
+
+void Renderer::Flush()
+{
+	for (auto& x : meshStorage)
+	{
+		if(x.second->inUse)
+		{
+			x.second->rendComponents.clear();
+			x.second->instances = 0;
+			x.second->canInstRender = false;
+		}
+	}
+
+	for (unsigned int i = 0; i < allLights.size(); i++)
+	{
+		if (allLights[i] != nullptr) { delete allLights[i]; allLights[i] = nullptr; }
+	}
+
+	allLights.clear();
+	directionalLights.clear();
+	pointLights.clear();
+	spotLights.clear();
+
+	sunLight = CreateDirectionalLight({ 0.0f,-1.0f,0.0f });
+	//sunLight->ligComponent->lightColor = { 0.05f, 0.5f, 0.0f, 1.0f };
+	sunLight->ligComponent->lightAmb = { 0.2f, 0.2f, 0.2f, 1.0f };
 }
 
 #pragma region Light Stuff
@@ -860,17 +888,11 @@ void Renderer::InitSkyBox()
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Make sure we can see the sky (at max depth)
 	device->CreateDepthStencilState(&dsDesc, &skyDepth);
 
-	LoadSkyBox();
+	ToggleSkyBox();
 }
 
-void Renderer::LoadSkyBox()
+void Renderer::ToggleSkyBox()
 {
-	skyBoxNum += 1;
-	if (skyBoxNum > 3)
-	{
-		skyBoxNum = 1;
-	}
-
 	if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
 	switch (skyBoxNum)
 	{
@@ -891,6 +913,47 @@ void Renderer::LoadSkyBox()
 		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/space.dds", 0, &skyBoxSVR);
 		break;
 	}
+	}
+
+	skyBoxNum += 1;
+	if (skyBoxNum > 3)
+	{
+		skyBoxNum = 1;
+	}
+
+}
+
+void Renderer::LoadSkyBox(int skyNum)
+{
+	if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
+
+	skyBoxNum = skyNum;
+
+	switch (skyBoxNum)
+	{
+	case 1:
+	{
+		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/SunnyCubeMap.dds", 0, &skyBoxSVR);
+		//CreateDDSTextureFromFile(device, L"Textures/Mars.dds", 0, &skyBoxSVR);
+		break;
+	}
+	case 2:
+	{
+
+		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/Mars.dds", 0, &skyBoxSVR);
+		break;
+	}
+	case 3:
+	{
+		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/space.dds", 0, &skyBoxSVR);
+		break;
+	}
+	}
+
+	skyBoxNum += 1;
+	if (skyBoxNum > 3)
+	{
+		skyBoxNum = 1;
 	}
 }
 

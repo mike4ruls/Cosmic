@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include "CosmicEngine.h"
-#include "Scene.h"
+#include "DefaultScene.h"
 
 // --------------------------------------------------------
 // Entry point for a graphical (non-console) Windows application
@@ -60,10 +60,13 @@ int WINAPI WinMain(
 	// early if something failed
 	hr = cosmic.InitDirectX();
 	if(FAILED(hr)) return hr;
+	DefaultScene* defaultLevel = new DefaultScene(&cosmic);
+	cosmic.LoadDefaultScene(defaultLevel);
 
-	Scene* level1 = new Scene(&cosmic);
 
-	cosmic.LoadScene(level1);
+	//Scene* level1 = new Scene(&cosmic);
+	//Scene2* level2 = new Scene2(&cosmic);
+	//cosmic.LoadScene(level1);
 
 	// Begin the message and game loop, and then return
 	// whatever we get back once the game loop is over
