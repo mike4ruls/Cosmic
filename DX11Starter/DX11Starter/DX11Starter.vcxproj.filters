@@ -59,9 +59,6 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CosmicEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -73,6 +70,9 @@
     </ClCompile>
     <ClCompile Include="DefaultScene.cpp">
       <Filter>Scenes\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -95,9 +95,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
@@ -129,6 +126,12 @@
     </ClInclude>
     <ClInclude Include="DefaultScene.h">
       <Filter>Scenes\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +170,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\DefferedShaders\PLightingShader.hlsl">
       <Filter>Shaders\DefferedShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ForwardShaders\PixelFSNShader.hlsl">
+      <Filter>Shaders\ForwardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ForwardShaders\PixelFSShader.hlsl">
+      <Filter>Shaders\ForwardShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

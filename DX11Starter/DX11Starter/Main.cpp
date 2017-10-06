@@ -61,6 +61,7 @@ int WINAPI WinMain(
 	hr = cosmic.InitDirectX();
 	if(FAILED(hr)) return hr;
 	DefaultScene* defaultLevel = new DefaultScene(&cosmic);
+
 	cosmic.LoadDefaultScene(defaultLevel);
 
 

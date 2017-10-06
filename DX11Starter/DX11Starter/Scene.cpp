@@ -169,7 +169,7 @@ void Scene::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool ca
 	}
 
 	gameObjects.push_back(obj);
-	printf("\nNum of '%ss': %d", &meshName[0], engine->rend->meshStorage[meshName]->instances);
+	printf("\nNum of '%ss': %d", &meshName[0], engine->rend->assets->meshStorage[meshName]->instances);
 	//printf("\nColor - %f, %f, %f", obj->renderingComponent.mat.surfaceColor.x, obj->renderingComponent.mat.surfaceColor.y, obj->renderingComponent.mat.surfaceColor.z);
 
 }

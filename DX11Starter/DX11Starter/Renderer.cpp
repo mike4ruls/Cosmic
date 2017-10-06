@@ -3,7 +3,7 @@
 #include "DDSTextureLoader.h"
 
 
-
+// https://www.gamedev.net/forums/topic/644740-dx11-multiple-render-targets/
 Renderer::Renderer()
 {
 }
@@ -16,6 +16,7 @@ Renderer::Renderer(Camera * c, ID3D11Device * dev, ID3D11DeviceContext * con, ID
 	backBufferRTV = backB;
 	depthStencilView = depthS;
 
+	assets = new AssetManager(dev, con);
 
 	Init();
 	InitSkyBox();
@@ -25,10 +26,24 @@ Renderer::Renderer(Camera * c, ID3D11Device * dev, ID3D11DeviceContext * con, ID
 
 Renderer::~Renderer()
 {
-	for (auto& x : meshStorage) 
+	/*for (auto& x : meshStorage) 
 	{
 		if (x.second) { delete x.second; x.second = nullptr; }
 	}
+	for (auto& x : surTextStorage)
+	{
+		if (x.second) { delete x.second; x.second = nullptr; }
+	}
+	for (auto& x : norTextStorage)
+	{
+		if (x.second) { delete x.second; x.second = nullptr; }
+	}
+	for (auto& x : skyTextStorage)
+	{
+		if (x.second) { delete x.second; x.second = nullptr; }
+	}*/
+
+	if (assets != nullptr) { delete assets; assets = nullptr; }
 
 	for(unsigned int i = 0; i < allLights.size(); i++)
 	{
@@ -49,6 +64,8 @@ Renderer::~Renderer()
 
 
 	delete pixelFShader;
+	delete pixelFSShader;
+	delete pixelFSNShader;
 	delete pixelDShader;
 	delete pLightingShader;
 	delete skyPShader;
@@ -61,8 +78,8 @@ Renderer::~Renderer()
 
 	if (wireFrame != nullptr) { wireFrame->Release(); wireFrame = nullptr; }
 	if (fillFrame != nullptr) { fillFrame->Release(); fillFrame = nullptr; }
-	if (SVR != nullptr) { SVR->Release(); SVR = nullptr; }
-	if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
+	//if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
+	if (textureSample != nullptr) { textureSample->Release(); textureSample = nullptr; }
 	if (sample != nullptr) { sample->Release(); sample = nullptr; }
 	if (skyRast != nullptr) { skyRast->Release(); skyRast = nullptr; }
 	if (skyDepth != nullptr) { skyDepth->Release(); skyDepth = nullptr; }
@@ -85,6 +102,16 @@ void Renderer::Init()
 	sunLight->ligComponent->lightAmb = {0.2f, 0.2f, 0.2f, 1.0f};
 
 	maxSize = 10;
+
+	D3D11_SAMPLER_DESC tDes = {};
+	tDes.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	tDes.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	tDes.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	tDes.Filter = D3D11_FILTER_ANISOTROPIC;
+	tDes.MaxAnisotropy = 16;
+	tDes.MaxLOD = D3D11_FLOAT32_MAX;
+
+	device->CreateSamplerState(&tDes, &textureSample);
 
 	D3D11_RASTERIZER_DESC fillDesc;
 	fillDesc.FillMode = D3D11_FILL_SOLID;
@@ -167,7 +194,7 @@ void Renderer::Render(float dt)
 	//DRAWING OBJECTS TO SCREEN
 	////////////////////////////////////////
 
-	for (auto& x : meshStorage) 
+	for (auto& x : assets->meshStorage) 
 	{
 			if (!x.second->broken && x.second->inUse)
 			{
@@ -263,30 +290,30 @@ void Renderer::Render(float dt)
 
 	}
 
-void Renderer::LoadMesh(Mesh * newMesh)
-{
-	meshStorage[newMesh->meshName] = newMesh;
-}
-
-Mesh * Renderer::GetMesh(std::string name)
-{
-	return meshStorage.find(name)->second;
-}
+//void Renderer::LoadMesh(Mesh * newMesh)////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//{
+//	meshStorage[newMesh->meshName] = newMesh;
+//}
+//
+//Mesh * Renderer::GetMesh(std::string name)
+//{
+//	return meshStorage.find(name)->second;
+//}
 
 unsigned int Renderer::PushToRenderer(RenderingComponent * com)
 {
-	unsigned int pos = (unsigned int)meshStorage[com->meshName]->rendComponents.size();
+	unsigned int pos = (unsigned int)assets->meshStorage[com->meshName]->rendComponents.size();
 
 	if (com->mat.materialType == Material::Transulcent)
 	{
 		com->mat.translucentID = PushToTranslucent(com);		
 	}
 
-	meshStorage[com->meshName]->rendComponents.push_back(com);
-	meshStorage[com->meshName]->instances++;
+	assets->meshStorage[com->meshName]->rendComponents.push_back(com);
+	assets->meshStorage[com->meshName]->instances++;
 				
-	meshStorage[com->meshName]->inUse = meshStorage[com->meshName]->instances != 0 ? true : false;
-	meshStorage[com->meshName]->canInstRender = meshStorage[com->meshName]->instances >= instanceThreshold ? true : false;
+	assets->meshStorage[com->meshName]->inUse = assets->meshStorage[com->meshName]->instances != 0 ? true : false;
+	assets->meshStorage[com->meshName]->canInstRender = assets->meshStorage[com->meshName]->instances >= instanceThreshold ? true : false;
 
 	return pos;
 }
@@ -300,7 +327,7 @@ unsigned int Renderer::PushToTranslucent(RenderingComponent * com)
 
 void Renderer::Flush()
 {
-	for (auto& x : meshStorage)
+	for (auto& x : assets->meshStorage)
 	{
 		if(x.second->inUse)
 		{
@@ -319,6 +346,8 @@ void Renderer::Flush()
 	directionalLights.clear();
 	pointLights.clear();
 	spotLights.clear();
+
+
 
 	sunLight = CreateDirectionalLight({ 0.0f,-1.0f,0.0f });
 	//sunLight->ligComponent->lightColor = { 0.05f, 0.5f, 0.0f, 1.0f };
@@ -653,15 +682,15 @@ void Renderer::RemoveLight(Light * light)
 
 void Renderer::RemoveFromRenderer(std::string meshName, unsigned int Id)
 {
-	if (meshStorage[meshName]->rendComponents[Id]->mat.materialType == Material::Transulcent)
+	if (assets->meshStorage[meshName]->rendComponents[Id]->mat.materialType == Material::Transulcent)
 	{
-		RemoveFromTranslucent(meshStorage[meshName]->rendComponents[Id]->mat.translucentID);
+		RemoveFromTranslucent(assets->meshStorage[meshName]->rendComponents[Id]->mat.translucentID);
 	}
 
-	meshStorage[meshName]->rendComponents.erase(meshStorage[meshName]->rendComponents.begin()+Id);
+	assets->meshStorage[meshName]->rendComponents.erase(assets->meshStorage[meshName]->rendComponents.begin()+Id);
 
-	meshStorage[meshName]->inUse = meshStorage[meshName]->instances != 0 ? true : false;
-	meshStorage[meshName]->canInstRender = meshStorage[meshName]->instances >= instanceThreshold ? true : false;
+	assets->meshStorage[meshName]->inUse = assets->meshStorage[meshName]->instances != 0 ? true : false;
+	assets->meshStorage[meshName]->canInstRender = assets->meshStorage[meshName]->instances >= instanceThreshold ? true : false;
 }
 
 void Renderer::RemoveFromTranslucent(unsigned int Id)
@@ -700,6 +729,12 @@ void Renderer::LoadShaders()
 
 	pixelFShader = new SimplePixelShader(device, context);
 	pixelFShader->LoadShaderFile(L"Shaders/FowardShaders/PixelFShader.cso");
+
+	pixelFSShader = new SimplePixelShader(device, context);
+	pixelFSShader->LoadShaderFile(L"Shaders/FowardShaders/PixelFSShader.cso");
+
+	pixelFSNShader = new SimplePixelShader(device, context);
+	pixelFSNShader->LoadShaderFile(L"Shaders/FowardShaders/PixelFSNShader.cso");
 
 	pixelDShader = new SimplePixelShader(device, context);
 	pixelDShader->LoadShaderFile(L"Shaders/DefferedShaders/PixelDShader.cso");
@@ -753,28 +788,28 @@ void Renderer::CompileLights()
 	}
 }
 
-void Renderer::SetLights()
+void Renderer::SetLights(SimplePixelShader* pixel)
 {
 	int dCount = (int)directionalLights.size();
+	pixel->SetInt("dCount", dCount);
 	if (dCount != 0)
 	{
-		pixelFShader->SetInt("dCount", dCount);
-		pixelFShader->SetData("dirLights", &directionalLights[0], sizeof(Light::LightComponent) * maxDLights);
+		pixel->SetData("dirLights", &directionalLights[0], sizeof(Light::LightComponent) * maxDLights);
 	}
 
 
 	int pCount = (int)pointLights.size();
+	pixel->SetInt("pCount", pCount);
 	if (pCount != 0)
 	{
-		pixelFShader->SetInt("pCount", pCount);
-		pixelFShader->SetData("pointLights", &pointLights[0], sizeof(Light::LightComponent) * maxPLights);
+		pixel->SetData("pointLights", &pointLights[0], sizeof(Light::LightComponent) * maxPLights);
 	}
 
 	int sCount = (int)spotLights.size();
+	pixel->SetInt("sCount", sCount);
 	if (sCount != 0)
 	{
-		pixelFShader->SetInt("sCount", sCount);
-		pixelFShader->SetData("spotLights", &spotLights[0], sizeof(Light::LightComponent) * maxSLights);
+		pixel->SetData("spotLights", &spotLights[0], sizeof(Light::LightComponent) * maxSLights);
 	}
 }
 
@@ -790,19 +825,35 @@ void Renderer::DrawForwardPass(RenderingComponent* component)
 
 	vertexFShader->CopyAllBufferData();
 
-	SetLights();
-	pixelFShader->CopyAllBufferData();
+	SimplePixelShader* currentPixel = nullptr;
+	if (!component->mat.hasSurText)
+	{
+		currentPixel = pixelFShader;
+	}
+	else if (!component->mat.hasNorText)
+	{
+		currentPixel = pixelFSShader;
+		currentPixel->SetSamplerState("basicSampler", textureSample);
+		currentPixel->SetShaderResourceView("surfaceTexture", component->mat.GetSurfaceTexture());
+	}
+	else
+	{
+		currentPixel = pixelFSNShader;
+	}
+
+	SetLights(currentPixel);
+	currentPixel->CopyAllBufferData();
 
 	vertexFShader->SetShader();
-	pixelFShader->SetShader();
+	currentPixel->SetShader();
 
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	context->IASetVertexBuffers(0, 1, &meshStorage[component->meshName]->vertArr, &stride, &offset);
-	context->IASetIndexBuffer(meshStorage[component->meshName]->indArr, DXGI_FORMAT_R32_UINT, 0);
+	context->IASetVertexBuffers(0, 1, &assets->meshStorage[component->meshName]->vertArr, &stride, &offset);
+	context->IASetIndexBuffer(assets->meshStorage[component->meshName]->indArr, DXGI_FORMAT_R32_UINT, 0);
 
 	context->DrawIndexed(
-		meshStorage[component->meshName]->indCount,     // The number of indices to use (we could draw a subset if we wanted)
+		assets->meshStorage[component->meshName]->indCount,     // The number of indices to use (we could draw a subset if we wanted)
 		0,     // Offset to the first index we want to use
 		0);    // Offset to add to each index when looking up vertices
 	
@@ -822,7 +873,7 @@ void Renderer::DrawFInstance(std::string meshName, InstanceData * components, un
 	context->Unmap(instanceWorldMatrixBuffer, 0);
 
 	ID3D11Buffer* vbs[2] = {
-		meshStorage[meshName]->vertArr,	// Per-vertex data
+		assets->meshStorage[meshName]->vertArr,	// Per-vertex data
 		instanceWorldMatrixBuffer			// Per-instance data
 	};
 
@@ -832,7 +883,7 @@ void Renderer::DrawFInstance(std::string meshName, InstanceData * components, un
 
 	// Set both vertex buffers
 	context->IASetVertexBuffers(0, 2, vbs, strides, offsets);
-	context->IASetIndexBuffer(meshStorage[meshName]->indArr, DXGI_FORMAT_R32_UINT, 0);
+	context->IASetIndexBuffer(assets->meshStorage[meshName]->indArr, DXGI_FORMAT_R32_UINT, 0);
 
 	instanceFVShader->SetMatrix4x4("view", cam->viewMatrix);
 	instanceFVShader->SetMatrix4x4("projection", cam->projectionMatrix);
@@ -841,14 +892,14 @@ void Renderer::DrawFInstance(std::string meshName, InstanceData * components, un
 			
 	instanceFVShader->CopyAllBufferData();
 
-	SetLights();
+	SetLights(pixelFShader);
 	pixelFShader->CopyAllBufferData();
 
 	instanceFVShader->SetShader();
 	pixelFShader->SetShader();
 
 	context->DrawIndexedInstanced(
-		meshStorage[meshName]->indCount, // Number of indices from index buffer
+		assets->meshStorage[meshName]->indCount, // Number of indices from index buffer
 		count,					// Number of instances to actually draw
 		0, 0, 0);						// Offsets (unnecessary for us)
 }
@@ -893,24 +944,24 @@ void Renderer::InitSkyBox()
 
 void Renderer::ToggleSkyBox()
 {
-	if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
+	//if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
 	switch (skyBoxNum)
 	{
 	case 1:
 	{
-		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/SunnyCubeMap.dds", 0, &skyBoxSVR);
+		skyBoxSVR = assets->GetSkyBoxTexture("sunny");
 		//CreateDDSTextureFromFile(device, L"Textures/Mars.dds", 0, &skyBoxSVR);
 		break;
 	}
 	case 2:
 	{
 		
-		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/Mars.dds", 0, &skyBoxSVR);
+		skyBoxSVR = assets->GetSkyBoxTexture("mars");
 		break;
 	}
 	case 3:
 	{
-		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/space.dds", 0, &skyBoxSVR);
+		skyBoxSVR = assets->GetSkyBoxTexture("space");
 		break;
 	}
 	}
@@ -925,7 +976,7 @@ void Renderer::ToggleSkyBox()
 
 void Renderer::LoadSkyBox(int skyNum)
 {
-	if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
+	//if (skyBoxSVR != nullptr) { skyBoxSVR->Release(); skyBoxSVR = nullptr; }
 
 	skyBoxNum = skyNum;
 
@@ -933,19 +984,21 @@ void Renderer::LoadSkyBox(int skyNum)
 	{
 	case 1:
 	{
-		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/SunnyCubeMap.dds", 0, &skyBoxSVR);
+		skyBoxSVR = assets->GetSkyBoxTexture("sunny");
+		//DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/SunnyCubeMap.dds", 0, &skyBoxSVR);
 		//CreateDDSTextureFromFile(device, L"Textures/Mars.dds", 0, &skyBoxSVR);
 		break;
 	}
 	case 2:
 	{
-
-		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/Mars.dds", 0, &skyBoxSVR);
+		skyBoxSVR = assets->GetSkyBoxTexture("mars");
+		//DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/Mars.dds", 0, &skyBoxSVR);
 		break;
 	}
 	case 3:
 	{
-		DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/space.dds", 0, &skyBoxSVR);
+		skyBoxSVR = assets->GetSkyBoxTexture("space");
+		//DirectX::CreateDDSTextureFromFile(device, L"Assets/Textures/SkyBox/space.dds", 0, &skyBoxSVR);
 		break;
 	}
 	}
@@ -963,9 +1016,9 @@ void Renderer::DrawSkyBox()
 
 	context->RSGetState(&oldR);
 
-	ID3D11Buffer* skyVB = meshStorage["Cube"]->GetVertexBuffer();
-	ID3D11Buffer* skyIB = meshStorage["Cube"]->GetIndicesBuffer();
-	unsigned int count = meshStorage["Cube"]->indCount;
+	ID3D11Buffer* skyVB = assets->meshStorage["Cube"]->GetVertexBuffer();
+	ID3D11Buffer* skyIB = assets->meshStorage["Cube"]->GetIndicesBuffer();
+	unsigned int count = assets->meshStorage["Cube"]->indCount;
 
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;

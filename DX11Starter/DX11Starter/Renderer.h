@@ -1,8 +1,6 @@
 #pragma once
-#include <map>
-#include <string>
 #include <d3d11.h>
-#include "Mesh.h"
+#include "AssetManager.h"
 #include "Camera.h"
 #include "Light.h"
 #include "SimpleShader.h"
@@ -15,7 +13,12 @@ public:
 	Renderer(Camera* c, ID3D11Device* dev, ID3D11DeviceContext* con, ID3D11RenderTargetView* backB, ID3D11DepthStencilView* depthS);
 	~Renderer();
 
-	std::map<std::string, Mesh*> meshStorage;
+	AssetManager* assets = nullptr;
+
+	/*std::map<std::string, Mesh*> meshStorage;
+	std::map<std::string, ID3D11ShaderResourceView*> surTextStorage;
+	std::map<std::string, ID3D11ShaderResourceView*> norTextStorage;
+	std::map<std::string, ID3D11ShaderResourceView*> skyTextStorage;*/
 
 	std::vector<RenderingComponent*> transRendComponents;
 	std::vector<Light*> allLights;
@@ -43,19 +46,20 @@ public:
 
 
 	SimplePixelShader* pixelFShader;
+	SimplePixelShader* pixelFSShader;
+	SimplePixelShader* pixelFSNShader;
 	SimplePixelShader* pixelDShader;
 	SimplePixelShader* pLightingShader;
 	SimplePixelShader* skyPShader;
 	SimplePixelShader* bloomShader;
 	SimplePixelShader* hdrShader;
 
-	ID3D11ShaderResourceView* SVR = nullptr;
-	ID3D11SamplerState* sample = nullptr;
-
+	ID3D11SamplerState* textureSample = nullptr;
 
 	ID3D11ShaderResourceView* skyBoxSVR = nullptr;
 	ID3D11RasterizerState* skyRast = nullptr;
 	ID3D11DepthStencilState* skyDepth = nullptr;
+	ID3D11SamplerState* sample = nullptr;
 
 	unsigned int instanceThreshold;
 	bool instanceRenderingOn;
@@ -82,8 +86,8 @@ public:
 
 	void Init();
 	void Render(float dt);
-	void LoadMesh(Mesh* newMesh);
-	Mesh* GetMesh(std::string name);
+	/*void LoadMesh(Mesh* newMesh);
+	Mesh* GetMesh(std::string name);*/
 	unsigned int PushToRenderer(RenderingComponent* com);
 	unsigned int PushToTranslucent(RenderingComponent* com);
 	void Flush();
@@ -111,7 +115,7 @@ public:
 	void ToggleWireFrame();
 
 	void CompileLights();
-	void SetLights();
+	void SetLights(SimplePixelShader* pixel);
 
 	void DrawForwardPass(RenderingComponent* component);
 	void DrawFInstance(std::string meshName, InstanceData* components, unsigned int count);

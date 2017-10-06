@@ -17,6 +17,8 @@ public:
 	void SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot);
 
 	CosmicEngine* engine;
+	Light* pointLight;
+
 private:
 
 };

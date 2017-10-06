@@ -4,7 +4,6 @@ DefaultScene::DefaultScene(CosmicEngine* eng) :Game()
 {
 	engine = eng;
 	cam = new Camera();
-
 }
 
 
@@ -18,7 +17,6 @@ void DefaultScene::Init()
 void DefaultScene::Update(float deltaTime, float totalTime)
 {
 	CheckInputs(deltaTime);
-
 }
 void DefaultScene::CheckInputs(float deltaTime)
 {

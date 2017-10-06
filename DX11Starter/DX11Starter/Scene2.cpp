@@ -17,7 +17,18 @@ void Scene2::Init()
 	// Creating game objects
 	gameObjects.push_back(engine->CreateGameObject("Cube"));
 	gameObjects.push_back(engine->CreateGameObject("Sphere"));
-	//gameObjects.push_back(engine->CreateGameObject("RainbowRoad"));
+	gameObjects.push_back(engine->CreateGameObject("Plane"));
+
+	gameObjects[0]->transform.Scale(50.0f, 50.0f, 0.3f);
+	gameObjects[0]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("harambe"));
+
+	gameObjects[2]->transform.Scale(10.0f);
+	gameObjects[2]->transform.Translate(0.0f, -10.0f, 0.0f);
+	gameObjects[2]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("brick"));
+
+
+	pointLight = engine->rend->CreatePointLight({0,-5,0});
+	pointLight->ligComponent->lightColor = {0.0f, 1.0f, 0.0f, 1.0f};
 
 	engine->rend->LoadSkyBox(2);
 }
@@ -40,25 +51,31 @@ void Scene2::CheckInputs(float deltaTime)
 	if (engine->IsKeyDown(VK_LEFT))
 	{
 		//triangleObj->transform.Translate(-1.0f * deltaTime,0.0f,0.0f);
-		gameObjects[0]->rigidBody.ApplyForce(-1.0f, 0.0f, 0.0f);
+		//gameObjects[0]->rigidBody.ApplyForce(-1.0f, 0.0f, 0.0f);
+
+		pointLight->ligComponent->lightPos = DirectX::XMFLOAT3(pointLight->ligComponent->lightPos.x - (1.0f*deltaTime), pointLight->ligComponent->lightPos.y, pointLight->ligComponent->lightPos.z);
 	}
 	if (engine->IsKeyDown(VK_RIGHT))
 	{
 		//triangleObj->transform.Translate(1.0f * deltaTime, 0.0f, 0.0f);
-		gameObjects[0]->rigidBody.ApplyForce(1.0f, 0.0f, 0.0f);
+		//gameObjects[0]->rigidBody.ApplyForce(1.0f, 0.0f, 0.0f);
+		pointLight->ligComponent->lightPos = DirectX::XMFLOAT3(pointLight->ligComponent->lightPos.x + (1.0f*deltaTime), pointLight->ligComponent->lightPos.y, pointLight->ligComponent->lightPos.z);
 	}
 	if (engine->IsKeyDown(VK_UP))
 	{
 		//triangleObj->transform.Translate(0.0f, 1.0f * deltaTime, 0.0f);
-		gameObjects[0]->rigidBody.ApplyForce(0.0f, 1.0f, 0.0f);
+		//gameObjects[0]->rigidBody.ApplyForce(0.0f, 1.0f, 0.0f);
+		pointLight->ligComponent->lightPos = DirectX::XMFLOAT3(pointLight->ligComponent->lightPos.x, pointLight->ligComponent->lightPos.y + (1.0f*deltaTime), pointLight->ligComponent->lightPos.z);
 	}
 	if (engine->IsKeyDown(VK_DOWN))
 	{
 		//triangleObj->transform.Translate(0.0f, -1.0f * deltaTime, 0.0f);
-		gameObjects[0]->rigidBody.ApplyForce(0.0f, -1.0f, 0.0f);
+		//gameObjects[0]->rigidBody.ApplyForce(0.0f, -1.0f, 0.0f);
+		pointLight->ligComponent->lightPos = DirectX::XMFLOAT3(pointLight->ligComponent->lightPos.x, pointLight->ligComponent->lightPos.y, pointLight->ligComponent->lightPos.z - (1.0f*deltaTime));
+		//pointLight->ligComponent->lightPos = DirectX::XMFLOAT3(pointLight->ligComponent->lightPos.x, pointLight->ligComponent->lightPos.y - (1.0f*deltaTime), 0);
 	}
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
-		gameObjects[i]->Update(deltaTime);
+		//gameObjects[i]->Update(deltaTime);
 	}
 
 	/////////////////////////
@@ -154,7 +171,7 @@ void Scene2::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool c
 	}
 
 	gameObjects.push_back(obj);
-	printf("\nNum of '%ss': %d", &meshName[0], engine->rend->meshStorage[meshName]->instances);
+	printf("\nNum of '%ss': %d", &meshName[0], engine->rend->assets->meshStorage[meshName]->instances);
 	//printf("\nColor - %f, %f, %f", obj->renderingComponent.mat.surfaceColor.x, obj->renderingComponent.mat.surfaceColor.y, obj->renderingComponent.mat.surfaceColor.z);
 
 }

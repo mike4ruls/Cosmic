@@ -88,18 +88,32 @@ float4 main(VertexToPixel input) : SV_TARGET
 		allLights += ambient + (dirLights[i].lightColor * halfWay) + specAmt;
 	}
 
+	float radius = 5;
+	float minLight = 0.08;
+	float a = 0.1;
+
+	// Fall off radius
+	//float b = 0.01;
+	float b = 1.0 / (radius * radius * minLight);
+
 	for (int j = 0; j < pCount; j++)
 	{
 		float4 ambient = pointLights[j].amb;
+		float dist = distance(input.worldPos, pointLights[j].lightPos);
 
-		float3 E = input.camPos - input.worldPos;
+		//Sharp fade in the distance attenuation
+		//float att = clamp(1.0 - dist*dist/(radius*radius), 0.0, 1.0);
+
+		//Nice fade in the distance attenuation
+		float att = 1.0 / (1.0 + a*dist + b*dist*dist);
+
+		//float3 E = input.camPos - input.worldPos;
 		float3 L = normalize(pointLights[j].lightPos - input.worldPos);
-		float3 H = normalize(L + E);
+		//float3 H = normalize(L + E);
 
-		float halfWay = saturate(dot(input.normal, H));
-		float specAmt = pow(halfWay, 1.0f);
+		float halfWay = clamp(dot(input.normal, -L), 0 , 1);
 
-		allLights += ambient + (pointLights[j].lightColor *  dot(input.normal, -L) + specAmt);
+		allLights += att * (ambient + (pointLights[j].lightColor *  halfWay));
 	}
 	
 	color *= allLights;

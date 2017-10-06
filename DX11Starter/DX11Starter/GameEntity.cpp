@@ -19,6 +19,7 @@ GameEntity::GameEntity(Mesh * m, Renderer* r)
 	transform = Transform();
 	rigidBody = RigidBody();
 	renderingComponent = RenderingComponent();
+	renderingComponent.mat = Material();
 	myMesh = m;
 	rend = r;
 	name = "";

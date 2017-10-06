@@ -47,7 +47,7 @@ void CosmicEngine::Init()
 {
 	rend = new Renderer(cam, device, context, backBufferRTV, depthStencilView);
 
-	CreateBasicGeometry();
+	//CreateBasicGeometry();
 	SetKeyInputs();
 
 	dayTime = 0.0f;
@@ -108,7 +108,7 @@ void CosmicEngine::CreateBasicGeometry()
 	unsigned int vSize2 = sizeof(vertices2) / sizeof(vertices2[0]);
 	unsigned int iSize2 = sizeof(indices2) / sizeof(indices2[0]);
 
-	rend->LoadMesh(new Mesh(vertices, indices, vSize, iSize, "Triangle", device));
+	/*rend->LoadMesh(new Mesh(vertices, indices, vSize, iSize, "Triangle", device));
 	rend->LoadMesh(new Mesh(vertices2, indices2, vSize2, iSize2, "Square", device));
 	rend->LoadMesh(new Mesh("Assets/Models/sphere.obj", "Sphere", device));
 	rend->LoadMesh(new Mesh("Assets/Models/cube.obj", "Cube", device));
@@ -120,7 +120,7 @@ void CosmicEngine::CreateBasicGeometry()
 	rend->LoadMesh(new Mesh("Assets/Models/quad.obj", "Quad", device));
 	rend->LoadMesh(new Mesh("Assets/Models/teapot.obj", "Teapot", device));
 	rend->LoadMesh(new Mesh("Assets/Models/HaloSword.obj", "HaloSword", device));
-	rend->LoadMesh(new Mesh("Assets/Models/RainbowRoad.obj", "RainbowRoad", device));
+	rend->LoadMesh(new Mesh("Assets/Models/RainbowRoad.obj", "RainbowRoad", device));*/
 
 }
 
@@ -251,7 +251,7 @@ void CosmicEngine::OnMouseWheel(float wheelDelta, int x, int y)
 }
 GameEntity * CosmicEngine::CreateGameObject(std::string name)
 {
-	 GameEntity* newObj = new GameEntity(rend->GetMesh(name), rend);
+	 GameEntity* newObj = new GameEntity(rend->assets->GetMesh(name), rend);
 	
 	return newObj;
 }
