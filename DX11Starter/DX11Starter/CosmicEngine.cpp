@@ -45,7 +45,7 @@ CosmicEngine::~CosmicEngine()
 // --------------------------------------------------------
 void CosmicEngine::Init()
 {
-	rend = new Renderer(cam, device, context, backBufferRTV, depthStencilView);
+	rend = new Renderer(cam, device, context, backBufferRTV, depthStencilView, swapChain);
 
 	//CreateBasicGeometry();
 	SetKeyInputs();
@@ -179,10 +179,6 @@ void CosmicEngine::Draw(float deltaTime, float totalTime)
 
 	rend->Render(deltaTime);
 
-	// Present the back buffer to the user
-	//  - Puts the final frame we're drawing into the window so the user can see it
-	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
-	swapChain->Present(0, 0);
 }
 
 

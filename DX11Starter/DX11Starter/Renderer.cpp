@@ -8,19 +8,21 @@ Renderer::Renderer()
 {
 }
 
-Renderer::Renderer(Camera * c, ID3D11Device * dev, ID3D11DeviceContext * con, ID3D11RenderTargetView* backB, ID3D11DepthStencilView* depthS)
+Renderer::Renderer(Camera * c, ID3D11Device * dev, ID3D11DeviceContext * con, ID3D11RenderTargetView* backB, ID3D11DepthStencilView* depthS, IDXGISwapChain* sw)
 {
 	cam = c;
 	device = dev;
 	context = con;
 	backBufferRTV = backB;
 	depthStencilView = depthS;
+	swap = sw;
 
 	assets = new AssetManager(dev, con);
 
 	Init();
 	InitSkyBox();
 	SetWireFrame();
+	//CreateRenderTargets();
 }
 
 
@@ -287,6 +289,75 @@ void Renderer::Render(float dt)
 	}
 
 
+
+	// Present the back buffer to the user
+	//  - Puts the final frame we're drawing into the window so the user can see it
+	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
+	swap->Present(0, 0);
+	}
+
+	void Renderer::CreateRenderTargets()
+	{
+		// The above function created the back buffer render target
+		// for us, but we need a reference to it
+		ID3D11Texture2D* colorTexture;
+		swap->GetBuffer(
+			1,
+			__uuidof(ID3D11Texture2D),
+			(void**)&colorTexture);
+
+		// Now that we have the texture, create a render target view
+		// for the back buffer so we can render into it.  Then release
+		// our local reference to the texture, since we have the view.
+		device->CreateRenderTargetView(
+			colorTexture,
+			0,
+			&colorRTV);
+		colorTexture->Release();
+
+		//==================================================================================
+		//
+		//==================================================================================
+		D3D11_TEXTURE2D_DESC worldTextDesc = {};
+		worldTextDesc.Width = cam->width;
+		worldTextDesc.Height = cam->height;
+		worldTextDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		worldTextDesc.MipLevels = 1;
+		worldTextDesc.ArraySize = 1;
+		worldTextDesc.SampleDesc.Count = 1;
+		worldTextDesc.Usage = D3D11_USAGE_DEFAULT;
+		worldTextDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		worldTextDesc.CPUAccessFlags = 0;
+		worldTextDesc.MiscFlags = 0;
+
+		ID3D11Texture2D* worldTexture;
+		/*swap->GetBuffer(
+			2,
+			__uuidof(ID3D11Texture2D),
+			(void**)&worldTexture);*/
+		device->CreateTexture2D(&worldTextDesc, NULL, &worldTexture);
+
+		device->CreateRenderTargetView(
+			worldTexture,
+			0,
+			&worldRTV);
+		worldTexture->Release();
+
+		//==================================================================================
+		//
+		//==================================================================================
+
+		ID3D11Texture2D* normalTexture;
+		swap->GetBuffer(
+			3,
+			__uuidof(ID3D11Texture2D),
+			(void**)&normalTexture);
+
+		device->CreateRenderTargetView(
+			normalTexture,
+			0,
+			&normalRTV);
+		normalTexture->Release();
 
 	}
 
@@ -839,6 +910,9 @@ void Renderer::DrawForwardPass(RenderingComponent* component)
 	else
 	{
 		currentPixel = pixelFSNShader;
+		currentPixel->SetSamplerState("basicSampler", textureSample);
+		currentPixel->SetShaderResourceView("surfaceTexture", component->mat.GetSurfaceTexture());
+		currentPixel->SetShaderResourceView("normalTexture", component->mat.GetNormalTexture());
 	}
 
 	SetLights(currentPixel);

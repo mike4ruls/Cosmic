@@ -56,6 +56,7 @@ Mesh::Mesh(Vertex * vArr, int * iArr, unsigned int vSize, unsigned int iSize, st
 	// Actually create the buffer with the initial data
 	// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
 	device->CreateBuffer(&ibd, &initialIndexData, &indArr);
+	broken = false;
 }
 
 Mesh::Mesh(const char* fileName, std::string name, ID3D11Device * device)

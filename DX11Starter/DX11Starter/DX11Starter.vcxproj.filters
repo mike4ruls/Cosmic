@@ -74,6 +74,12 @@
     <ClCompile Include="AssetManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CosmicPhysic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXCore.h">
@@ -132,6 +138,18 @@
     </ClInclude>
     <ClInclude Include="AssetManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="CosmicPhysic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationData.h">
+      <Filter>Structs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

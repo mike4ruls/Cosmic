@@ -10,7 +10,7 @@ class Renderer
 {
 public:
 	Renderer();
-	Renderer(Camera* c, ID3D11Device* dev, ID3D11DeviceContext* con, ID3D11RenderTargetView* backB, ID3D11DepthStencilView* depthS);
+	Renderer(Camera* c, ID3D11Device* dev, ID3D11DeviceContext* con, ID3D11RenderTargetView* backB, ID3D11DepthStencilView* depthS, IDXGISwapChain* sw);
 	~Renderer();
 
 	AssetManager* assets = nullptr;
@@ -30,8 +30,13 @@ public:
 	Camera* cam;
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
+	IDXGISwapChain* swap;
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
+
+	ID3D11RenderTargetView* colorRTV;
+	ID3D11RenderTargetView* worldRTV;
+	ID3D11RenderTargetView* normalRTV;
 
 	ID3D11RasterizerState* wireFrame = nullptr;
 	ID3D11RasterizerState* fillFrame = nullptr;
@@ -86,6 +91,7 @@ public:
 
 	void Init();
 	void Render(float dt);
+	void CreateRenderTargets();
 	/*void LoadMesh(Mesh* newMesh);
 	Mesh* GetMesh(std::string name);*/
 	unsigned int PushToRenderer(RenderingComponent* com);

@@ -1,8 +1,10 @@
 #pragma once
 #include <DirectXMath.h>
 #include "Transform.h"
+#include "Collider.h"
 
 struct RigidBody {
+	Collider myCollider;
 	DirectX::XMFLOAT3 velocity;
 	DirectX::XMFLOAT3 acceleration;
 	float mass;

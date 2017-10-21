@@ -17,7 +17,7 @@ void Scene::Init()
 	gameObjects.push_back(engine->CreateGameObject("Triangle"));
 
 	
-	gameObjects.push_back(engine->CreateGameObject("Helix"));
+	gameObjects.push_back(engine->CreateGameObject("Teapot"));
 	gameObjects.push_back(engine->CreateGameObject("Cube"));
 	gameObjects.push_back(engine->CreateGameObject("Sphere"));
 	gameObjects.push_back(engine->CreateGameObject("Triangle"));
@@ -26,6 +26,7 @@ void Scene::Init()
 
 	gameObjects[2]->transform.Translate(0, 3, 4);
 	gameObjects[3]->transform.Translate(0, -3, 1);
+	gameObjects[5]->transform.Scale(0.1f);
 
 	gameObjects[2]->renderingComponent.mat.surfaceColor = { 1.0f, 0.0f, 0.0f, 1.0f };
 	gameObjects[1]->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };

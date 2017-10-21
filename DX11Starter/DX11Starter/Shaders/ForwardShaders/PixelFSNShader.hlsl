@@ -16,6 +16,9 @@ cbuffer externalData : register(b0)
 	int pCount;
 	int sCount;
 };
+Texture2D surfaceTexture : register(t0);
+Texture2D normalTexture : register(t1);
+SamplerState basicSampler : register(s0);
 // Struct representing the data we expect to receive from earlier pipeline stages
 // - Should match the output of our corresponding vertex shader
 // - The name of the struct itself is unimportant
@@ -53,7 +56,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//   of the triangle we're rendering
 
 	//float4 color = float4(0.8f, 0.8f, 0.8f, 1.0f);
-	float4 color = input.color;
+	float4 color = surfaceTexture.Sample(basicSampler, input.uv);
+	float4 norm = normalTexture.Sample(basicSampler, input.uv);
 	input.normal = normalize(input.normal);
 	float4 allLights = float4(0.0f, 0.0f, 0.0f, 1.0f);
 

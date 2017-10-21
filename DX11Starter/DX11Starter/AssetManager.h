@@ -4,6 +4,7 @@
 #include <string>
 #include "Mesh.h"
 
+
 class AssetManager
 {
 public:
@@ -13,6 +14,9 @@ public:
 	void Init();
 
 	void LoadMeshes();
+	void AssLoadMeshes();
+	void LoadHandCraftedMeshes();
+	void AssimpLoadMeshes(char* fileName, std::string name);
 	void LoadSurfaceTextures();
 	void LoadNormalTextures();
 	void LoadSkyBoxTextures();

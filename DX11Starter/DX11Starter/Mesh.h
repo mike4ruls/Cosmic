@@ -5,6 +5,9 @@
 #include <fstream>
 #include "Vertex.h"
 #include "RenderingComponent.h"
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 class Mesh
 {
