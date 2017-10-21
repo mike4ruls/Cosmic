@@ -15,6 +15,8 @@ cbuffer externalData : register(b0)
 	int dCount;
 	int pCount;
 	int sCount;
+	float uvXOffset;
+	float uvYOffset;
 };
 Texture2D surfaceTexture : register(t0);
 SamplerState basicSampler : register(s0);
@@ -55,7 +57,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//   of the triangle we're rendering
 
 	//float4 color = float4(0.8f, 0.8f, 0.8f, 1.0f);
-	float4 color = surfaceTexture.Sample(basicSampler, input.uv);
+	float2 newUV = float2(input.uv.x * uvXOffset, input.uv.y * uvYOffset);
+	float4 color = surfaceTexture.Sample(basicSampler, newUV);
 	input.normal = normalize(input.normal);
 	float4 allLights = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -119,6 +122,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	}
 	
 	color *= allLights;
+	//color = float4(0.8f, 0.8f, 0.8f, 1.0f);
 	//color = float4(dirLights[0].lightColor.xyz, 1.0);
 
 	return color;

@@ -158,7 +158,10 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 		rend->ToggleWireFrame();
 	}
 
-	rend->sunLight->ligComponent->lightDir = { sin(dayTime),cos(dayTime),0.0f };
+	if (!lockSunLight)
+	{
+		rend->sunLight->ligComponent->lightDir = { sin(dayTime),cos(dayTime),0.0f };
+	}
 	currentScene->Update(deltaTime, totalTime);
 	cam->Update(deltaTime);
 	UpdateInput();
@@ -266,6 +269,8 @@ void CosmicEngine::LoadScene(Game* newScene)
 	cam = currentScene->cam;
 	cam->Init(width, height);
 	rend->cam = cam;
+	lockCamera = false;
+	lockSunLight = false;
 
 	currentScene->Init();
 }

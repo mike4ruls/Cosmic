@@ -1,3 +1,35 @@
-﻿  CosmicEngine.cpp
-  DX11Starter.vcxproj -> G:\DX11Starter\x64\Debug\DX11Starter.exe
-  DX11Starter.vcxproj -> G:\DX11Starter\x64\Debug\DX11Starter.pdb (Partial PDB)
+﻿  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\DefferedShaders\InstanceDVShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\DefferedShaders\PixelDShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\DefferedShaders\PLightingShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\DefferedShaders\VertexDShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\FowardShaders\InstanceFVShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\FowardShaders\PixelFShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\FowardShaders\PixelFSNShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\FowardShaders\PixelFSShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\FowardShaders\VertexFShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\PostProcessShaders\BloomPShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\PostProcessShaders\HdrPShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\PostProcessShaders\QuadVShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\SkyBoxShaders\SkyPShader.cso
+  compilation object save succeeded; see G:\DX11Starter\x64\Debug\Shaders\SkyBoxShaders\SkyVShader.cso
+  SimpleShader.cpp
+  Scene2.cpp
+  Scene.cpp
+  Renderer.cpp
+  Mesh.cpp
+  Main.cpp
+  GameEntity.cpp
+  DXCore.cpp
+  DefaultScene.cpp
+  CosmicPhysic.cpp
+  CosmicEngine.cpp
+  Camera.cpp
+  AssetManager.cpp
+  Animation.cpp
+  Generating Code...
+AssetManager.obj : error LNK2019: unresolved external symbol "public: __cdecl Assimp::Importer::Importer(void)" (??0Importer@Assimp@@QEAA@XZ) referenced in function "public: void __cdecl AssetManager::AssimpLoadMeshes(char *,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?AssimpLoadMeshes@AssetManager@@QEAAXPEADV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z)
+AssetManager.obj : error LNK2019: unresolved external symbol "public: __cdecl Assimp::Importer::~Importer(void)" (??1Importer@Assimp@@QEAA@XZ) referenced in function "public: void __cdecl AssetManager::AssimpLoadMeshes(char *,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?AssimpLoadMeshes@AssetManager@@QEAAXPEADV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z)
+AssetManager.obj : error LNK2019: unresolved external symbol "public: struct aiScene const * __cdecl Assimp::Importer::ReadFile(char const *,unsigned int)" (?ReadFile@Importer@Assimp@@QEAAPEBUaiScene@@PEBDI@Z) referenced in function "public: void __cdecl AssetManager::AssimpLoadMeshes(char *,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?AssimpLoadMeshes@AssetManager@@QEAAXPEADV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z)
+AssetManager.obj : error LNK2019: unresolved external symbol "public: void __cdecl Assimp::Importer::FreeScene(void)" (?FreeScene@Importer@Assimp@@QEAAXXZ) referenced in function "public: void __cdecl AssetManager::AssimpLoadMeshes(char *,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?AssimpLoadMeshes@AssetManager@@QEAAXPEADV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z)
+..\packages\Assimp\lib\x64\assimp.lib : warning LNK4272: library machine type 'X86' conflicts with target machine type 'x64'
+G:\DX11Starter\x64\Debug\DX11Starter.exe : fatal error LNK1120: 4 unresolved externals

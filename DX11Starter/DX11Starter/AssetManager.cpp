@@ -181,6 +181,8 @@ void AssetManager::LoadSurfaceTextures()
 {
 	StoreSurfaceTexture("brick", L"Assets/Textures/brick.jpg");
 	StoreSurfaceTexture("harambe", L"Assets/Textures/harambe.jpg");
+	StoreSurfaceTexture("water", L"Assets/Textures/water.jpg");
+	StoreSurfaceTexture("grass", L"Assets/Textures/grass.jpg");
 	//StoreSurfaceTexture("raygun", L"Assets/Textures/raygunUVTest.tga");
 }
 

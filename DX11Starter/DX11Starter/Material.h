@@ -11,8 +11,10 @@ public:
 	}materialType;
 	DirectX::XMFLOAT4 surfaceColor;
 	unsigned int translucentID;
-	bool hasSurText;
-	bool hasNorText;
+	float uvXOffSet = 1.0f;
+	float uvYOffSet = 1.0f;
+	bool hasSurText = false;
+	bool hasNorText = false;
 
 	void LoadSurfaceTexture(ID3D11ShaderResourceView* text)
 	{

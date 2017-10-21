@@ -5,14 +5,14 @@ class BackGroundTiles
 {
 public:
 	BackGroundTiles();
+	BackGroundTiles(GameEntity* obj, DirectX::XMFLOAT3 vel);
 	~BackGroundTiles();
 
-	float speed;
-	DirectX::XMFLOAT3 moveDir;
+	DirectX::XMFLOAT3 moveVelocity;
 
-	void Update();
+	void Update(float dt);
 	void Teleport(DirectX::XMFLOAT3 pos);
 
-	GameEntity tile;
+	GameEntity* tile;
 };
 

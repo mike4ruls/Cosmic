@@ -776,22 +776,22 @@ void Renderer::LoadShaders()
 	//=================================================
 
 	vertexFShader = new SimpleVertexShader(device, context);
-	vertexFShader->LoadShaderFile(L"Shaders/FowardShaders/VertexFShader.cso");
+	vertexFShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/ForwardShaders/VertexFShader.cso");
 
 	instanceFVShader = new SimpleVertexShader(device, context);
-	instanceFVShader->LoadShaderFile(L"Shaders/FowardShaders/InstanceFVShader.cso");
+	instanceFVShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/ForwardShaders/InstanceFVShader.cso");
 
 	vertexDShader = new SimpleVertexShader(device, context);
-	vertexDShader->LoadShaderFile(L"Shaders/DefferedShaders/VertexDShader.cso");
+	vertexDShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/DeferredShaders/VertexDShader.cso");
 
 	instanceDVShader = new SimpleVertexShader(device, context);
-	instanceDVShader->LoadShaderFile(L"Shaders/DefferedShaders/InstanceDVShader.cso");
+	instanceDVShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/DeferredShaders/InstanceDVShader.cso");
 
 	skyVShader = new SimpleVertexShader(device, context);
-	skyVShader->LoadShaderFile(L"Shaders/SkyBoxShaders/SkyVShader.cso");
+	skyVShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/SkyBoxShaders/SkyVShader.cso");
 
 	quadVShader = new SimpleVertexShader(device, context);
-	quadVShader->LoadShaderFile(L"Shaders/PostProcessShaders/QuadVShader.cso");
+	quadVShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/PostProcessShaders/QuadVShader.cso");
 
 
 	//=================================================
@@ -799,29 +799,28 @@ void Renderer::LoadShaders()
 	//=================================================
 
 	pixelFShader = new SimplePixelShader(device, context);
-	pixelFShader->LoadShaderFile(L"Shaders/FowardShaders/PixelFShader.cso");
+	pixelFShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/ForwardShaders/PixelFShader.cso");
 
 	pixelFSShader = new SimplePixelShader(device, context);
-	pixelFSShader->LoadShaderFile(L"Shaders/FowardShaders/PixelFSShader.cso");
+	pixelFSShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/ForwardShaders/PixelFSShader.cso");
 
 	pixelFSNShader = new SimplePixelShader(device, context);
-	pixelFSNShader->LoadShaderFile(L"Shaders/FowardShaders/PixelFSNShader.cso");
+	pixelFSNShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/ForwardShaders/PixelFSNShader.cso");
 
 	pixelDShader = new SimplePixelShader(device, context);
-	pixelDShader->LoadShaderFile(L"Shaders/DefferedShaders/PixelDShader.cso");
+	pixelDShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/DeferredShaders/PixelDShader.cso");
 
 	pLightingShader = new SimplePixelShader(device, context);
-	pLightingShader->LoadShaderFile(L"Shaders/DefferedShaders/PLightingShader.cso");
+	pLightingShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/DeferredShaders/PLightingShader.cso");
 
 	skyPShader = new SimplePixelShader(device, context);
-	skyPShader->LoadShaderFile(L"Shaders/SkyBoxShaders/SkyPShader.cso");
+	skyPShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/SkyBoxShaders/SkyPShader.cso");
 
 	bloomShader = new SimplePixelShader(device, context);
-	bloomShader->LoadShaderFile(L"Shaders/PostProcessShaders/BloomPShader.cso");
+	bloomShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/PostProcessShaders/BloomPShader.cso");
 
 	hdrShader = new SimplePixelShader(device, context);
-	hdrShader->LoadShaderFile(L"Shaders/PostProcessShaders/HdrPShader.cso");
-
+	hdrShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/PostProcessShaders/HdrPShader.cso");
 }
 
 void Renderer::SetWireFrame()
@@ -906,6 +905,8 @@ void Renderer::DrawForwardPass(RenderingComponent* component)
 		currentPixel = pixelFSShader;
 		currentPixel->SetSamplerState("basicSampler", textureSample);
 		currentPixel->SetShaderResourceView("surfaceTexture", component->mat.GetSurfaceTexture());
+		currentPixel->SetFloat("uvXOffset", component->mat.uvXOffSet);
+		currentPixel->SetFloat("uvYOffset", component->mat.uvYOffSet);
 	}
 	else
 	{
@@ -913,6 +914,8 @@ void Renderer::DrawForwardPass(RenderingComponent* component)
 		currentPixel->SetSamplerState("basicSampler", textureSample);
 		currentPixel->SetShaderResourceView("surfaceTexture", component->mat.GetSurfaceTexture());
 		currentPixel->SetShaderResourceView("normalTexture", component->mat.GetNormalTexture());
+		currentPixel->SetFloat("uvXOffset", component->mat.uvXOffSet);
+		currentPixel->SetFloat("uvYOffset", component->mat.uvYOffSet);
 	}
 
 	SetLights(currentPixel);
