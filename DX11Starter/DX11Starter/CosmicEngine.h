@@ -29,6 +29,7 @@ public:
 	float dayTime;
 	bool click;
 	bool initFinished = false;
+	bool lockCamera = false;
 
 	// Overridden setup and game loop methods, which
 	// will be called automatically

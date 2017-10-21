@@ -30,4 +30,9 @@ void DefaultScene::CheckInputs(float deltaTime)
 		Scene2* level2 = new Scene2(engine);
 		engine->LoadScene(level2);
 	}
+	else if (engine->IsKeyDown(99))
+	{
+		Tyrian2000* tyrian = new Tyrian2000(engine);
+		engine->LoadScene(tyrian);
+	}
 }

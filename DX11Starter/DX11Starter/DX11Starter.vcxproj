@@ -145,6 +145,8 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="BackGroundTiles.cpp" />
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CosmicEngine.cpp" />
     <ClCompile Include="CosmicPhysic.cpp" />
@@ -153,15 +155,19 @@
     <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene2.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
+    <ClCompile Include="Tyrian2000.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AnimationData.h" />
     <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="BackGroundTiles.h" />
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CosmicEngine.h" />
@@ -174,6 +180,7 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderingComponent.h" />
     <ClInclude Include="RigidBody.h" />
@@ -181,6 +188,7 @@
     <ClInclude Include="Scene2.h" />
     <ClInclude Include="SimpleShader.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="Tyrian2000.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>

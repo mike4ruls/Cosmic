@@ -224,7 +224,7 @@ void CosmicEngine::OnMouseMove(WPARAM buttonState, int x, int y)
 {
 	float sensitivity = 0.005f;
 	// Add any custom code here...
-	if (click)
+	if (click && !lockCamera)
 	{
 		cam->transform.rotation = { cam->transform.rotation.x + ((x - prevMousePos.x) * sensitivity), cam->transform.rotation.y + ((y - prevMousePos.y) * sensitivity), 0 };
 

@@ -1,0 +1,7 @@
+Implement Animations
+Implement Deferred Shading
+Build my Physic Engine
+Build Tryian Game
+Make Stuff Singletons
+	-AssetManager
+	-InputManager

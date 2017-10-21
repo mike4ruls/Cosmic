@@ -30,11 +30,41 @@
     <Filter Include="Scenes">
       <UniqueIdentifier>{11e9ed83-262e-4c88-95db-d144a32c91cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scenes\Headers">
+    <Filter Include="Scenes\Tyrian2000">
+      <UniqueIdentifier>{6fc3ec28-92bb-466f-a0b6-167dad6ff8a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\DefaultScene">
       <UniqueIdentifier>{542b6c6e-3d2a-4ad7-a652-d836b1d925d0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scenes\Source">
+    <Filter Include="Scenes\Scene1">
       <UniqueIdentifier>{d1c26fce-8792-40c1-9c98-c1ffcff79e3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Scene2">
+      <UniqueIdentifier>{ac63ccf2-60dc-4340-8c97-7f624d76edcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\DefaultScene\Header">
+      <UniqueIdentifier>{9c2713d2-5a76-486e-b8a1-88fbd301af3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\DefaultScene\Source">
+      <UniqueIdentifier>{609c9656-e761-4d74-8592-69c3a5da7faf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Scene2\Header">
+      <UniqueIdentifier>{abd96790-4c80-4ae5-b2e6-f33e7d741426}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Scene2\Source">
+      <UniqueIdentifier>{533a280b-06f0-4752-be7c-ffbe9bfb29cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Tyrian2000\Header">
+      <UniqueIdentifier>{d2b81bed-0f82-4a9b-b0a1-b2a74ccc53b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Tyrian2000\Source">
+      <UniqueIdentifier>{7d5921c8-9b7e-40df-ae73-efd9b9c3a74e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Scene1\Header">
+      <UniqueIdentifier>{3345697d-cf6f-4a92-909a-365ee54ba576}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Scene1\Source">
+      <UniqueIdentifier>{c9861956-3298-4a44-af11-5dade1f0ad84}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -62,15 +92,6 @@
     <ClCompile Include="CosmicEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Scenes\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene2.cpp">
-      <Filter>Scenes\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="DefaultScene.cpp">
-      <Filter>Scenes\Source</Filter>
-    </ClCompile>
     <ClCompile Include="AssetManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -79,6 +100,27 @@
     </ClCompile>
     <ClCompile Include="Animation.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Scenes\Scene1\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Tyrian2000.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene2.cpp">
+      <Filter>Scenes\Scene2\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultScene.cpp">
+      <Filter>Scenes\DefaultScene\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="BackGroundTiles.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -124,15 +166,6 @@
     <ClInclude Include="CosmicEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Scene2.h">
-      <Filter>Scenes\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Scenes\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="DefaultScene.h">
-      <Filter>Scenes\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Structs</Filter>
     </ClInclude>
@@ -150,6 +183,27 @@
     </ClInclude>
     <ClInclude Include="AnimationData.h">
       <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Scenes\Scene1\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Tyrian2000.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene2.h">
+      <Filter>Scenes\Scene2\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultScene.h">
+      <Filter>Scenes\DefaultScene\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="BackGroundTiles.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

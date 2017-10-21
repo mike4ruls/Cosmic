@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Scene2.h"
 #include "Scene.h"
+#include "Tyrian2000.h"
 
 class DefaultScene :
 	public Game

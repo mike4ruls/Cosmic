@@ -22,7 +22,7 @@ void Scene2::Init()
 	gameObjects[0]->transform.Scale(50.0f, 50.0f, 0.3f);
 	gameObjects[0]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("harambe"));
 
-	gameObjects[2]->transform.Scale(10.0f);
+	gameObjects[2]->transform.Scale(40.0f);
 	gameObjects[2]->transform.Translate(0.0f, -10.0f, 0.0f);
 	gameObjects[2]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("brick"));
 
