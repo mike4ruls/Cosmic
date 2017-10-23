@@ -22,6 +22,7 @@ public:
 	void LoadBulletPool();
 	void LoadBackgroundTilePool(std::string textureName);
 	void Shoot();
+	void CalculateCamPos();
 
 	Player* p1;
 

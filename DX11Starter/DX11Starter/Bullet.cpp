@@ -11,6 +11,7 @@ Bullet::Bullet()
 Bullet::Bullet(GameEntity * obj)
 {
 	bullet = obj;
+	bullet->renderingComponent.mat.surfaceColor = {0.0f, 1.0f, 1.0f, 1.0f};
 	isActive = false;
 	bullet = obj;
 }

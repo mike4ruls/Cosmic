@@ -35,16 +35,16 @@ void Tyrian2000::Init()
 
 	moveDownHeight = -30;
 
-	xConstraint = 22.0f;
-	posZConstraint = 8.0f;
-	negZConstraint = 15.5f;
+	xConstraint = 24.0f;
+	posZConstraint = 11.8f;
+	negZConstraint = 12.5f;
 
 	tileSize = 4.5f;
 	tileDistOffScreen = -50.0f;
 
 	CreatePlayer();
 	LoadBulletPool();
-	LoadBackgroundTilePool("grass");
+	LoadBackgroundTilePool("brick");
 }
 
 void Tyrian2000::Update(float deltaTime, float totalTime)
@@ -68,6 +68,7 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		backgroundTilePool[i]->Update(deltaTime);
 	}
 	CheckOutOfBounds();
+	CalculateCamPos();
 	CheckInputs(deltaTime);
 }
 
@@ -188,7 +189,7 @@ void Tyrian2000::LoadBackgroundTilePool(std::string textureName)
 	for (unsigned int i = 0; i < numOfTiles; i++)
 	{
 		BackGroundTiles* newTile = new BackGroundTiles(engine->CreateGameObject("Plane"), { 0,0,-1.0f * 5.0f });
-		newTile->tile->transform.Scale(tileSize + 1);
+		newTile->tile->transform.Scale(tileSize + 2, tileSize + 1, tileSize + 1);
 		newTile->tile->transform.Translate(0.0f, moveDownHeight, (i * tileDist));
 		newTile->tile->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture(textureName));
 		newTile->tile->renderingComponent.mat.uvXOffSet = 5.0f;
@@ -209,4 +210,8 @@ void Tyrian2000::Shoot()
 			break;
 		}
 	}
+}
+void Tyrian2000::CalculateCamPos()
+{
+	cam->transform.position = {p1->player->transform.position.x / 10.0f, cam->transform.position.y, p1->player->transform.position.z / 10.0f};
 }
