@@ -77,6 +77,9 @@ void AssetManager::AssLoadMeshes()
 	AssimpLoadMeshes("Assets/Models/teapot.obj", "Teapot");
 	AssimpLoadMeshes("Assets/Models/HaloSword.obj", "HaloSword");
 	AssimpLoadMeshes("Assets/Models/RainbowRoad.obj", "RainbowRoad");
+	AssimpLoadMeshes("Assets/Models/BlackDragon/Dragon 2.5_fbx.fbx", "Dragon");
+	AssimpLoadMeshes("Assets/Models/FighterShip/WraithRaiderStarship.obj", "FighterShip");
+	//AssimpLoadMeshes("Assets/Models/BlackDragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx", "DragonAnmim");
 
 }
 void AssetManager::LoadHandCraftedMeshes()
@@ -132,11 +135,6 @@ void AssetManager::AssimpLoadMeshes(char* fileName, std::string name)
 
 	const aiScene* pScene = importer.ReadFile(fileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
 
-
-	// Variables used while reading the file
-	std::vector<DirectX::XMFLOAT3> positions;     // Positions from the file
-	std::vector<DirectX::XMFLOAT3> normals;       // Normals from the file
-	std::vector<DirectX::XMFLOAT2> uvs;           // UVs from the file
 	std::vector<Vertex> verts;           // Verts we're assembling
 	std::vector<int> indices;           // Indices of these verts
 
@@ -183,6 +181,8 @@ void AssetManager::LoadSurfaceTextures()
 	StoreSurfaceTexture("harambe", L"Assets/Textures/harambe.jpg");
 	StoreSurfaceTexture("water", L"Assets/Textures/water.jpg");
 	StoreSurfaceTexture("grass", L"Assets/Textures/grass.jpg");
+	StoreSurfaceTexture("dragonSur", L"Assets/Textures/BlackDragon/Dragon_ground_color.jpg");
+	StoreSurfaceTexture("fighterShipSur", L"Assets/Textures/FighterShip/vj2c.jpg");
 	//StoreSurfaceTexture("raygun", L"Assets/Textures/raygunUVTest.tga");
 }
 

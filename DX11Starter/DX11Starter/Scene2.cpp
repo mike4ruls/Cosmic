@@ -18,13 +18,19 @@ void Scene2::Init()
 	gameObjects.push_back(engine->CreateGameObject("Cube"));
 	gameObjects.push_back(engine->CreateGameObject("Sphere"));
 	gameObjects.push_back(engine->CreateGameObject("Plane"));
+	gameObjects.push_back(engine->CreateGameObject("Dragon"));
 
+	gameObjects[0]->transform.Translate(0.0f, 0.0f, 20.0f);
 	gameObjects[0]->transform.Scale(50.0f, 50.0f, 0.3f);
 	gameObjects[0]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("harambe"));
 
 	gameObjects[2]->transform.Scale(40.0f);
 	gameObjects[2]->transform.Translate(0.0f, -10.0f, 0.0f);
 	gameObjects[2]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("brick"));
+
+	//gameObjects[3]->transform.Scale(0.5f);
+	gameObjects[3]->transform.Rotate(180.0f,-90.0f,0.0f);
+	gameObjects[3]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("dragonSur")); 
 
 
 	pointLight = engine->rend->CreatePointLight({0,-5,0});

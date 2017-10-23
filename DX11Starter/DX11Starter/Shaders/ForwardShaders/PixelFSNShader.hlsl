@@ -59,7 +59,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	//float4 color = float4(0.8f, 0.8f, 0.8f, 1.0f);
 	float2 newUV = float2(input.uv.x * uvXOffset, input.uv.y * uvYOffset);
-	float4 color = surfaceTexture.Sample(basicSampler, newUV);
+	float4 color = surfaceTexture.Sample(basicSampler, newUV) * input.color;
 	float4 norm = normalTexture.Sample(basicSampler, newUV);
 	input.normal = normalize(input.normal);
 	float4 allLights = float4(0.0f, 0.0f, 0.0f, 1.0f);

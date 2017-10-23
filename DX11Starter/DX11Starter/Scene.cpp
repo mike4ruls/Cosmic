@@ -44,8 +44,8 @@ void Scene::Update(float deltaTime, float totalTime)
 	}
 	float scale = std::sin(((totalTime / 10)*180.0f) / (2.0f*3.14f));
 
-	gameObjects[1]->transform.Rotate(0.0f, 0.0f, 1.0f * deltaTime);
-	gameObjects[2]->transform.Rotate(1.0f * deltaTime, 1.0f * deltaTime, 1.0f * deltaTime);
+	gameObjects[1]->transform.Rotate(0.0f, 0.0f, 30.0f * deltaTime);
+	gameObjects[2]->transform.Rotate(10.0f * deltaTime, 30.0f * deltaTime, 30.0f * deltaTime);
 	gameObjects[3]->transform.scale = { scale,scale,scale };
 
 	CheckInputs(deltaTime);
@@ -161,6 +161,7 @@ void Scene::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool ca
 	obj->renderingComponent.mat.surfaceColor = { (float)(std::rand() % 100) * 0.01f, (float)(std::rand() % 100)* 0.01f, (float)(std::rand() % 100) * 0.01f, 1.0f };
 	obj->transform.position = pos;
 	obj->transform.rotation = cam->transform.rotation;
+	printf("\nRot - %f, %f, %f", cam->transform.rotation.x, cam->transform.rotation.y, cam->transform.rotation.z);
 
 	if (canShoot)
 	{

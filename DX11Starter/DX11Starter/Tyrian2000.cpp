@@ -26,7 +26,7 @@ Tyrian2000::~Tyrian2000()
 
 void Tyrian2000::Init()
 {
-	engine->lockCamera = true;
+	//engine->lockCamera = true;
 	engine->lockSunLight = true;
 	cam->transform.Rotate(0.0f, 89.5f, 0.0f);
 	cam->transform.Translate(0.0f, 5.0f, 0.0f);
@@ -67,30 +67,62 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		}
 		backgroundTilePool[i]->Update(deltaTime);
 	}
+	CheckOutOfBounds();
 	CheckInputs(deltaTime);
 }
 
 void Tyrian2000::CheckInputs(float dt)
 {
-	if (engine->IsKeyDown(65) && p1->player->transform.position.x >= -xConstraint) //A
+	bool butCheckX = false;
+	bool butCheckY = false;
+	if (engine->IsKeyDown(65)) //A
 	{
+		butCheckX = true;
+		p1->currentTurnState = Player::LEFT;
+		p1->previousTurnState = Player::LEFT;
 		p1->player->transform.Translate((p1->player->transform.right.x * -p1->speed) * dt, 0.0f, (p1->player->transform.right.z * -p1->speed) * dt);
 	}
-	if (engine->IsKeyDown(68) && p1->player->transform.position.x <= xConstraint) //D
+	if (engine->IsKeyDown(68)) //D
 	{
+		butCheckX = true;
+		p1->currentTurnState = Player::RIGHT;
+		p1->previousTurnState = Player::RIGHT;
 		p1->player->transform.Translate((p1->player->transform.right.x * p1->speed) * dt, 0.0f, (p1->player->transform.right.z * p1->speed) * dt);
 	}
-	if (engine->IsKeyDown(87) && p1->player->transform.position.z <= posZConstraint) //W
+	if (engine->IsKeyDown(87)) //W
 	{
+		butCheckY = true;
 		p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * p1->speed) * dt);
 	}
-	if (engine->IsKeyDown(83) && p1->player->transform.position.z >= -negZConstraint) //S
+	if (engine->IsKeyDown(83)) //S
 	{
+		butCheckY = true;
 		p1->player->transform.Translate((p1->player->transform.foward.x * -p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * -p1->speed) * dt);
+	}
+	if (!butCheckX)
+	{
+		p1->currentTurnState = Player::STRAIGHT;
 	}
 	if (engine->IsKeyDown(VK_RETURN) && p1->canAttack)
 	{
 		Shoot();
+	}
+	if (engine->IsKeyPressed(VK_SPACE) && !p1->canStrafe)
+	{
+		//p1->rotLeft = rotLeft;
+		p1->TurnOnStrafe();
+		if(p1->currentTurnState == Player::STRAIGHT && butCheckY)
+		{
+			p1->speed = p1->normSpeed;
+		}
+		else if(p1->previousTurnState == Player::LEFT)
+		{
+			p1->player->rigidBody.ApplyForce(-p1->strafeForce, 0.0f, 0.0f);
+		}
+		else if (p1->previousTurnState == Player::RIGHT)
+		{
+			p1->player->rigidBody.ApplyForce(p1->strafeForce, 0.0f, 0.0f);
+		}
 	}
 	if (engine->IsKeyDown(96))
 	{
@@ -103,9 +135,35 @@ void Tyrian2000::CheckInputs(float dt)
 	}*/
 }
 
+void Tyrian2000::CheckOutOfBounds()
+{
+	if(p1->player->transform.position.x <= -xConstraint)
+	{
+		DirectX::XMFLOAT3 pos = p1->player->transform.position;
+		p1->player->transform.position = { -xConstraint, pos.y, pos.z};
+	}
+	if(p1->player->transform.position.x >= xConstraint)
+	{
+		DirectX::XMFLOAT3 pos = p1->player->transform.position;
+		p1->player->transform.position = { xConstraint, pos.y, pos.z };
+	}
+	if (p1->player->transform.position.z >= posZConstraint)
+	{
+		DirectX::XMFLOAT3 pos = p1->player->transform.position;
+		p1->player->transform.position = { pos.x, pos.y, posZConstraint };
+	}
+	if (p1->player->transform.position.z <= -negZConstraint)
+	{
+		DirectX::XMFLOAT3 pos = p1->player->transform.position;
+		p1->player->transform.position = { pos.x, pos.y, -negZConstraint };
+	}
+}
+
 void Tyrian2000::CreatePlayer()
 {
-	p1 = new Player(engine->CreateGameObject("Cube"), 50.0f, 0.1f);
+	p1 = new Player(engine->CreateGameObject("FighterShip"), 0.1f);
+	p1->player->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("fighterShipSur"));
+	p1->player->transform.Scale(0.005f);
 	p1->player->transform.Translate(0.0f, 4.0f + moveDownHeight, 0.0f);
 }
 
@@ -130,7 +188,7 @@ void Tyrian2000::LoadBackgroundTilePool(std::string textureName)
 	for (unsigned int i = 0; i < numOfTiles; i++)
 	{
 		BackGroundTiles* newTile = new BackGroundTiles(engine->CreateGameObject("Plane"), { 0,0,-1.0f * 5.0f });
-		newTile->tile->transform.Scale(tileSize);
+		newTile->tile->transform.Scale(tileSize + 1);
 		newTile->tile->transform.Translate(0.0f, moveDownHeight, (i * tileDist));
 		newTile->tile->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture(textureName));
 		newTile->tile->renderingComponent.mat.uvXOffSet = 5.0f;

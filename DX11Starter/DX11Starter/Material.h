@@ -18,6 +18,7 @@ public:
 
 	void LoadSurfaceTexture(ID3D11ShaderResourceView* text)
 	{
+		surfaceColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		surfaceTexture = text;
 		hasSurText = true;
 	}

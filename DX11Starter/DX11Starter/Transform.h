@@ -22,14 +22,24 @@ struct Transform {
 		position.z += z;
 	}
 	void Rotate(DirectX::XMFLOAT3 rot) {
-		rotation.x += rot.x;
-		rotation.y += rot.y;
-		rotation.z += rot.z;
+		rotation.x += (rot.x * 3.1415f) / 180;
+		rotation.y += (rot.y * 3.1415f) / 180;
+		rotation.z += (rot.z * 3.1415f) / 180;
 	}
 	void Rotate(float x, float y, float z) {
-		rotation.x += x;
-		rotation.y += y;
-		rotation.z += z;
+		rotation.x += (x * 3.1415f) / 180;
+		rotation.y += (y * 3.1415f) / 180;
+		rotation.z += (z * 3.1415f) / 180;
+	}
+	void SetRotatation(DirectX::XMFLOAT3 rot) {
+		rotation.x = (rot.x * 3.1415f) / 180;
+		rotation.y = (rot.y * 3.1415f) / 180;
+		rotation.z = (rot.z * 3.1415f) / 180;
+	}
+	void SetRotatation(float x, float y, float z) {
+		rotation.x = (x * 3.1415f) / 180;
+		rotation.y = (y * 3.1415f) / 180;
+		rotation.z = (z * 3.1415f) / 180;
 	}
 	void Scale(DirectX::XMFLOAT3 sca) {
 		scale.x += sca.x;
@@ -37,14 +47,14 @@ struct Transform {
 		scale.z += sca.z;
 	}
 	void Scale(float x, float y, float z) {
-		scale.x += x;
-		scale.y += y;
-		scale.z += z;
+		scale.x = x;
+		scale.y = y;
+		scale.z = z;
 	}
 	void Scale(float sca) {
-		scale.x += sca;
-		scale.y += sca;
-		scale.z += sca;
+		scale.x = sca;
+		scale.y = sca;
+		scale.z = sca;
 	}
 	void CalculateDirections(){
 		DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(rotation.y, rotation.x, rotation.z);

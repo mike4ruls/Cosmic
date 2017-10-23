@@ -289,6 +289,7 @@ void CosmicEngine::SetKeyInputs()
 	keys[VK_RIGHT] = 0;
 	keys[VK_DOWN] = 0;
 	keys[VK_LSHIFT] = 0;
+	keys[VK_RSHIFT] = 0;
 	keys[VK_SPACE] = 0;
 	keys[VK_RETURN] = 0;
 	keys[VK_TAB] = 0;

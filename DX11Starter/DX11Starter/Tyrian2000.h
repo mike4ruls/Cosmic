@@ -17,6 +17,7 @@ public:
 	void Init();
 	void Update(float deltaTime, float totalTime);
 	void CheckInputs(float dt);
+	void CheckOutOfBounds();
 	void CreatePlayer();
 	void LoadBulletPool();
 	void LoadBackgroundTilePool(std::string textureName);
