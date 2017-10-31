@@ -12,6 +12,8 @@ Camera::~Camera()
 
 void Camera::Init(unsigned int w, unsigned int h)
 {
+	lockCameraPos = false;
+
 	transform.position = { 0.0f, 0.0f, -5.0f };
 	transform.rotation = { 0.0f, 0.0f, 0.0f };
 	transform.scale = { 1.0f, 1.0f, 1.0f };
@@ -41,8 +43,50 @@ void Camera::Update(float dt)
 	rigidBody.UpdateVelocity(&transform, dt);
 	transform.CalculateDirections();
 	SetMatricies();
+	if (!lockCameraPos) {
+		CheckInputs(dt);
+	}
 }
 
+void Camera::CheckInputs(float dt)
+{
+	/////////////////////////
+	//CAMERA MOVEMENT
+	/////////////////////////
+	if (inputManager->IsKeyDown(16)) // Left Shift
+	{
+		camSpeed = runSpeed *1000;
+	}
+	else
+	{
+		camSpeed = normSpeed * 1000;
+	}
+
+	if (inputManager->IsKeyDown(65)) //A
+	{
+		rigidBody.ApplyForce((transform.right.x * -camSpeed) * dt, (transform.right.y * -camSpeed) * dt, (transform.right.z * -camSpeed) * dt);
+	}
+	if (inputManager->IsKeyDown(68)) //D
+	{
+		rigidBody.ApplyForce((transform.right.x * camSpeed) * dt, (transform.right.y * camSpeed) * dt, (transform.right.z * camSpeed) * dt);
+	}
+	if (inputManager->IsKeyDown(87)) //W
+	{
+		rigidBody.ApplyForce((transform.foward.x * camSpeed) * dt, (transform.foward.y * camSpeed) * dt, (transform.foward.z * camSpeed) * dt);
+	}
+	if (inputManager->IsKeyDown(83)) //S
+	{
+		rigidBody.ApplyForce((transform.foward.x * -camSpeed) * dt, (-transform.foward.y * -camSpeed) * dt, (transform.foward.z * -camSpeed) * dt);
+	}
+	if (inputManager->IsKeyDown(32)) // SPACE
+	{
+		rigidBody.ApplyForce(0.0f, camSpeed * dt, 0.0f);
+	}
+	if (inputManager->IsKeyDown(88)) // X
+	{
+		rigidBody.ApplyForce(0.0f, -camSpeed * dt, 0.0f);
+	}
+}
 void Camera::SetMatricies()
 {
 	// Create the View matrix

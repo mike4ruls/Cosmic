@@ -11,17 +11,20 @@ public:
 	};
 
 	Player();
-	Player(GameEntity* obj, float atkSpd);
+	Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg);
 	~Player();
 
 	TurnState currentTurnState;
 	TurnState previousTurnState;
+
+	float health;
 
 	float speed;
 	float normSpeed;
 	float strafeSpeed;
 
 	float atkSpeed;
+	float atkDamage;
 
 	float strafeForce;
 	float strafeRotSpeed;
@@ -35,6 +38,7 @@ public:
 	bool canAttack;
 	bool canStrafe;
 	bool canTilt;
+	bool isDead;
 
 	DirectX::XMFLOAT3 originalRot;
 
@@ -44,6 +48,7 @@ public:
 	void Strafe(float dt);
 	void TurnOnStrafe();
 	void Tilt(float dt);
+	void TakeDamage(float dmg);
 	DirectX::XMFLOAT3 FindDistAway(DirectX::XMFLOAT3 dir, float dist);
 };
 

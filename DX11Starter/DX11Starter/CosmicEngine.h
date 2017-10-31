@@ -5,6 +5,8 @@
 #include <vector>
 #include <random>
 #include <ctime>
+#include "CosmicPhysic.h"
+#include "InputManager.h"
 #include "Mesh.h"
 #include "GameEntity.h"
 #include "Camera.h"
@@ -29,8 +31,8 @@ public:
 	float dayTime;
 	bool click;
 	bool initFinished = false;
-	bool lockCamera = false;
 	bool lockSunLight = false;
+	bool lockCamera = false;
 
 	// Overridden setup and game loop methods, which
 	// will be called automatically
@@ -46,11 +48,8 @@ public:
 	void LoadScene(Game* newScene);
 	void QuitLevel();
 
-	// Key inputs
-	void SetKeyInputs();
-	void UpdateInput();
-	bool IsKeyDown(int keyCode);
-	bool IsKeyPressed(int keyCode);
+	CosmicPhysic* physicEngine;
+	InputManager* inputManager;
 
 	// Overridden mouse input helper methods
 	void OnMouseDown(WPARAM buttonState, int x, int y);

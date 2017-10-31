@@ -6,11 +6,13 @@ Player::Player()
 {
 }
 
-Player::Player(GameEntity* obj, float atkSpd)
+Player::Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg)
 {
 	player = obj;
 	currentTilt = LEFT;
 	previousTurnState = LEFT;
+
+	health = hlt;
 
 	normSpeed = 20.0f;
 	strafeSpeed = 0.0f;
@@ -29,7 +31,9 @@ Player::Player(GameEntity* obj, float atkSpd)
 	canAttack = true;
 	canStrafe = false;
 	canTilt = true;
+	isDead = false;
 	atkSpeed = atkSpd;
+	atkDamage = atkdmg;
 	timer = atkSpeed;
 	player->renderingComponent.mat.surfaceColor = { 1.0f,0.0f,0.0f,1.0f };
 	player->rigidBody.applyFriction = true;
@@ -131,6 +135,15 @@ void Player::Tilt(float dt)
 			}
 		}
 		player->transform.SetRotatation(0.0f, 0.0f, currentTilt);
+	}
+}
+
+void Player::TakeDamage(float dmg)
+{
+	health -= dmg;
+	if (health <= 0.0f)
+	{
+		isDead = true;
 	}
 }
 

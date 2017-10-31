@@ -14,6 +14,9 @@ Scene2::~Scene2()
 
 void Scene2::Init()
 {
+	inputManager = engine->inputManager;
+	cam->inputManager = inputManager;
+
 	// Creating game objects
 	gameObjects.push_back(engine->CreateGameObject("Cube"));
 	gameObjects.push_back(engine->CreateGameObject("Sphere"));
@@ -24,6 +27,8 @@ void Scene2::Init()
 	gameObjects[0]->transform.Scale(50.0f, 50.0f, 0.3f);
 	gameObjects[0]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("harambe"));
 
+	gameObjects[1]->renderingComponent.mat.surfaceReflectance = 0.5f;
+
 	gameObjects[2]->transform.Scale(40.0f);
 	gameObjects[2]->transform.Translate(0.0f, -10.0f, 0.0f);
 	gameObjects[2]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("brick"));
@@ -31,6 +36,7 @@ void Scene2::Init()
 	//gameObjects[3]->transform.Scale(0.5f);
 	gameObjects[3]->transform.Rotate(180.0f,-90.0f,0.0f);
 	gameObjects[3]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("dragonSur")); 
+	gameObjects[3]->renderingComponent.mat.surfaceReflectance = 0.5f;
 
 
 	pointLight = engine->rend->CreatePointLight({0,-5,0});
@@ -54,26 +60,26 @@ void Scene2::Update(float deltaTime, float totalTime)
 
 void Scene2::CheckInputs(float deltaTime)
 {
-	if (engine->IsKeyDown(VK_LEFT))
+	if (inputManager->IsKeyDown(VK_LEFT))
 	{
 		//triangleObj->transform.Translate(-1.0f * deltaTime,0.0f,0.0f);
 		//gameObjects[0]->rigidBody.ApplyForce(-1.0f, 0.0f, 0.0f);
 
 		pointLight->ligComponent->lightPos = DirectX::XMFLOAT3(pointLight->ligComponent->lightPos.x - (1.0f*deltaTime), pointLight->ligComponent->lightPos.y, pointLight->ligComponent->lightPos.z);
 	}
-	if (engine->IsKeyDown(VK_RIGHT))
+	if (inputManager->IsKeyDown(VK_RIGHT))
 	{
 		//triangleObj->transform.Translate(1.0f * deltaTime, 0.0f, 0.0f);
 		//gameObjects[0]->rigidBody.ApplyForce(1.0f, 0.0f, 0.0f);
 		pointLight->ligComponent->lightPos = DirectX::XMFLOAT3(pointLight->ligComponent->lightPos.x + (1.0f*deltaTime), pointLight->ligComponent->lightPos.y, pointLight->ligComponent->lightPos.z);
 	}
-	if (engine->IsKeyDown(VK_UP))
+	if (inputManager->IsKeyDown(VK_UP))
 	{
 		//triangleObj->transform.Translate(0.0f, 1.0f * deltaTime, 0.0f);
 		//gameObjects[0]->rigidBody.ApplyForce(0.0f, 1.0f, 0.0f);
 		pointLight->ligComponent->lightPos = DirectX::XMFLOAT3(pointLight->ligComponent->lightPos.x, pointLight->ligComponent->lightPos.y + (1.0f*deltaTime), pointLight->ligComponent->lightPos.z);
 	}
-	if (engine->IsKeyDown(VK_DOWN))
+	if (inputManager->IsKeyDown(VK_DOWN))
 	{
 		//triangleObj->transform.Translate(0.0f, -1.0f * deltaTime, 0.0f);
 		//gameObjects[0]->rigidBody.ApplyForce(0.0f, -1.0f, 0.0f);
@@ -84,44 +90,7 @@ void Scene2::CheckInputs(float deltaTime)
 		//gameObjects[i]->Update(deltaTime);
 	}
 
-	/////////////////////////
-	//CAMERA MOVEMENT
-	/////////////////////////
-	if (engine->IsKeyDown(VK_LSHIFT)) //A
-	{
-		cam->camSpeed = cam->runSpeed;
-	}
-	else
-	{
-		cam->camSpeed = cam->normSpeed;
-	}
-
-	if (engine->IsKeyDown(65)) //A
-	{
-		cam->rigidBody.ApplyForce(cam->transform.right.x * -cam->camSpeed, cam->transform.right.y * -cam->camSpeed, cam->transform.right.z * -cam->camSpeed);
-	}
-	if (engine->IsKeyDown(68)) //D
-	{
-		cam->rigidBody.ApplyForce(cam->transform.right.x * cam->camSpeed, cam->transform.right.y * cam->camSpeed, cam->transform.right.z * cam->camSpeed);
-	}
-	if (engine->IsKeyDown(87)) //W
-	{
-		cam->rigidBody.ApplyForce(cam->transform.foward.x * cam->camSpeed, cam->transform.foward.y * cam->camSpeed, cam->transform.foward.z * cam->camSpeed);
-	}
-	if (engine->IsKeyDown(83)) //S
-	{
-		cam->rigidBody.ApplyForce(cam->transform.foward.x * -cam->camSpeed, -cam->transform.foward.y * -cam->camSpeed, cam->transform.foward.z * -cam->camSpeed);
-	}
-	if (engine->IsKeyDown(VK_SPACE))
-	{
-		cam->rigidBody.ApplyForce(0.0f, cam->camSpeed, 0.0f);
-	}
-	if (engine->IsKeyDown(88))
-	{
-		cam->rigidBody.ApplyForce(0.0f, -cam->camSpeed, 0.0f);
-	}
-
-	if (engine->IsKeyPressed(VK_RETURN) || engine->IsKeyPressed(69))
+	if (inputManager->IsKeyPressed(VK_RETURN) || inputManager->IsKeyPressed(69))
 	{
 		//"Triangle"
 		//"Square"
@@ -140,21 +109,21 @@ void Scene2::CheckInputs(float deltaTime)
 		DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
 		SpawnGameObject("RayGun", spawnPoint, false);
 	}
-	if (engine->IsKeyDown(49))
+	if (inputManager->IsKeyDown(49))
 	{
 		engine->dayTime += 1.0f * deltaTime;
 	}
-	if (engine->IsKeyDown(50))
+	if (inputManager->IsKeyDown(50))
 	{
 		engine->dayTime -= 1.0f * deltaTime;
 	}
-	if (engine->IsKeyDown(96))
+	if (inputManager->IsKeyDown(96))
 	{
 		DefaultScene* defaultLevel = new DefaultScene(engine);
 		engine->rend->LoadSkyBox(1);
 		engine->LoadScene(defaultLevel);
 	}
-	else if (engine->IsKeyDown(97))
+	else if (inputManager->IsKeyDown(97))
 	{
 		Scene* level1 = new Scene(engine);
 		engine->LoadScene(level1);

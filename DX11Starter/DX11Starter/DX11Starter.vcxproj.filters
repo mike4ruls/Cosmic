@@ -66,6 +66,15 @@
     <Filter Include="Scenes\Scene1\Source">
       <UniqueIdentifier>{c9861956-3298-4a44-af11-5dade1f0ad84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scenes\FramRateTestScene">
+      <UniqueIdentifier>{b6eb421a-390e-4298-aa35-791bf3f0f9ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\FramRateTestScene\Header">
+      <UniqueIdentifier>{468787a6-aa1f-4521-8d3b-9aeb6bc9e858}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\FramRateTestScene\Source">
+      <UniqueIdentifier>{6e2ec99c-1087-47a2-b2c0-1f0aa5109972}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -121,6 +130,18 @@
     </ClCompile>
     <ClCompile Include="BackGroundTiles.cpp">
       <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameRateTestScene.cpp">
+      <Filter>Scenes\FramRateTestScene\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CosmicInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -204,6 +225,18 @@
     </ClInclude>
     <ClInclude Include="BackGroundTiles.h">
       <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameRateTestScene.h">
+      <Filter>Scenes\FramRateTestScene\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="CosmicInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

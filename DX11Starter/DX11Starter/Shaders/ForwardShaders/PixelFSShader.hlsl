@@ -17,8 +17,10 @@ cbuffer externalData : register(b0)
 	int sCount;
 	float uvXOffset;
 	float uvYOffset;
+	float reflectance;
 };
 Texture2D surfaceTexture : register(t0);
+TextureCube skyTexture : register(t1);
 SamplerState basicSampler : register(s0);
 // Struct representing the data we expect to receive from earlier pipeline stages
 // - Should match the output of our corresponding vertex shader
@@ -65,7 +67,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//float4 ambient = dirLights.amb;
 
-	////float3 E = input.position.xyz - input.camPos;
+	float3 E = input.camPos - input.worldPos;
 	//float3 L = normalize(dirLights.dirLight);
 	////float3 H = normalize(-L + E);
 
@@ -125,5 +127,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//color = float4(0.8f, 0.8f, 0.8f, 1.0f);
 	//color = float4(dirLights[0].lightColor.xyz, 1.0);
 
-	return color;
+	float3 skyRefl = reflect(-E, input.normal);
+	float4 reflColor = skyTexture.Sample(basicSampler, skyRefl);
+	return lerp(color, reflColor, reflectance);
+
+	//return color;
 }

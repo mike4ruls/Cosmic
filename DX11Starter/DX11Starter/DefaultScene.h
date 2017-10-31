@@ -4,6 +4,7 @@
 #include "Scene2.h"
 #include "Scene.h"
 #include "Tyrian2000.h"
+#include "FrameRateTestScene.h"
 
 class DefaultScene :
 	public Game

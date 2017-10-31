@@ -8,6 +8,7 @@ Mesh::Mesh()
 
 Mesh::Mesh(Vertex * vArr, int * iArr, unsigned int vSize, unsigned int iSize, std::string name, ID3D11Device* device)
 {
+	rendComponents = new std::vector<RenderingComponent*>();
 	// Create the VERTEX BUFFER description -----------------------------------
 	// - The description is created on the stack because we only need
 	//    it to create the buffer.  The description is then useless.
@@ -283,6 +284,7 @@ Mesh::~Mesh()
 		if (vertArr) { vertArr->Release(); }
 		if (indArr) { indArr->Release(); }
 	}
+	if (rendComponents) { delete rendComponents; rendComponents = nullptr; }
 
 }
 

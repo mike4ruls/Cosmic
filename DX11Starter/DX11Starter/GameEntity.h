@@ -18,7 +18,6 @@ public:
 	Transform transform;
 	RigidBody rigidBody;
 	RenderingComponent renderingComponent;
-	unsigned int rendID;
 
 	void ResetGameEntity();
 	void SetWorld();

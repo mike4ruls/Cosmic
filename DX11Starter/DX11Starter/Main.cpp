@@ -1,6 +1,21 @@
+//#define DEFAULT
+#define TYRIAN2000
+//#define TETRIS
+#if !defined DEFAULT && !defined TYRIAN2000 && !defined TETRIS
+#define DEFAULT
+#endif // !DEFAULT && !defined TYRIAN2000 && !defined TETRIS
+
+
+#ifdef DEFAULT
+#include "DefaultScene.h"
+#elif defined TYRIAN2000
+#include "Tyrian2000.h"
+#elif defined TETRIS
+#include "Tyrian2000.h"
+#endif
+
 #include <Windows.h>
 #include "CosmicEngine.h"
-#include "DefaultScene.h"
 
 // --------------------------------------------------------
 // Entry point for a graphical (non-console) Windows application
@@ -60,14 +75,20 @@ int WINAPI WinMain(
 	// early if something failed
 	hr = cosmic.InitDirectX();
 	if(FAILED(hr)) return hr;
+
+
+
+#ifdef DEFAULT
 	DefaultScene* defaultLevel = new DefaultScene(&cosmic);
-
 	cosmic.LoadDefaultScene(defaultLevel);
+#elif defined TYRIAN2000
+	Tyrian2000* tyrian = new Tyrian2000(&cosmic);
+	cosmic.LoadDefaultScene(tyrian);
+#elif defined TETRIS
+	Tyrian2000* tyrian = new Tyrian2000(&cosmic);
+	cosmic.LoadDefaultScene(tyrian); #elif TETRIS
+#endif
 
-
-	//Scene* level1 = new Scene(&cosmic);
-	//Scene2* level2 = new Scene2(&cosmic);
-	//cosmic.LoadScene(level1);
 
 	// Begin the message and game loop, and then return
 	// whatever we get back once the game loop is over

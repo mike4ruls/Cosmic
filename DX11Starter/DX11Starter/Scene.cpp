@@ -14,6 +14,9 @@ Scene::~Scene()
 void Scene::Init()
 {
 	// Creating game objects
+	inputManager = engine->inputManager;
+	cam->inputManager = inputManager;
+
 	gameObjects.push_back(engine->CreateGameObject("Triangle"));
 
 	
@@ -27,6 +30,7 @@ void Scene::Init()
 	gameObjects[2]->transform.Translate(0, 3, 4);
 	gameObjects[3]->transform.Translate(0, -3, 1);
 	gameObjects[5]->transform.Scale(0.1f);
+	gameObjects[5]->renderingComponent.mat.surfaceReflectance = 0.5f;
 
 	gameObjects[2]->renderingComponent.mat.surfaceColor = { 1.0f, 0.0f, 0.0f, 1.0f };
 	gameObjects[1]->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
@@ -53,22 +57,22 @@ void Scene::Update(float deltaTime, float totalTime)
 
 void Scene::CheckInputs(float deltaTime)
 {
-	if (engine->IsKeyDown(VK_LEFT))
+	if (inputManager->IsKeyDown(VK_LEFT))
 	{
 		//triangleObj->transform.Translate(-1.0f * deltaTime,0.0f,0.0f);
 		gameObjects[0]->rigidBody.ApplyForce(-1.0f, 0.0f, 0.0f);
 	}
-	if (engine->IsKeyDown(VK_RIGHT))
+	if (inputManager->IsKeyDown(VK_RIGHT))
 	{
 		//triangleObj->transform.Translate(1.0f * deltaTime, 0.0f, 0.0f);
 		gameObjects[0]->rigidBody.ApplyForce(1.0f, 0.0f, 0.0f);
 	}
-	if (engine->IsKeyDown(VK_UP))
+	if (inputManager->IsKeyDown(VK_UP))
 	{
 		//triangleObj->transform.Translate(0.0f, 1.0f * deltaTime, 0.0f);
 		gameObjects[0]->rigidBody.ApplyForce(0.0f, 1.0f, 0.0f);
 	}
-	if (engine->IsKeyDown(VK_DOWN))
+	if (inputManager->IsKeyDown(VK_DOWN))
 	{
 		//triangleObj->transform.Translate(0.0f, -1.0f * deltaTime, 0.0f);
 		gameObjects[0]->rigidBody.ApplyForce(0.0f, -1.0f, 0.0f);
@@ -77,44 +81,7 @@ void Scene::CheckInputs(float deltaTime)
 		gameObjects[i]->Update(deltaTime);
 	}
 
-	/////////////////////////
-	//CAMERA MOVEMENT
-	/////////////////////////
-	if (engine->IsKeyDown(VK_LSHIFT)) //A
-	{
-		cam->camSpeed = cam->runSpeed;
-	}
-	else
-	{
-		cam->camSpeed = cam->normSpeed;
-	}
-
-	if (engine->IsKeyDown(65)) //A
-	{
-		cam->rigidBody.ApplyForce(cam->transform.right.x * -cam->camSpeed, cam->transform.right.y * -cam->camSpeed, cam->transform.right.z * -cam->camSpeed);
-	}
-	if (engine->IsKeyDown(68)) //D
-	{
-		cam->rigidBody.ApplyForce(cam->transform.right.x * cam->camSpeed, cam->transform.right.y * cam->camSpeed, cam->transform.right.z * cam->camSpeed);
-	}
-	if (engine->IsKeyDown(87)) //W
-	{
-		cam->rigidBody.ApplyForce(cam->transform.foward.x * cam->camSpeed, cam->transform.foward.y * cam->camSpeed, cam->transform.foward.z * cam->camSpeed);
-	}
-	if (engine->IsKeyDown(83)) //S
-	{
-		cam->rigidBody.ApplyForce(cam->transform.foward.x * -cam->camSpeed, -cam->transform.foward.y * -cam->camSpeed, cam->transform.foward.z * -cam->camSpeed);
-	}
-	if (engine->IsKeyDown(VK_SPACE))
-	{
-		cam->rigidBody.ApplyForce(0.0f, cam->camSpeed, 0.0f);
-	}
-	if (engine->IsKeyDown(88))
-	{
-		cam->rigidBody.ApplyForce(0.0f, -cam->camSpeed, 0.0f);
-	}
-
-	if (engine->IsKeyPressed(VK_RETURN) || engine->IsKeyPressed(69))
+	if (inputManager->IsKeyPressed(VK_RETURN) || inputManager->IsKeyPressed(69))
 	{
 		//"Triangle"
 		//"Square"
@@ -133,21 +100,21 @@ void Scene::CheckInputs(float deltaTime)
 		DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
 		SpawnGameObject("Cube", spawnPoint, true);
 	}
-	if (engine->IsKeyDown(49))
+	if (inputManager->IsKeyDown(49))
 	{
 		engine->dayTime += 1.0f * deltaTime;
 	}
-	if (engine->IsKeyDown(50))
+	if (inputManager->IsKeyDown(50))
 	{
 		engine->dayTime -= 1.0f * deltaTime;
 	}
-	if (engine->IsKeyDown(96))
+	if (inputManager->IsKeyPressed(96))
 	{
 		DefaultScene* defaultLevel = new DefaultScene(engine);
 		engine->rend->LoadSkyBox(1);
 		engine->LoadScene(defaultLevel);
 	}
-	else if (engine->IsKeyDown(98))
+	else if (inputManager->IsKeyPressed(98))
 	{
 		Scene2* level2 = new Scene2(engine);
 		engine->LoadScene(level2);

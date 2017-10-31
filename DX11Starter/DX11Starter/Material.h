@@ -11,6 +11,7 @@ public:
 	}materialType;
 	DirectX::XMFLOAT4 surfaceColor;
 	unsigned int translucentID;
+	float surfaceReflectance = 0.0f;
 	float uvXOffSet = 1.0f;
 	float uvYOffSet = 1.0f;
 	bool hasSurText = false;

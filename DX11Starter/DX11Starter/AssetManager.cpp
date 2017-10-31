@@ -65,6 +65,7 @@ void AssetManager::LoadMeshes()
 
 void AssetManager::AssLoadMeshes()
 {
+	//meshStorage.get_allocator().allocate(15);
 	LoadHandCraftedMeshes();
 	AssimpLoadMeshes("Assets/Models/sphere.obj", "Sphere");
 	AssimpLoadMeshes("Assets/Models/cube.obj", "Cube");
@@ -181,6 +182,7 @@ void AssetManager::LoadSurfaceTextures()
 	StoreSurfaceTexture("harambe", L"Assets/Textures/harambe.jpg");
 	StoreSurfaceTexture("water", L"Assets/Textures/water.jpg");
 	StoreSurfaceTexture("grass", L"Assets/Textures/grass.jpg");
+	StoreSurfaceTexture("star", L"Assets/Textures/stars.jpg");
 	StoreSurfaceTexture("dragonSur", L"Assets/Textures/BlackDragon/Dragon_ground_color.jpg");
 	StoreSurfaceTexture("fighterShipSur", L"Assets/Textures/FighterShip/vj2c.jpg");
 	//StoreSurfaceTexture("raygun", L"Assets/Textures/raygunUVTest.tga");

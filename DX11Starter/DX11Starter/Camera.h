@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include "InputManager.h"
 #include "Transform.h"
 #include "RigidBody.h"
 
@@ -12,6 +13,8 @@ public:
 	DirectX::XMFLOAT4X4 viewMatrix;
 	DirectX::XMFLOAT4X4 projectionMatrix;
 
+	InputManager* inputManager;
+
 	Transform transform;
 	RigidBody rigidBody;
 
@@ -23,9 +26,12 @@ public:
 	unsigned int width;
 	unsigned int height;
 
+	bool lockCameraPos;
+
 	void Update(float dt);
 	void SetMatricies();
 	void Init(unsigned int w, unsigned int h);
+	void CheckInputs(float dt);
 
 private:
 

@@ -6,7 +6,8 @@ struct LightComponent {
 	float3 dirLight;
 	float1 pad;
 };
-
+TextureCube skyTexture : register(t0);
+SamplerState basicSampler : register(s0);
 cbuffer externalData : register(b0)
 {
 	LightComponent dirLights[10];
@@ -15,6 +16,7 @@ cbuffer externalData : register(b0)
 	int dCount;
 	int pCount;
 	int sCount;
+	float reflectance;
 };
 // Struct representing the data we expect to receive from earlier pipeline stages
 // - Should match the output of our corresponding vertex shader
@@ -60,7 +62,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//float4 ambient = dirLights.amb;
 
-	////float3 E = input.position.xyz - input.camPos;
+	float3 E = input.camPos - input.worldPos;
 	//float3 L = normalize(dirLights.dirLight);
 	////float3 H = normalize(-L + E);
 
@@ -117,7 +119,12 @@ float4 main(VertexToPixel input) : SV_TARGET
 	}
 	
 	color *= allLights;
+
+	float3 skyRefl = reflect(-E, input.normal);
+	float4 reflColor = skyTexture.Sample(basicSampler, skyRefl);
+	return lerp(color, reflColor, reflectance);
+
 	//color = float4(dirLights[0].lightColor.xyz, 1.0);
 
-	return color;
+	//return color;
 }

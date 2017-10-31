@@ -25,7 +25,7 @@ public:
 	ID3D11Buffer* GetVertexBuffer();
 	ID3D11Buffer* GetIndicesBuffer();
 
-	std::vector<RenderingComponent*> rendComponents;
+	std::vector<RenderingComponent*>* rendComponents;
 	unsigned int instances;
 	bool canInstRender;
 	bool inUse;

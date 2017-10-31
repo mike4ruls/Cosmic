@@ -36,6 +36,8 @@ CosmicEngine::CosmicEngine(HINSTANCE hInstance)
 CosmicEngine::~CosmicEngine()
 {
 	if (rend) { delete rend; rend = nullptr; }
+	if (physicEngine) { delete physicEngine; physicEngine = nullptr; }
+	inputManager->Release();
 	QuitLevel();
 }
 
@@ -47,15 +49,14 @@ void CosmicEngine::Init()
 {
 	rend = new Renderer(cam, device, context, backBufferRTV, depthStencilView, swapChain);
 
-	//CreateBasicGeometry();
-	SetKeyInputs();
-
 	dayTime = 0.0f;
 	click = false;
 
 	srand((unsigned int)time(NULL));
 
 	currentScene->Init();
+	inputManager = InputManager::GetInstance();
+	physicEngine = new CosmicPhysic();
 	initFinished = true;
 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -148,12 +149,12 @@ void CosmicEngine::OnResize()
 // --------------------------------------------------------
 void CosmicEngine::Update(float deltaTime, float totalTime)
 {
-
-	if (IsKeyPressed(VK_TAB))
+	inputManager->Update();
+	if (inputManager->IsKeyPressed(VK_TAB))
 	{
 		rend->ToggleSkyBox();
 	}
-	if (IsKeyPressed(70))
+	if (inputManager->IsKeyPressed(70))
 	{
 		rend->ToggleWireFrame();
 	}
@@ -164,14 +165,14 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 	}
 	currentScene->Update(deltaTime, totalTime);
 	cam->Update(deltaTime);
-	UpdateInput();
 	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
 
 	// Quit if the escape key is pressed
-	if (IsKeyDown(VK_ESCAPE))
+	if (inputManager->IsKeyDown(VK_ESCAPE))
 	{
 		Quit();
 	}
+
 }
 
 // --------------------------------------------------------
@@ -269,8 +270,8 @@ void CosmicEngine::LoadScene(Game* newScene)
 	cam = currentScene->cam;
 	cam->Init(width, height);
 	rend->cam = cam;
-	lockCamera = false;
 	lockSunLight = false;
+	lockCamera = false;
 
 	currentScene->Init();
 }
@@ -282,75 +283,40 @@ void CosmicEngine::QuitLevel()
 		rend->Flush();
 	}
 }
-void CosmicEngine::SetKeyInputs()
-{
-	keys[VK_LEFT] = 0;
-	keys[VK_UP] = 0;
-	keys[VK_RIGHT] = 0;
-	keys[VK_DOWN] = 0;
-	keys[VK_LSHIFT] = 0;
-	keys[VK_RSHIFT] = 0;
-	keys[VK_SPACE] = 0;
-	keys[VK_RETURN] = 0;
-	keys[VK_TAB] = 0;
-	keys[VK_ESCAPE] = 0;
-
-	keys[49] = 0; // 1
-	keys[50] = 0; // 2
-
-	//Num pad
-	keys[96] = 0; // NumPad 0
-	keys[97] = 0; // NumPad 1
-	keys[98] = 0; // NumPad 2
-	keys[99] = 0; // NumPad 3
-	keys[100] = 0; // NumPad 4
-	keys[101] = 0; // NumPad 5
-
-	keys[87] = 0; // W
-	keys[65] = 0; // A
-	keys[83] = 0; // S
-	keys[68] = 0; // D
-
-	keys[69] = 0; // E
-	keys[88] = 0; // X
-	keys[70] = 0; // F
-
-	//keys[97] = 0; // A
-	//keys[99] = 0; // A
-}
-void CosmicEngine::UpdateInput()
-{
-	for (auto& x : keys)
-	{
-		bool pressed = GetAsyncKeyState(x.first) ? true : false;
-
-		if(pressed)
-		{
-			// if being held down
-			if (x.second == 1)
-			{
-				x.second = 2;
-			}
-			// if it's the first press
-			else if (x.second == 0)
-			{
-				x.second = 1;
-			}
-		}
-		// if it's not being pressed
-		else
-		{
-			x.second = 0;
-		}
-
-	}
-}
-bool CosmicEngine::IsKeyDown(int keyCode)
-{
-	return keys.find(keyCode)->second >= 1 ? true : false;
-}
-bool CosmicEngine::IsKeyPressed(int keyCode)
-{
-	return keys.find(keyCode)->second == 1 ? true : false;
-}
+//void CosmicEngine::SetKeyInputs()
+//{
+//	keys[VK_LEFT] = 0;
+//	keys[VK_UP] = 0;
+//	keys[VK_RIGHT] = 0;
+//	keys[VK_DOWN] = 0;
+//	keys[VK_LSHIFT] = 0;
+//	keys[VK_RSHIFT] = 0;
+//	keys[VK_SPACE] = 0;
+//	keys[VK_RETURN] = 0;
+//	keys[VK_TAB] = 0;
+//	keys[VK_ESCAPE] = 0;
+//
+//	keys[49] = 0; // 1
+//	keys[50] = 0; // 2
+//
+//	//Num pad
+//	keys[96] = 0; // NumPad 0
+//	keys[97] = 0; // NumPad 1
+//	keys[98] = 0; // NumPad 2
+//	keys[99] = 0; // NumPad 3
+//	keys[100] = 0; // NumPad 4
+//	keys[101] = 0; // NumPad 5
+//
+//	keys[87] = 0; // W
+//	keys[65] = 0; // A
+//	keys[83] = 0; // S
+//	keys[68] = 0; // D
+//
+//	keys[69] = 0; // E
+//	keys[88] = 0; // X
+//	keys[70] = 0; // F
+//
+//	//keys[97] = 0; // A
+//	//keys[99] = 0; // A
+//}
 #pragma endregion

@@ -94,6 +94,7 @@ void Renderer::Init()
 	HdrOn = false;
 	BloomOn = false;
 	wireFrameOn = false;
+	skyBoxOn = true;
 	prevWireStatus = wireFrameOn;
 	instanceThreshold = 5;
 	skyBoxNum = 1;
@@ -204,15 +205,15 @@ void Renderer::Render(float dt)
 				{
 					unsigned int count = 0;
 
-					for(unsigned int i = 0; i < x.second->rendComponents.size(); i++)
+					for(unsigned int i = 0; i < x.second->rendComponents->size(); i++)
 					{
-						if (x.second->rendComponents[i]->canRender)
+						if (x.second->rendComponents->at(i)->canRender)
 						{
-							if (x.second->rendComponents[i]->mat.materialType != Material::Transulcent) 
+							if (x.second->rendComponents->at(i)->mat.materialType != Material::Transulcent)
 							{
-								XMStoreFloat4x4(&localInstanceData[count].worldMat, XMLoadFloat4x4(&x.second->rendComponents[i]->worldMat));
-								XMStoreFloat4x4(&localInstanceData[count].invTrans, XMLoadFloat4x4(&x.second->rendComponents[i]->worldInvTrans));
-								XMStoreFloat4(&localInstanceData[count].color, XMLoadFloat4(&x.second->rendComponents[i]->mat.surfaceColor));
+								XMStoreFloat4x4(&localInstanceData[count].worldMat, XMLoadFloat4x4(&x.second->rendComponents->at(i)->worldMat));
+								XMStoreFloat4x4(&localInstanceData[count].invTrans, XMLoadFloat4x4(&x.second->rendComponents->at(i)->worldInvTrans));
+								XMStoreFloat4(&localInstanceData[count].color, XMLoadFloat4(&x.second->rendComponents->at(i)->mat.surfaceColor));
 								count++;
 							}
 						}
@@ -228,19 +229,19 @@ void Renderer::Render(float dt)
 				}
 				else 
 				{
-					for (unsigned int i = 0; i < x.second->rendComponents.size(); i++)
+					for (unsigned int i = 0; i < x.second->rendComponents->size(); i++)
 					{
-						if (x.second->rendComponents[i]->canRender)
+						if (x.second->rendComponents->at(i)->canRender)
 						{
-							if (x.second->rendComponents[i]->mat.materialType != Material::Transulcent)
+							if (x.second->rendComponents->at(i)->mat.materialType != Material::Transulcent)
 							{
 								if (defferedRenderingOn)
 								{
-									DrawDefferedPass(x.second->rendComponents[i]);
+									DrawDefferedPass(x.second->rendComponents->at(i));
 								}
 								else
 								{
-									DrawForwardPass(x.second->rendComponents[i]);
+									DrawForwardPass(x.second->rendComponents->at(i));
 								}
 							}	
 						}
@@ -252,7 +253,10 @@ void Renderer::Render(float dt)
 	//DRAWING SKY BOX
 	////////////////////////////////////////
 
-	DrawSkyBox();
+	if(skyBoxOn)
+	{
+		DrawSkyBox();
+	}
 
 	////////////////////////////////////////
 	//POST PROCESSING
@@ -371,29 +375,27 @@ void Renderer::Render(float dt)
 //	return meshStorage.find(name)->second;
 //}
 
-unsigned int Renderer::PushToRenderer(RenderingComponent * com)
+void Renderer::PushToRenderer(RenderingComponent * com)
 {
-	unsigned int pos = (unsigned int)assets->meshStorage[com->meshName]->rendComponents.size();
+	com->rendID = (unsigned int)assets->meshStorage[com->meshName]->rendComponents->size();
 
 	if (com->mat.materialType == Material::Transulcent)
 	{
-		com->mat.translucentID = PushToTranslucent(com);		
+		PushToTranslucent(com);		
 	}
 
-	assets->meshStorage[com->meshName]->rendComponents.push_back(com);
+	assets->meshStorage[com->meshName]->rendComponents->push_back(com);
 	assets->meshStorage[com->meshName]->instances++;
 				
 	assets->meshStorage[com->meshName]->inUse = assets->meshStorage[com->meshName]->instances != 0 ? true : false;
 	assets->meshStorage[com->meshName]->canInstRender = assets->meshStorage[com->meshName]->instances >= instanceThreshold ? true : false;
 
-	return pos;
 }
 
-unsigned int Renderer::PushToTranslucent(RenderingComponent * com)
+void Renderer::PushToTranslucent(RenderingComponent * com)
 {
-	unsigned int pos = (unsigned int)transRendComponents.size();
+	com->mat.translucentID = (unsigned int)transRendComponents.size();
 	transRendComponents.push_back(com);
-	return pos;
 }
 
 void Renderer::Flush()
@@ -402,7 +404,7 @@ void Renderer::Flush()
 	{
 		if(x.second->inUse)
 		{
-			x.second->rendComponents.clear();
+			x.second->rendComponents->clear();
 			x.second->instances = 0;
 			x.second->canInstRender = false;
 		}
@@ -753,12 +755,17 @@ void Renderer::RemoveLight(Light * light)
 
 void Renderer::RemoveFromRenderer(std::string meshName, unsigned int Id)
 {
-	if (assets->meshStorage[meshName]->rendComponents[Id]->mat.materialType == Material::Transulcent)
+	if (assets->meshStorage[meshName]->rendComponents->at(Id)->mat.materialType == Material::Transulcent)
 	{
-		RemoveFromTranslucent(assets->meshStorage[meshName]->rendComponents[Id]->mat.translucentID);
+		RemoveFromTranslucent(assets->meshStorage[meshName]->rendComponents->at(Id)->mat.translucentID);
 	}
 
-	assets->meshStorage[meshName]->rendComponents.erase(assets->meshStorage[meshName]->rendComponents.begin()+Id);
+	assets->meshStorage[meshName]->rendComponents->erase(assets->meshStorage[meshName]->rendComponents->begin()+Id);
+
+	for (unsigned int i = 0; i < assets->meshStorage[meshName]->rendComponents->size(); i++) 
+	{
+		assets->meshStorage[meshName]->rendComponents->at(i)->rendID = i;
+	}
 
 	assets->meshStorage[meshName]->inUse = assets->meshStorage[meshName]->instances != 0 ? true : false;
 	assets->meshStorage[meshName]->canInstRender = assets->meshStorage[meshName]->instances >= instanceThreshold ? true : false;
@@ -767,6 +774,11 @@ void Renderer::RemoveFromRenderer(std::string meshName, unsigned int Id)
 void Renderer::RemoveFromTranslucent(unsigned int Id)
 {
 	transRendComponents.erase(transRendComponents.begin() + Id);
+
+	for (unsigned int i = 0; i < transRendComponents.size(); i++)
+	{
+		transRendComponents[i]->mat.translucentID = i;
+	}
 }
 
 void Renderer::LoadShaders()
@@ -903,7 +915,6 @@ void Renderer::DrawForwardPass(RenderingComponent* component)
 	else if (!component->mat.hasNorText)
 	{
 		currentPixel = pixelFSShader;
-		currentPixel->SetSamplerState("basicSampler", textureSample);
 		currentPixel->SetShaderResourceView("surfaceTexture", component->mat.GetSurfaceTexture());
 		currentPixel->SetFloat("uvXOffset", component->mat.uvXOffSet);
 		currentPixel->SetFloat("uvYOffset", component->mat.uvYOffSet);
@@ -911,12 +922,15 @@ void Renderer::DrawForwardPass(RenderingComponent* component)
 	else
 	{
 		currentPixel = pixelFSNShader;
-		currentPixel->SetSamplerState("basicSampler", textureSample);
 		currentPixel->SetShaderResourceView("surfaceTexture", component->mat.GetSurfaceTexture());
 		currentPixel->SetShaderResourceView("normalTexture", component->mat.GetNormalTexture());
 		currentPixel->SetFloat("uvXOffset", component->mat.uvXOffSet);
 		currentPixel->SetFloat("uvYOffset", component->mat.uvYOffSet);
 	}
+
+	currentPixel->SetSamplerState("basicSampler", textureSample);
+	currentPixel->SetShaderResourceView("skyTexture", skyBoxSVR);
+	currentPixel->SetFloat("reflectance", component->mat.surfaceReflectance);
 
 	SetLights(currentPixel);
 	currentPixel->CopyAllBufferData();

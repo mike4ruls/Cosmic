@@ -72,6 +72,7 @@ public:
 	bool HdrOn;
 	bool BloomOn;
 	bool wireFrameOn;
+	bool skyBoxOn;
 
 	unsigned int numInstances;
 	InstanceData* localInstanceData;
@@ -94,8 +95,8 @@ public:
 	void CreateRenderTargets();
 	/*void LoadMesh(Mesh* newMesh);
 	Mesh* GetMesh(std::string name);*/
-	unsigned int PushToRenderer(RenderingComponent* com);
-	unsigned int PushToTranslucent(RenderingComponent* com);
+	void PushToRenderer(RenderingComponent* com);
+	void PushToTranslucent(RenderingComponent* com);
 	void Flush();
 
 	Light* CreateLight(Light::LightType lType);

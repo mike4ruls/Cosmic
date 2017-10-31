@@ -26,6 +26,7 @@ public:
 
 	std::vector<GameEntity*> gameObjects;
 	Camera* cam;
+	InputManager* inputManager;
 
 private:
 };

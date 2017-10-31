@@ -26,13 +26,14 @@ GameEntity::GameEntity(Mesh * m, Renderer* r)
 	renderingComponent.canRender = true;
 	renderingComponent.mat.materialType = Material::Opaque;
 	renderingComponent.mat.surfaceColor = {1.0f, 1.0f, 1.0f, 1.0f};
+	renderingComponent.mat.surfaceReflectance = 0.0f;
 	renderingComponent.meshName = myMesh->meshName;
 
 	prevMatType = renderingComponent.mat.materialType;
 	isTranslucent = false;
 
 	ResetGameEntity();
-	rendID = rend->PushToRenderer(&renderingComponent);
+	rend->PushToRenderer(&renderingComponent);
 }
 
 
@@ -58,6 +59,10 @@ void GameEntity::ResetGameEntity()
 	rigidBody.fricStrength = 2.0f;
 	rigidBody.applyFriction = true;
 	rigidBody.isMoving = false;
+
+	rigidBody.myCollider.colliderType = Collider::ColliderType::SphereCollider;
+	rigidBody.myCollider.center = {0.0f, 0.0f, 0.0f};
+	rigidBody.myCollider.radius = 1.0f;
 
 	DirectX::XMStoreFloat4x4(&renderingComponent.worldMat, DirectX::XMMatrixIdentity());
 }
