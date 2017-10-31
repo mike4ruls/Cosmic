@@ -70,11 +70,11 @@ void Player::Update(float dt)
 
 void Player::Strafe(float dt)
 {
-	if (previousTurnState == LEFT)
+	if (staticCurTurnState == LEFT)
 	{
 		currentRot += strafeRotSpeed * dt;
 	}
-	else if(previousTurnState == RIGHT)
+	else if(staticCurTurnState == RIGHT)
 	{
 		currentRot -= strafeRotSpeed * dt;
 	}
@@ -97,6 +97,7 @@ void Player::TurnOnStrafe()
 	canStrafe = true;
 	canTilt = false;
 	speed = strafeSpeed;
+	staticCurTurnState = previousTurnState;
 }
 
 void Player::Tilt(float dt)

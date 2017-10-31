@@ -30,8 +30,6 @@ namespace CosmicInput
 		BUTTON_INTERCEPTED,
 	};
 
-
-
 	//std::unordered_map<char*, int> Actions;
 
 	int Initialize();
@@ -46,5 +44,18 @@ namespace CosmicInput
 	bool ButtonUp(int key);
 	bool ButtonPressed(int key);
 	bool ButtonReleased(int key);
+
+	bool IsControllerConnected();
+
+	float GetLStickX();
+	float GetLStickY();
+	float GetRStickX();
+	float GetRStickY();
+
+	float GetLStickMagnitude();
+	float GetRStickMagnitude();
+
+	void UpdateLStick();
+	void UpdateRStick();
 	InputType GetInputType();
 };

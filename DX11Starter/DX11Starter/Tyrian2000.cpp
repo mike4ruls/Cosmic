@@ -107,7 +107,15 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 	}
 	CheckOutOfBounds();
 	CalculateCamPos();
-	CheckInputs(deltaTime); // SUPER TIME CONSUMING < ---- cost tons of frames
+
+	if(inputManager->IsControllerConnected())
+	{
+		CheckControllerInputs(deltaTime);
+	}
+	else 
+	{
+		CheckInputs(deltaTime);
+	}
 }
 
 void Tyrian2000::CheckInputs(float dt)
@@ -175,6 +183,78 @@ void Tyrian2000::CheckInputs(float dt)
 	/*if(engine->IsKeyPressed(VK_CONTROL) && engine->IsKeyDown(67))
 	{
 		cam->transform.Rotate(0.0f, 89.5f, 0.0f);
+	}*/
+}
+
+void Tyrian2000::CheckControllerInputs(float dt)
+{
+	if (!p1->isDead) {
+		bool butCheckX = false;
+		bool butCheckY = false;
+
+		float LX = inputManager->GetLeftStickX();
+		float LY = inputManager->GetLeftStickY();
+
+		if (inputManager->IsActionDown(Actions::ButtonLeft) || LX < -0.2f) //A
+		{
+			butCheckX = true;
+			p1->currentTurnState = Player::LEFT;
+			p1->previousTurnState = Player::LEFT;
+			p1->player->transform.Translate((p1->player->transform.right.x * -p1->speed) * dt, 0.0f, (p1->player->transform.right.z * -p1->speed) * dt);
+		}
+		if (inputManager->IsActionDown(Actions::ButtonRight) || LX > 0.2f) //D
+		{
+			butCheckX = true;
+			p1->currentTurnState = Player::RIGHT;
+			p1->previousTurnState = Player::RIGHT;
+			p1->player->transform.Translate((p1->player->transform.right.x * p1->speed) * dt, 0.0f, (p1->player->transform.right.z * p1->speed) * dt);
+		}
+
+		if (inputManager->IsActionDown(Actions::ButtonUp) || LY > 0.2f) //W
+		{
+			butCheckY = true;
+			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * p1->speed) * dt);
+		}
+		if (inputManager->IsActionDown(Actions::ButtonDown) || LY < -0.2f) //S
+		{
+			butCheckY = true;
+			p1->player->transform.Translate((p1->player->transform.foward.x * -p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * -p1->speed) * dt);
+		}
+		if (!butCheckX)
+		{
+			p1->currentTurnState = Player::STRAIGHT;
+		}
+		if (inputManager->IsActionDown(Actions::Fire) && p1->canAttack)
+		{
+			Shoot();
+		}
+		if (inputManager->IsActionPressed(Actions::Strafe) && !p1->canStrafe)
+		{
+			//p1->rotLeft = rotLeft;
+			p1->TurnOnStrafe();
+			if (p1->currentTurnState == Player::STRAIGHT && butCheckY)
+			{
+				p1->speed = p1->normSpeed;
+			}
+			else if (p1->previousTurnState == Player::LEFT)
+			{
+				p1->player->rigidBody.ApplyForce(-p1->strafeForce, 0.0f, 0.0f);
+			}
+			else if (p1->previousTurnState == Player::RIGHT)
+			{
+				p1->player->rigidBody.ApplyForce(p1->strafeForce, 0.0f, 0.0f);
+			}
+		}
+	}
+	if (inputManager->IsKeyDown(96))
+	{
+		DefaultScene* defaultScene = new DefaultScene(engine);
+		engine->rend->skyBoxOn = true;
+		engine->LoadScene(defaultScene);
+	}
+	/*if(engine->IsKeyPressed(VK_CONTROL) && engine->IsKeyDown(67))
+	{
+	cam->transform.Rotate(0.0f, 89.5f, 0.0f);
 	}*/
 }
 
@@ -302,8 +382,8 @@ void Tyrian2000::SetUpActions()
 	inputManager->AddActionBinding(Actions::ButtonDown, { 83, CosmicInput::ControllerButton::DPAD_DOWN });
 	inputManager->AddActionBinding(Actions::ButtonLeft, { 65, CosmicInput::ControllerButton::DPAD_LEFT });
 	inputManager->AddActionBinding(Actions::ButtonRight, { 68, CosmicInput::ControllerButton::DPAD_RIGHT });
-	inputManager->AddActionBinding(Actions::Fire, { VK_RETURN, CosmicInput::ControllerButton::BUTTON_CROSS });
-	inputManager->AddActionBinding(Actions::Strafe, { VK_SPACE, CosmicInput::ControllerButton::BUTTON_R2 });
+	inputManager->AddActionBinding(Actions::Fire, { VK_RETURN,  CosmicInput::ControllerButton::BUTTON_R2 });
+	inputManager->AddActionBinding(Actions::Strafe, { VK_SPACE, CosmicInput::ControllerButton::BUTTON_CROSS });
 	//inputManager->AddActionBinding("Button3", { 69, CosmicInput::ControllerButton::BUTTON_TRIANGLE });
 	//inputManager->AddActionBinding("Button4", { 13, CosmicInput::ControllerButton::BUTTON_SQUARE });
 }

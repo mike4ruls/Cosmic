@@ -12,6 +12,13 @@ public:
 	static void Release();
 	static void Update();
 
+	static bool IsControllerConnected();
+
+	static float GetLeftStickX();
+	static float GetLeftStickY();
+	static float GetRightStickX();
+	static float GetRightStickY();
+
 	static bool IsKeyUp(int key);
 	static bool IsKeyDown(int key);
 	static bool IsKeyPressed(int key);

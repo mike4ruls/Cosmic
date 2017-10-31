@@ -1,11 +1,72 @@
 #include "CosmicInput.h"
 #include <Windows.h>
+#include <Xinput.h>
 
 using namespace CosmicInput;
 bool allKeys[256];
 
+struct ThumbStick {
+	float x;
+	float y;
+	float magnitude;
+	float normalizedX;
+	float normalizedY;
+	float normalizedMagnitude;
+	float deadZone;
+};
+
+volatile ThumbStick LeftStick = {};
+volatile ThumbStick RightStick = {};
+
+uint32_t Button[]
+{
+	XINPUT_GAMEPAD_LEFT_THUMB, /*BUTTON_L3*/
+	XINPUT_GAMEPAD_RIGHT_THUMB, /*BUTTON_R3*/
+	XINPUT_GAMEPAD_START, /*BUTTON_OPTIONS*/
+	XINPUT_GAMEPAD_DPAD_UP, /*BUTTON_UP*/
+	XINPUT_GAMEPAD_DPAD_RIGHT, /*BUTTON_RIGHT*/
+	XINPUT_GAMEPAD_DPAD_DOWN, /*BUTTON_DOWN*/
+	XINPUT_GAMEPAD_DPAD_LEFT, /*BUTTON_LEFT*/
+	0x0, /*BUTTON_L2*/
+	0x0, /*BUTTON_R2*/
+	XINPUT_GAMEPAD_LEFT_SHOULDER, /*BUTTON_L1*/
+	XINPUT_GAMEPAD_RIGHT_SHOULDER, /*BUTTON_R1*/
+	XINPUT_GAMEPAD_Y, /*BUTTON_TRIANGLE*/
+	XINPUT_GAMEPAD_B, /*BUTTON_CIRCLE*/
+	XINPUT_GAMEPAD_A, /*BUTTON_CROSS*/
+	XINPUT_GAMEPAD_X, /*BUTTON_SQUARE*/
+	XINPUT_GAMEPAD_BACK, /*BUTTON_TOUCH_PAD*/
+	XINPUT_GAMEPAD_BACK, /*BUTTON_INTERCEPTED*/
+};
+
+XINPUT_STATE previousData;
+XINPUT_STATE currentData;
+
+uint32_t m_pressedButtonData = 0x0;
+uint32_t m_releasedButtonData = 0x0;
+
+bool controllerConnected;
+
 int CosmicInput::Initialize()
 {
+	LeftStick.deadZone = XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE / 2;
+	RightStick.deadZone = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
+
+	memset(&previousData, 0x0, sizeof(XINPUT_STATE));
+	memset(&currentData, 0x0, sizeof(XINPUT_STATE));
+
+	DWORD result = ERROR_ALERTED;
+	result = XInputGetState(0, &currentData);
+
+	if (result == ERROR_SUCCESS)
+	{
+		controllerConnected = true;
+	}
+	else
+	{
+		controllerConnected = false;
+	}
+
 	return 0;
 }
 
@@ -19,6 +80,41 @@ void CosmicInput::SetButton(int key, int value)
 
 void CosmicInput::Update()
 {
+	if (controllerConnected) 
+	{
+		memcpy(&previousData, &currentData, sizeof(XINPUT_STATE));
+
+		memset(&currentData, 0x0, sizeof(XINPUT_STATE));
+
+		DWORD result = ERROR_ALERTED;
+		result = XInputGetState(0, &currentData);
+
+		if (result == ERROR_SUCCESS)
+		{
+			m_pressedButtonData = (currentData.Gamepad.wButtons & previousData.Gamepad.wButtons);
+			m_releasedButtonData = (~currentData.Gamepad.wButtons & previousData.Gamepad.wButtons);
+			UpdateLStick();
+			UpdateRStick();
+		}
+		else
+		{
+			controllerConnected = false;
+		}
+	}
+	else
+	{
+		DWORD result = ERROR_ALERTED;
+		result = XInputGetState(0, &currentData);
+
+		if (result == ERROR_SUCCESS)
+		{
+			controllerConnected = true;
+			m_pressedButtonData = (currentData.Gamepad.wButtons & previousData.Gamepad.wButtons);
+			m_releasedButtonData = (~currentData.Gamepad.wButtons & previousData.Gamepad.wButtons);
+			UpdateLStick();
+			UpdateRStick();
+		}
+	}
 }
 bool CosmicInput::KeyDown(int key)
 {
@@ -68,23 +164,176 @@ bool CosmicInput::KeyReleased(int key)
 }
 bool CosmicInput::ButtonDown(int key)
 {
-	return false;
+	if (key != 7 && key != 8)
+	{
+		uint32_t newKey = Button[key];
+		if ((currentData.Gamepad.wButtons & newKey) == newKey) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else
+	{
+		return key == 7 ? currentData.Gamepad.bLeftTrigger > 0.0f : currentData.Gamepad.bRightTrigger > 0.0f;
+	}
 }
 
 bool CosmicInput::ButtonUp(int key)
 {
-	return false;
+	if(key != 7 && key != 8)
+	{
+		uint32_t newKey = Button[key];
+		if ((currentData.Gamepad.wButtons & newKey) == newKey) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	else
+	{
+		return key == 7 ? currentData.Gamepad.bLeftTrigger == 0.0f : currentData.Gamepad.bRightTrigger == 0.0f;
+	}
 }
 
 bool CosmicInput::ButtonPressed(int key)
 {
-	return false;
+	if (key != 7 && key != 8)
+	{
+		uint32_t newKey = Button[key];
+		if ((m_pressedButtonData & newKey) == newKey) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else
+	{
+		return key == 7 ? (previousData.Gamepad.bLeftTrigger == 0.0f && currentData.Gamepad.bLeftTrigger > 0.0f) : (previousData.Gamepad.bRightTrigger == 0.0f && currentData.Gamepad.bRightTrigger > 0.0f);
+	}
 }
 
 bool CosmicInput::ButtonReleased(int key)
 {
-	return false;
+	if (key != 7 && key != 8)
+	{
+		uint32_t newKey = Button[key];
+		if ((m_releasedButtonData & newKey) == newKey) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else
+	{
+		return key == 7 ? (previousData.Gamepad.bLeftTrigger != 0.0f && currentData.Gamepad.bLeftTrigger == 0.0f) : (previousData.Gamepad.bRightTrigger != 0.0f && currentData.Gamepad.bRightTrigger == 0.0f);
+	}
 }
+
+bool CosmicInput::IsControllerConnected()
+{
+	return controllerConnected;
+}
+
+float CosmicInput::GetLStickX()
+{
+	return LeftStick.normalizedX;
+}
+
+float CosmicInput::GetLStickY()
+{
+	return LeftStick.normalizedY;
+}
+
+float CosmicInput::GetRStickX()
+{
+	return RightStick.normalizedX;
+}
+
+float CosmicInput::GetRStickY()
+{
+	return RightStick.normalizedY;
+}
+
+float CosmicInput::GetLStickMagnitude()
+{
+	return LeftStick.normalizedMagnitude;
+}
+
+float CosmicInput::GetRStickMagnitude()
+{
+	return RightStick.normalizedMagnitude;
+}
+
+void CosmicInput::UpdateLStick()
+{
+	LeftStick.x = (float)currentData.Gamepad.sThumbLX;
+	LeftStick.y = (float)currentData.Gamepad.sThumbLY;
+
+
+	//determine how far the controller is pushed
+	LeftStick.magnitude = std::sqrtf((LeftStick.x  * LeftStick.x) + (LeftStick.y * LeftStick.y));
+
+	//determine the direction the controller is pushed
+	LeftStick.normalizedX = (LeftStick.x / LeftStick.magnitude);
+	//LeftStick.normalizedX -= 9.0f;
+	LeftStick.normalizedY = LeftStick.y / LeftStick.magnitude;
+
+	LeftStick.normalizedMagnitude = 0;
+
+	//check if the controller is outside a circular dead zone
+	if (LeftStick.magnitude > LeftStick.deadZone)
+	{
+		//clip the magnitude at its expected maximum value
+		if (LeftStick.magnitude > 32767) LeftStick.magnitude = 32767;
+
+		//adjust magnitude relative to the end of the dead zone
+		LeftStick.magnitude -= LeftStick.deadZone;
+
+		//optionally normalize the magnitude with respect to its expected range
+		//giving a magnitude value of 0.0 to 1.0
+		LeftStick.normalizedMagnitude = LeftStick.magnitude / (32767 - LeftStick.deadZone);
+	}
+	else //if the controller is in the deadzone zero out the magnitude
+	{
+		LeftStick.normalizedX = 0.0f;
+		LeftStick.normalizedY = 0.0f;
+
+		LeftStick.magnitude = 0.0;
+		LeftStick.normalizedMagnitude = 0.0;
+	}
+}
+void CosmicInput::UpdateRStick()
+{
+	RightStick.x = currentData.Gamepad.sThumbLX;
+	RightStick.y = currentData.Gamepad.sThumbLY;
+
+	RightStick.magnitude = sqrt(RightStick.x*RightStick.x + RightStick.y*RightStick.y);
+
+	RightStick.normalizedX = RightStick.x / RightStick.magnitude;
+	RightStick.normalizedY = RightStick.y / RightStick.magnitude;
+
+	RightStick.normalizedMagnitude = 0;
+
+	if (RightStick.magnitude > RightStick.deadZone)
+	{
+		if (RightStick.magnitude > 32767) RightStick.magnitude = 32767;
+
+		RightStick.magnitude -= RightStick.deadZone;
+
+		RightStick.normalizedMagnitude = RightStick.magnitude / (32767 - RightStick.deadZone);
+	}
+	else
+	{
+		RightStick.magnitude = 0.0;
+		RightStick.normalizedMagnitude = 0.0;
+	}
+}
+
 
 InputType CosmicInput::GetInputType()
 {

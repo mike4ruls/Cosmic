@@ -27,6 +27,7 @@ public:
 	void Init();
 	void Update(float deltaTime, float totalTime);
 	void CheckInputs(float dt);
+	void CheckControllerInputs(float dt);
 	void CheckOutOfBounds();
 	void CreatePlayer();
 	void SpawnWaveEnemies();

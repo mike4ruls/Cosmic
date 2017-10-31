@@ -22,6 +22,26 @@ void InputManager::Update()
 {
 	CosmicInput::Update();
 }
+bool InputManager::IsControllerConnected()
+{
+	return CosmicInput::IsControllerConnected();
+}
+float InputManager::GetLeftStickX()
+{
+	return CosmicInput::GetLStickX();
+}
+float InputManager::GetLeftStickY()
+{
+	return CosmicInput::GetLStickY();
+}
+float InputManager::GetRightStickX()
+{
+	return CosmicInput::GetRStickX();
+}
+float InputManager::GetRightStickY()
+{
+	return CosmicInput::GetRStickY();
+}
 bool InputManager::IsKeyUp(int key)
 {
 	bool keyboardUp = CosmicInput::KeyUp(key);
@@ -148,8 +168,7 @@ bool InputManager::IsActionUp(int act)
 }
 bool InputManager::IsActionDown(int act)
 {
-	auto search = Actions.find(act);
-		Binding newBind = Actions[act];
+	Binding newBind = Actions[act];
 
 	bool keyboardDown = CosmicInput::KeyDown(newBind.keyboard);
 	bool controllerDown = CosmicInput::ButtonDown(newBind.controller);

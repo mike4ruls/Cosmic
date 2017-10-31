@@ -16,6 +16,7 @@ public:
 
 	TurnState currentTurnState;
 	TurnState previousTurnState;
+	TurnState staticCurTurnState;
 
 	float health;
 
