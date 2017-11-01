@@ -47,11 +47,12 @@ public:
 	Player* p1;
 	FinishLine* fLine;
 
-	GameEntity* healthBar;
-	GameEntity* healthBarFade;
-	GameEntity* healthBarBack;
+	UI* healthBar;
+	UI* healthBarFade;
+	UI* healthBarBack;
+	UI* healthBarBorder;
 
-	GameEntity* endGamePanel;
+	UI* endGamePanel;
 
 	std::vector<Enemy*> enemyPool;
 	std::vector<Bullet*> bulletPool;

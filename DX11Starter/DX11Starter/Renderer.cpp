@@ -773,7 +773,7 @@ void Renderer::RemoveFromRenderer(std::string meshName, unsigned int Id)
 
 	assets->meshStorage[meshName]->rendComponents->erase(assets->meshStorage[meshName]->rendComponents->begin()+Id);
 
-	for (unsigned int i = 0; i < assets->meshStorage[meshName]->rendComponents->size(); i++) 
+	for (unsigned int i = Id; i < assets->meshStorage[meshName]->rendComponents->size(); i++) 
 	{
 		assets->meshStorage[meshName]->rendComponents->at(i)->rendID = i;
 	}

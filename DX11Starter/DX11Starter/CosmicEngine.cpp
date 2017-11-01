@@ -146,6 +146,18 @@ void CosmicEngine::OnResize()
 	XMStoreFloat4x4(&cam->projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
 }
 
+void CosmicEngine::UpdateObjects(float dt)
+{
+	for (unsigned int i = 0; i < allObj.size(); i++)
+	{
+		allObj[i]->Update(dt);
+	}
+	for (unsigned int i = 0; i < allUI.size(); i++)
+	{
+		allUI[i]->Update(dt);
+	}
+}
+
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
@@ -154,6 +166,12 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 	ImGuiIO& IO = ImGui::GetIO();
 	IO.DeltaTime = deltaTime;
 	ImGui_ImplDX11_NewFrame();
+
+	UpdateObjects(deltaTime);
+
+	currentScene->Update(deltaTime, totalTime);
+	cam->Update(deltaTime);
+	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
 
 	inputManager->Update();
 	if (inputManager->IsKeyPressed(VK_TAB))
@@ -169,10 +187,6 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 	{
 		rend->sunLight->ligComponent->lightDir = { sin(dayTime),cos(dayTime),0.0f };
 	}
-	currentScene->Update(deltaTime, totalTime);
-	cam->Update(deltaTime);
-	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
-
 	// Quit if the escape key is pressed
 	if (inputManager->IsKeyDown(VK_ESCAPE))
 	{
@@ -272,15 +286,19 @@ void CosmicEngine::OnMouseWheel(float wheelDelta, int x, int y)
 }
 GameEntity * CosmicEngine::CreateGameObject(std::string name)
 {
-	 GameEntity* newObj = new GameEntity(rend->assets->GetMesh(name), rend, false);
+	GameEntity* newObj = new GameEntity(rend->assets->GetMesh(name), rend, false);
+	newObj->Id = allObj.size();
+
+	allObj.push_back(newObj);
 	
 	return newObj;
 }
-GameEntity * CosmicEngine::CreateCanvasElement()
+UI* CosmicEngine::CreateCanvasElement()
 {
-	GameEntity* newObj = new GameEntity(rend->assets->GetMesh("Plane"), rend, true);
-	newObj->transform.Translate(0.0f, 0.0f, 3.0f);
-	newObj->transform.Rotate(0.0f, -90.0f, 0.0f);
+	UI* newObj = new UI(new GameEntity(rend->assets->GetMesh("Quad"), rend, true));
+	newObj->Id = allUI.size();
+
+	allUI.push_back(newObj);
 
 	return newObj;
 }
@@ -306,10 +324,51 @@ void CosmicEngine::LoadScene(Game* newScene)
 }
 void CosmicEngine::QuitLevel()
 {
+	Flush();
 	if (currentScene != nullptr) { delete currentScene; currentScene = nullptr; }
 	if (rend != nullptr)
 	{
 		rend->Flush();
+	}
+}
+void CosmicEngine::Flush()
+{
+	for(unsigned int i = 0; i < allObj.size(); i++)
+	{
+		if (allObj[i] != nullptr) { delete allObj[i]; allObj[i] = nullptr; }
+	}
+	for (unsigned int i = 0; i < allUI.size(); i++)
+	{
+		if (allUI[i] != nullptr) { delete allUI[i]; allUI[i] = nullptr; }
+	}
+
+	allObj.clear();
+	allUI.clear();
+}
+void CosmicEngine::DestroyGameObject(GameEntity * obj)
+{
+	unsigned int Id = obj->Id;
+	rend->RemoveFromRenderer(obj->renderingComponent.meshName, obj->renderingComponent.rendID);
+	allObj.erase(allObj.begin() + Id);
+
+	if (obj != nullptr) { delete obj; obj = nullptr; }
+
+	for (unsigned int i = Id; i < allObj.size(); i++)
+	{
+		allObj[i]->Id = i;
+	}
+}
+void CosmicEngine::DestroyUIObject(UI * obj)
+{
+	unsigned int Id = obj->Id;
+	rend->RemoveFromRenderer(obj->obj->renderingComponent.meshName, obj->obj->renderingComponent.rendID);
+	allUI.erase(allUI.begin() + Id);
+
+	if (obj != nullptr) { delete obj; obj = nullptr; }
+
+	for (unsigned int i = Id; i < allUI.size(); i++)
+	{
+		allUI[i]->Id = i;
 	}
 }
 //void CosmicEngine::SetKeyInputs()

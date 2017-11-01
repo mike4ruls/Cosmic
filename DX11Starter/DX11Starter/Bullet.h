@@ -19,7 +19,6 @@ public:
 	Bullet(GameEntity* obj);
 	~Bullet();
 
-	bool isActive;
 	DirectX::XMFLOAT3 bulletVelocity;
 
 	float timer;

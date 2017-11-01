@@ -9,6 +9,7 @@
 #include "InputManager.h"
 #include "Mesh.h"
 #include "GameEntity.h"
+#include "UI.h"
 #include "Camera.h"
 #include "Renderer.h"
 #include "Game.h"
@@ -24,6 +25,9 @@ public:
 
 	std::map<int, int> keys;
 
+	std::vector<GameEntity*> allObj;
+	std::vector<UI*> allUI;
+
 	Renderer* rend;
 	Camera* cam;
 	Game* currentScene = nullptr;
@@ -38,16 +42,20 @@ public:
 	// will be called automatically
 	void Init();
 	void OnResize();
+	void UpdateObjects(float dt);
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
 
 	GameEntity* CreateGameObject(std::string name);
-	GameEntity* CreateCanvasElement();
+	UI* CreateCanvasElement();
 
 	// Loading new scenes
 	void LoadDefaultScene(Game* newScene);
 	void LoadScene(Game* newScene);
 	void QuitLevel();
+	void Flush();
+	void DestroyGameObject(GameEntity* obj);
+	void DestroyUIObject(UI* obj);
 
 	CosmicPhysic* physicEngine;
 	InputManager* inputManager;

@@ -22,7 +22,6 @@ Enemy::Enemy(GameEntity * obj, float hlth, float spd, float dmg)
 
 Enemy::~Enemy()
 {
-	if (enemyObj != nullptr) { delete enemyObj; enemyObj = nullptr; }
 }
 
 void Enemy::Update(float dt)
@@ -32,7 +31,6 @@ void Enemy::Update(float dt)
 	{
 		UpdateFlashRed(dt);
 	}
-	enemyObj->Update(dt);
 }
 
 void Enemy::FlashRed()

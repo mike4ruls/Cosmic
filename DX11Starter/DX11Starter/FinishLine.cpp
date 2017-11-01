@@ -10,7 +10,7 @@ FinishLine::FinishLine(GameEntity * obj, float spd)
 {
 	finishLine = obj;
 	speed = spd;
-	isActive = false;
+	finishLine->SetActive(false);
 }
 
 
@@ -18,14 +18,12 @@ FinishLine::FinishLine(GameEntity * obj, float spd)
 
 FinishLine::~FinishLine()
 {
-	if (finishLine != nullptr) { delete finishLine; finishLine = nullptr; }
 }
 
 void FinishLine::Update(float dt)
 {
-	if(isActive)
+	if(finishLine->isActive)
 	{
 		finishLine->transform.Translate(0.0f, 0.0f, -speed * dt);
-		finishLine->Update(dt);
 	}
 }

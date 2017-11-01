@@ -24,6 +24,15 @@ public:
 	void Update(float dt);
 	void CheckMatType();
 
+	void ToggleActive();
+	void SetActive(bool act);
+
+	void ToggleVisibility();
+	void SetVisibility(bool act);
+
+	unsigned int Id;
+
+	bool isActive;
 	bool isUI;
 
 private:

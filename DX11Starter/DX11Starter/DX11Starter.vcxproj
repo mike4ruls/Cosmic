@@ -178,6 +178,7 @@
     <ClCompile Include="Scene2.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
     <ClCompile Include="Tyrian2000.cpp" />
+    <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -218,6 +219,7 @@
     <ClInclude Include="SimpleShader.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Tyrian2000.h" />
+    <ClInclude Include="UI.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>

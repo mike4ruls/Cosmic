@@ -14,6 +14,8 @@ public:
 	void Update(float deltaTime, float totalTime);
 	void CheckInputs(float deltaTime);
 
+	std::vector<GameEntity*> gameObjects;
+
 	CosmicEngine* engine;
 	Player* p1;
 

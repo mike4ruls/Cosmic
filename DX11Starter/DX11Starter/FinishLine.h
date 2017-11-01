@@ -10,7 +10,6 @@ public:
 
 	GameEntity* finishLine;
 	float speed;
-	bool isActive;
 
 	void Update(float dt);
 };

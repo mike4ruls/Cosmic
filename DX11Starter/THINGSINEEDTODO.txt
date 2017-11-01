@@ -4,4 +4,137 @@ Build my Physic Engine
 Build Tryian Game
 Make Stuff Singletons
 	-AssetManager
-	-InputManager
+	-InputManager // Done
+Look into Creating an Installer
+
+Engine->CreateGameObject() stores game entity in engine - returns GameEntity*
+Engine handles looping through all objects updates
+All GameEnities will have an isActive bool
+isActive should stop all update functionality within GameEntity
+
+Engine->CreateUIElement() stores UI in engine - returns UI*
+Engine handles looping through all objects updates
+
+Create function ToggleActive(); in GameEntity
+Create function SetActive(bool active); in GameEntity
+Create function ToggleVisibility(); in GameEnitity
+Create function SetVisibility(Bool vis); in GameEnitity
+
+Create function GetObjectsWithName(char* name); in CosmicEngine - returns vector of GameEntities
+Create function GetObjectsWithTag(char* name); in CosmicEngine - returns vector of GameEntities
+
+Look into removing renderer from GameEntity
+
+Create UI Class
+UI Class stores
+	UI();
+	UI(GameEntity* o);
+	~UI();
+
+	-enum Alignment{
+	Center,
+	Left,
+	Right
+	};
+
+	Alignment align; - private
+	-GameEntity obj
+	-float posX = 0.0f + posXOffset;
+	-float posY = 0.0f + posYOffset;
+	-float posXOffset = (width - 1.0f) / 2.0f; - private
+	-float posYOffset = (height - 1.0f) / 2.0f; - private
+	-float width = 1.0f; - private
+	-float height = 1.0f; - private
+	-int zOrder?
+
+	-Update();
+	-GetWidth();
+	-GetHeigth();
+	-GetAlignment();
+	-SetWidth(float wd);
+	-SetHeight(float he);
+	-SetAlignment(Alignment al);
+	-CalculateXOffsets(); - private
+	-CalculateYOffsets(); - private
+
+UI(GameEntity* o)
+{
+	obj = o;
+	prevAlign = align;
+	posX = 0.0f;
+	posY = 0.0f;
+	posXOffset = posX;
+	posYOffset = posY;
+	width = 1.0f;
+	hieght = 1.0f;
+}
+
+Update()
+{	
+	obj->transform.position = {posX + posXOffset, posY + posYOffset, obj->transform.position.z};
+	obj->Update();
+}
+GetWidth()
+{
+	return width;
+}
+GetHeight()
+{
+	return height;
+}
+GetAlignment()
+{
+	retun align;
+}
+SetWidth(float wd)
+{
+	if(width != wd)
+	{
+		width = wd;
+		CalculateXOffsets();
+	}
+}
+SetHeight(float he)
+{
+	if(height != he)
+	{
+		height = he;
+		CalculateYOffsets();
+	}
+}
+SetAlignment(Alignment al)
+{
+	align = al;
+	CalculateXOffsets();
+	CalculateYOffsets();
+}
+CalculateXOffsets()
+{
+	if(align == Alignment::Left)
+	{
+		posXOffset  = (width - 1.0f) / 2.0f;
+	}
+	else if(align == Alignment::Right)
+	{
+		posXOffset  = (width - 1.0f) / -2.0f;
+	}
+	else
+	{
+		posXOffset = 0.0f;
+	}
+}
+CalculateYOffsets()
+{
+	if(align == Alignment::Bottom)
+	{
+		posYOffset  = (height - 1.0f) / 2.0f;
+	}
+	else if(align == Alignment::Top)
+	{
+		posYOffset  = (height - 1.0f) / -2.0f;
+	}
+	else
+	{
+		posYOffset = 0.0f;
+	}
+}

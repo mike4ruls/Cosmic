@@ -59,7 +59,6 @@ Player::Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg)
 
 Player::~Player()
 {
-	if (player != nullptr) { delete player; player = nullptr; }
 }
 
 void Player::Update(float dt)
@@ -106,8 +105,6 @@ void Player::Update(float dt)
 			topDisplayHealth = health;
 		}
 	}
-
-	player->Update(dt);
 }
 
 void Player::Strafe(float dt)

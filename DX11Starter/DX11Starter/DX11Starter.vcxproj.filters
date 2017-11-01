@@ -170,6 +170,9 @@
     <ClCompile Include="mGui\imgui_impl_dx11.cpp">
       <Filter>mGui\Source</Filter>
     </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXCore.h">
@@ -288,6 +291,9 @@
     </ClInclude>
     <ClInclude Include="mGui\stb_truetype.h">
       <Filter>mGui\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

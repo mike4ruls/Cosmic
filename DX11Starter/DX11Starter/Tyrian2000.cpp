@@ -13,6 +13,8 @@ Tyrian2000::~Tyrian2000()
 {
 	if (p1 != nullptr) { delete p1; p1 = nullptr; }
 
+	if (fLine != nullptr) { delete fLine; fLine = nullptr; }
+
 	for (unsigned int i = 0; i < bulletPool.size(); i++)
 	{
 		if (bulletPool[i] != nullptr) { delete bulletPool[i]; bulletPool[i] = nullptr; }
@@ -25,13 +27,6 @@ Tyrian2000::~Tyrian2000()
 	{
 		if (backgroundTilePool[i] != nullptr) { delete backgroundTilePool[i]; backgroundTilePool[i] = nullptr; }
 	}
-	if (healthBar != nullptr) { delete healthBar; healthBar = nullptr; }
-	if (healthBarFade != nullptr) { delete healthBarFade; healthBarFade = nullptr; }
-	if (healthBarBack != nullptr) { delete healthBarBack; healthBarBack = nullptr; }
-
-	if (endGamePanel != nullptr) { delete endGamePanel; endGamePanel = nullptr; }
-
-	if (fLine != nullptr) { delete fLine; fLine = nullptr; }
 }
 
 void Tyrian2000::Init()
@@ -80,20 +75,12 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 {
 	p1->Update(deltaTime);
 
-	fLine->Update(deltaTime);
-
-	endGamePanel->Update(deltaTime);
-
-	healthBar->Update(deltaTime);
-	healthBarFade->Update(deltaTime);
-	healthBarBack->Update(deltaTime);
-
-	healthBar->transform.Scale(healthBarBack->transform.scale.x * (p1->topDisplayHealth / p1->maxHealth), healthBar->transform.scale.y, healthBar->transform.scale.z);
-	healthBarFade->transform.Scale(healthBarBack->transform.scale.x * (p1->botDisplayHealth / p1->maxHealth), healthBar->transform.scale.y, healthBar->transform.scale.z);
+	healthBar->SetWidth(healthBarBack->GetWidth() * (p1->topDisplayHealth / p1->maxHealth));
+	healthBarFade->SetWidth(healthBarBack->GetWidth() * (p1->botDisplayHealth / p1->maxHealth));
 
 	if(waveSpawnTimer <= 0.0f)
 	{
-		if (!fLine->isActive)
+		if (!fLine->finishLine->isActive)
 		{
 			SpawnWaveEnemies();
 			SpawnWaveBlockers();
@@ -105,28 +92,22 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 
 	if(currentWave == waveCount)
 	{
-		fLine->isActive = true;
+		fLine->finishLine->SetActive(true);
 		currentWave++;
 	}
-
-	if(fLine->isActive && p1->player->transform.position.z >= fLine->finishLine->transform.position.z)
+	if(fLine->finishLine->isActive && p1->player->transform.position.z >= fLine->finishLine->transform.position.z)
 	{
-		fLine->isActive = false;
+		fLine->finishLine->SetActive(false);
 		ChooseEndPanelText();
 	}
-
 	if(p1->isDead && !endGame)
 	{
 		ChooseEndPanelText();
 	}
-
-	for (unsigned int i = 0; i < gameObjects.size(); i++)
-	{
-		gameObjects[i]->Update(deltaTime);
-	}
+	fLine->Update(deltaTime);
 	for (unsigned int i = 0; i < bulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
 	{
-		if (bulletPool[i]->isActive)
+		if (bulletPool[i]->bullet->isActive)
 		{
 		bulletPool[i]->Update(deltaTime);
 
@@ -164,7 +145,6 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		backgroundTilePool[i]->Update(deltaTime);
 	}
 
-	
 	CheckOutOfBounds();
 	CalculateCamPos();
 
@@ -219,6 +199,7 @@ void Tyrian2000::CheckInputs(float dt)
 		}
 		if (inputManager->IsActionPressed(Actions::Strafe) && !p1->canStrafe)
 		{
+			p1->GainHealth(20.0f);
 			//p1->rotLeft = rotLeft;
 			p1->TurnOnStrafe();
 			if (p1->currentTurnState == Player::STRAIGHT && butCheckY)
@@ -357,23 +338,35 @@ void Tyrian2000::CheckOutOfBounds()
 void Tyrian2000::InitUI()
 {
 	healthBar = engine->CreateCanvasElement();
-	healthBar->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
-	healthBar->transform.Translate(0.0f, -1.0f, 0.0f);
-	healthBar->transform.Scale(0.1f, healthBar->transform.scale.y, 0.005f);
+	healthBar->obj->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+	healthBar->posY = -1.0f;
+	//healthBar->SetAlignment(UI::Alignment::Left);
+	healthBar->SetWidth(0.6f);
+	healthBar->SetHeight(0.02f);
 
 	healthBarFade = engine->CreateCanvasElement();
-	healthBarFade->renderingComponent.mat.surfaceColor = { 0.0f, 0.3f, 0.0f, 1.0f };
-	healthBarFade->transform.Translate(0.0f, healthBar->transform.position.y, 0.0f);
-	healthBarFade->transform.Scale(0.1f, healthBar->transform.scale.y, 0.005f);
+	healthBarFade->obj->renderingComponent.mat.surfaceColor = { 0.3f, 0.0f, 0.0f, 1.0f };
+	healthBarFade->SetAlignment(healthBar->GetAlignment());
+	healthBarFade->posY = healthBar->posY;
+	healthBarFade->SetWidth(healthBar->GetWidth());
+	healthBarFade->SetHeight(healthBar->GetHeight());
 
 	healthBarBack = engine->CreateCanvasElement();
-	healthBarBack->renderingComponent.mat.surfaceColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	healthBarBack->transform.Translate(0.0f, healthBar->transform.position.y, 0.0f);
-	healthBarBack->transform.Scale(0.1f, healthBar->transform.scale.y, 0.005f);
+	healthBarBack->obj->renderingComponent.mat.surfaceColor = { 0.1f, 0.1f, 0.1f, 1.0f };
+	healthBarBack->posY = healthBar->posY;
+	healthBarBack->SetWidth(healthBar->GetWidth());
+	healthBarBack->SetHeight(healthBar->GetHeight());
+
+	healthBarBorder = engine->CreateCanvasElement();
+	healthBarBorder->obj->renderingComponent.mat.surfaceColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	healthBarBorder->posY = healthBar->posY;
+	healthBarBorder->SetWidth(healthBar->GetWidth() + 0.04f);
+	healthBarBorder->SetHeight(healthBar->GetHeight() + 0.04f);
 
 	endGamePanel = engine->CreateCanvasElement();
-	endGamePanel->transform.Scale(0.2f);
-	endGamePanel->renderingComponent.canRender = false;
+	endGamePanel->SetWidth(0.8f);
+	endGamePanel->SetHeight(0.8f);
+	endGamePanel->obj->SetVisibility(false);
 }
 
 void Tyrian2000::CreatePlayer()
@@ -459,7 +452,7 @@ void Tyrian2000::Shoot()
 {
 	for (unsigned int i = 0; i < bulletPool.size(); i++)
 	{
-		if (!bulletPool[i]->isActive)
+		if (!bulletPool[i]->bullet->isActive)
 		{
 			bulletPool[i]->Activate(p1->FindDistAway({ 0.0f, 0.0f, 1.0f }, 2.0f), {0.0f, 0.0f, 80.0f}, Bullet::Regular);
 			p1->canAttack = false;
@@ -475,7 +468,7 @@ void Tyrian2000::CalculateCamPos()
 void Tyrian2000::KillEnemy(int pos)
 {
 	Enemy* deleteEnemy = enemyPool[pos];
-	engine->rend->RemoveFromRenderer(deleteEnemy->enemyObj->renderingComponent.meshName, deleteEnemy->enemyObj->renderingComponent.rendID);
+	engine->DestroyGameObject(deleteEnemy->enemyObj);
 	enemyPool.erase(enemyPool.begin() + pos);
 	delete deleteEnemy;
 }
@@ -497,11 +490,11 @@ void Tyrian2000::ChooseEndPanelText()
 	endGame = true;
 	if(p1->isDead)
 	{
-		endGamePanel->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("failed2"));
+		endGamePanel->obj->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("failed2"));
 	}
 	else 
 	{
-		endGamePanel->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("complete1"));
+		endGamePanel->obj->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("complete1"));
 	}
-	endGamePanel->renderingComponent.canRender = true;
+	endGamePanel->obj->SetVisibility(true);
 }

@@ -12,6 +12,7 @@ GameEntity::GameEntity()
 	name = "";
 	renderingComponent.canRender = true;
 	ResetGameEntity();
+	isActive = true;
 }
 
 GameEntity::GameEntity(Mesh * m, Renderer* r, bool ui)
@@ -32,6 +33,7 @@ GameEntity::GameEntity(Mesh * m, Renderer* r, bool ui)
 	prevMatType = renderingComponent.mat.materialType;
 	isTranslucent = false;
 	isUI = ui;
+	isActive = true;
 
 	ResetGameEntity();
 	if(!isUI)
@@ -98,9 +100,12 @@ void GameEntity::SetWorld()
 
 void GameEntity::Update(float dt)
 {
-	rigidBody.UpdateVelocity(&transform, dt);
-	CheckMatType();
-	SetWorld();
+	if(isActive)
+	{
+		rigidBody.UpdateVelocity(&transform, dt);
+		CheckMatType();
+		SetWorld();
+	}
 }
 
 void GameEntity::CheckMatType()
@@ -119,4 +124,24 @@ void GameEntity::CheckMatType()
 		}
 		prevMatType = renderingComponent.mat.materialType;
 	}
+}
+
+void GameEntity::ToggleActive()
+{
+	isActive = isActive ? false : true;
+}
+
+void GameEntity::SetActive(bool act)
+{
+	isActive = act;
+}
+
+void GameEntity::ToggleVisibility()
+{
+	renderingComponent.canRender = renderingComponent.canRender ? false : true;
+}
+
+void GameEntity::SetVisibility(bool act)
+{
+	renderingComponent.canRender = act;
 }
