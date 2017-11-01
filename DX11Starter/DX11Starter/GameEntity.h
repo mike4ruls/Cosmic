@@ -9,7 +9,7 @@ class GameEntity
 {
 public:
 	GameEntity();
-	GameEntity(Mesh* m, Renderer* r);
+	GameEntity(Mesh* m, Renderer* r, bool ui);
 	~GameEntity();
 
 	std::string name;
@@ -23,6 +23,8 @@ public:
 	void SetWorld();
 	void Update(float dt);
 	void CheckMatType();
+
+	bool isUI;
 
 private:
 	Material::MatType prevMatType;

@@ -180,9 +180,14 @@ void AssetManager::LoadSurfaceTextures()
 {
 	StoreSurfaceTexture("brick", L"Assets/Textures/brick.jpg");
 	StoreSurfaceTexture("harambe", L"Assets/Textures/harambe.jpg");
+	StoreSurfaceTexture("checker", L"Assets/Textures/checker.jpg");
 	StoreSurfaceTexture("water", L"Assets/Textures/water.jpg");
 	StoreSurfaceTexture("grass", L"Assets/Textures/grass.jpg");
 	StoreSurfaceTexture("star", L"Assets/Textures/stars.jpg");
+	StoreSurfaceTexture("failed1", L"Assets/Textures/failed1.jpg");
+	StoreSurfaceTexture("failed2", L"Assets/Textures/failed2.jpg");
+	StoreSurfaceTexture("failed3", L"Assets/Textures/failed3.jpg");
+	StoreSurfaceTexture("complete1", L"Assets/Textures/complete1.jpg");
 	StoreSurfaceTexture("dragonSur", L"Assets/Textures/BlackDragon/Dragon_ground_color.jpg");
 	StoreSurfaceTexture("fighterShipSur", L"Assets/Textures/FighterShip/vj2c.jpg");
 	//StoreSurfaceTexture("raygun", L"Assets/Textures/raygunUVTest.tga");

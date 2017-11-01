@@ -1,4 +1,11 @@
 #pragma once
+#include "mGui\imconfig.h"
+#include "mGui\imgui.h"
+#include "mGui\imgui_impl_dx11.h"
+#include "mGui\imgui_internal.h"
+#include "mGui\stb_rect_pack.h"
+#include "mGui\stb_textedit.h"
+#include "mGui\stb_truetype.h"
 
 #include <Windows.h>
 #include <d3d11.h>

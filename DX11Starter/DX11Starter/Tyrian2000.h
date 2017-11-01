@@ -1,6 +1,7 @@
 #pragma once
 #include "CosmicEngine.h"
 #include "DefaultScene.h"
+#include "FinishLine.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Bullet.h"
@@ -18,6 +19,7 @@ public:
 		ButtonRight,
 		Fire,
 		Strafe,
+		Restart
 	};
 
 	Tyrian2000(CosmicEngine* eng);
@@ -29,7 +31,9 @@ public:
 	void CheckInputs(float dt);
 	void CheckControllerInputs(float dt);
 	void CheckOutOfBounds();
+	void InitUI();
 	void CreatePlayer();
+	void CreateFinishLine();
 	void SpawnWaveEnemies();
 	void SpawnWaveBlockers();
 	void LoadBulletPool();
@@ -38,8 +42,16 @@ public:
 	void CalculateCamPos();
 	void KillEnemy(int pos);
 	void SetUpActions();
+	void ChooseEndPanelText();
 
 	Player* p1;
+	FinishLine* fLine;
+
+	GameEntity* healthBar;
+	GameEntity* healthBarFade;
+	GameEntity* healthBarBack;
+
+	GameEntity* endGamePanel;
 
 	std::vector<Enemy*> enemyPool;
 	std::vector<Bullet*> bulletPool;
@@ -54,5 +66,10 @@ public:
 	float tileDistOffScreen;
 
 	float moveDownHeight;
+	float waveSpawnCD;
+	float waveSpawnTimer;
+	int waveCount;
+	int currentWave;
+	bool endGame;
 };
 

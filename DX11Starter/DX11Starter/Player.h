@@ -19,6 +19,9 @@ public:
 	TurnState staticCurTurnState;
 
 	float health;
+	float topDisplayHealth;
+	float botDisplayHealth;
+	float maxHealth;
 
 	float speed;
 	float normSpeed;
@@ -36,10 +39,21 @@ public:
 	float tiltSpeed;
 	float currentTilt;
 
+	float strafeImmuneCD;
+	float damageImmuneCD;
+	float strafeImmuneTimer;
+	float damageImmuneTimer;
+
 	bool canAttack;
 	bool canStrafe;
 	bool canTilt;
 	bool isDead;
+
+	bool strafeImmune;
+	bool damageImmune;
+
+	bool canStrafeImmuneTimer;
+	bool canDamageImmuneTimer;
 
 	DirectX::XMFLOAT3 originalRot;
 
@@ -49,7 +63,10 @@ public:
 	void Strafe(float dt);
 	void TurnOnStrafe();
 	void Tilt(float dt);
+	void GainHealth(float hlt);
 	void TakeDamage(float dmg);
+	void StrafeImmuneCD(float dt);
+	void DamageImmuneCD(float dt);
 	DirectX::XMFLOAT3 FindDistAway(DirectX::XMFLOAT3 dir, float dist);
 };
 

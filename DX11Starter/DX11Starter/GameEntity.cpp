@@ -14,7 +14,7 @@ GameEntity::GameEntity()
 	ResetGameEntity();
 }
 
-GameEntity::GameEntity(Mesh * m, Renderer* r)
+GameEntity::GameEntity(Mesh * m, Renderer* r, bool ui)
 {
 	transform = Transform();
 	rigidBody = RigidBody();
@@ -31,9 +31,17 @@ GameEntity::GameEntity(Mesh * m, Renderer* r)
 
 	prevMatType = renderingComponent.mat.materialType;
 	isTranslucent = false;
+	isUI = ui;
 
 	ResetGameEntity();
-	rend->PushToRenderer(&renderingComponent);
+	if(!isUI)
+	{
+		rend->PushToRenderer(&renderingComponent);
+	}
+	else
+	{
+		rend->PushToCanvas(&renderingComponent);
+	}
 }
 
 

@@ -22,6 +22,7 @@ void Scene2::Init()
 	gameObjects.push_back(engine->CreateGameObject("Sphere"));
 	gameObjects.push_back(engine->CreateGameObject("Plane"));
 	gameObjects.push_back(engine->CreateGameObject("Dragon"));
+	//gameObjects.push_back(engine->CreateCanvasElement());
 
 	gameObjects[0]->transform.Translate(0.0f, 0.0f, 20.0f);
 	gameObjects[0]->transform.Scale(50.0f, 50.0f, 0.3f);

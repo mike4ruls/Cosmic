@@ -75,6 +75,18 @@
     <Filter Include="Scenes\FramRateTestScene\Source">
       <UniqueIdentifier>{6e2ec99c-1087-47a2-b2c0-1f0aa5109972}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\CanvasShaders">
+      <UniqueIdentifier>{149acf03-9344-4be4-bbbb-4e236209138b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mGui">
+      <UniqueIdentifier>{8373f670-3117-470d-9fb6-8d5e34e20973}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mGui\Source">
+      <UniqueIdentifier>{61016573-e11f-422f-81c3-633a6fe70533}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mGui\Header">
+      <UniqueIdentifier>{6d8ab7a1-024f-4491-bc73-79204e5ccdeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -142,6 +154,21 @@
     </ClCompile>
     <ClCompile Include="InputManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FinishLine.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mGui\imgui.cpp">
+      <Filter>mGui\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mGui\imgui_demo.cpp">
+      <Filter>mGui\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mGui\imgui_draw.cpp">
+      <Filter>mGui\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mGui\imgui_impl_dx11.cpp">
+      <Filter>mGui\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -238,6 +265,30 @@
     <ClInclude Include="InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FinishLine.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mGui\imconfig.h">
+      <Filter>mGui\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mGui\imgui.h">
+      <Filter>mGui\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mGui\imgui_impl_dx11.h">
+      <Filter>mGui\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mGui\imgui_internal.h">
+      <Filter>mGui\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mGui\stb_rect_pack.h">
+      <Filter>mGui\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mGui\stb_textedit.h">
+      <Filter>mGui\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mGui\stb_truetype.h">
+      <Filter>mGui\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\DefferedShaders\InstanceDVShader.hlsl">
@@ -281,6 +332,15 @@
     </FxCompile>
     <FxCompile Include="Shaders\ForwardShaders\PixelFSShader.hlsl">
       <Filter>Shaders\ForwardShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CanvasShader\CanvasPShader.hlsl">
+      <Filter>Shaders\CanvasShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CanvasShader\CanvasVShader.hlsl">
+      <Filter>Shaders\CanvasShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CanvasShader\CanvasPTShader.hlsl">
+      <Filter>Shaders\CanvasShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

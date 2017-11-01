@@ -35,6 +35,7 @@ CosmicEngine::CosmicEngine(HINSTANCE hInstance)
 // --------------------------------------------------------
 CosmicEngine::~CosmicEngine()
 {
+	ImGui_ImplDX11_Shutdown();
 	if (rend) { delete rend; rend = nullptr; }
 	if (physicEngine) { delete physicEngine; physicEngine = nullptr; }
 	inputManager->Release();
@@ -47,6 +48,7 @@ CosmicEngine::~CosmicEngine()
 // --------------------------------------------------------
 void CosmicEngine::Init()
 {
+	ImGui_ImplDX11_Init(hWnd, device, context);
 	rend = new Renderer(cam, device, context, backBufferRTV, depthStencilView, swapChain);
 
 	dayTime = 0.0f;
@@ -149,6 +151,10 @@ void CosmicEngine::OnResize()
 // --------------------------------------------------------
 void CosmicEngine::Update(float deltaTime, float totalTime)
 {
+	ImGuiIO& IO = ImGui::GetIO();
+	IO.DeltaTime = deltaTime;
+	ImGui_ImplDX11_NewFrame();
+
 	inputManager->Update();
 	if (inputManager->IsKeyPressed(VK_TAB))
 	{
@@ -180,9 +186,24 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void CosmicEngine::Draw(float deltaTime, float totalTime)
 {
-
+	{
+		// 1. Show a simple window
+		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+		static float f = 0.0f;
+		static char text = char();
+		ImGui::Text("Hello, world!");
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+		//ImGui::ColorEdit3("clear color", (float*)&clear_color);
+		//if (ImGui::Button("Test Window")) show_test_window ^= 1;
+		//if (ImGui::Button("Another Window")) show_another_window ^= 1;
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::InputText("Test", &text, sizeof(char)*30);
+	}
 	rend->Render(deltaTime);
 
+	ImGui::Render();
+
+	swapChain->Present(0, 0);
 }
 
 
@@ -251,8 +272,16 @@ void CosmicEngine::OnMouseWheel(float wheelDelta, int x, int y)
 }
 GameEntity * CosmicEngine::CreateGameObject(std::string name)
 {
-	 GameEntity* newObj = new GameEntity(rend->assets->GetMesh(name), rend);
+	 GameEntity* newObj = new GameEntity(rend->assets->GetMesh(name), rend, false);
 	
+	return newObj;
+}
+GameEntity * CosmicEngine::CreateCanvasElement()
+{
+	GameEntity* newObj = new GameEntity(rend->assets->GetMesh("Plane"), rend, true);
+	newObj->transform.Translate(0.0f, 0.0f, 3.0f);
+	newObj->transform.Rotate(0.0f, -90.0f, 0.0f);
+
 	return newObj;
 }
 void CosmicEngine::LoadDefaultScene(Game * newScene)

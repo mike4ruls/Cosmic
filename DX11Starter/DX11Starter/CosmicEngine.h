@@ -42,6 +42,7 @@ public:
 	void Draw(float deltaTime, float totalTime);
 
 	GameEntity* CreateGameObject(std::string name);
+	GameEntity* CreateCanvasElement();
 
 	// Loading new scenes
 	void LoadDefaultScene(Game* newScene);

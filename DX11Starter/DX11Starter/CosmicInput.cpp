@@ -91,7 +91,7 @@ void CosmicInput::Update()
 
 		if (result == ERROR_SUCCESS)
 		{
-			m_pressedButtonData = (currentData.Gamepad.wButtons & previousData.Gamepad.wButtons);
+			m_pressedButtonData = (currentData.Gamepad.wButtons & ~previousData.Gamepad.wButtons);
 			m_releasedButtonData = (~currentData.Gamepad.wButtons & previousData.Gamepad.wButtons);
 			UpdateLStick();
 			UpdateRStick();
@@ -109,7 +109,7 @@ void CosmicInput::Update()
 		if (result == ERROR_SUCCESS)
 		{
 			controllerConnected = true;
-			m_pressedButtonData = (currentData.Gamepad.wButtons & previousData.Gamepad.wButtons);
+			m_pressedButtonData = (currentData.Gamepad.wButtons & ~previousData.Gamepad.wButtons);
 			m_releasedButtonData = (~currentData.Gamepad.wButtons & previousData.Gamepad.wButtons);
 			UpdateLStick();
 			UpdateRStick();

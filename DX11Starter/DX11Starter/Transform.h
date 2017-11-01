@@ -42,9 +42,9 @@ struct Transform {
 		rotation.z = (z * 3.1415f) / 180;
 	}
 	void Scale(DirectX::XMFLOAT3 sca) {
-		scale.x += sca.x;
-		scale.y += sca.y;
-		scale.z += sca.z;
+		scale.x = sca.x;
+		scale.y = sca.y;
+		scale.z = sca.z;
 	}
 	void Scale(float x, float y, float z) {
 		scale.x = x;

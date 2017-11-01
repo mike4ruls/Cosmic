@@ -21,6 +21,7 @@ public:
 	std::map<std::string, ID3D11ShaderResourceView*> skyTextStorage;*/
 
 	std::vector<RenderingComponent*> transRendComponents;
+	std::vector<RenderingComponent*> canvasRendComponents;
 	std::vector<Light*> allLights;
 
 	std::vector<Light::LightComponent> directionalLights;
@@ -48,6 +49,7 @@ public:
 	SimpleVertexShader* instanceDVShader;
 	SimpleVertexShader* skyVShader;
 	SimpleVertexShader* quadVShader;
+	SimpleVertexShader* canvasVShader;
 
 
 	SimplePixelShader* pixelFShader;
@@ -58,6 +60,8 @@ public:
 	SimplePixelShader* skyPShader;
 	SimplePixelShader* bloomShader;
 	SimplePixelShader* hdrShader;
+	SimplePixelShader* canvasPShader;
+	SimplePixelShader* canvasPTShader;
 
 	ID3D11SamplerState* textureSample = nullptr;
 
@@ -97,6 +101,7 @@ public:
 	Mesh* GetMesh(std::string name);*/
 	void PushToRenderer(RenderingComponent* com);
 	void PushToTranslucent(RenderingComponent* com);
+	void PushToCanvas(RenderingComponent* com);
 	void Flush();
 
 	Light* CreateLight(Light::LightType lType);
@@ -117,6 +122,7 @@ public:
 
 	void RemoveFromRenderer(std::string meshName, unsigned int Id);
 	void RemoveFromTranslucent(unsigned int Id);
+	void RemoveFromCanvas(unsigned int Id);
 	void LoadShaders();
 	void SetWireFrame();
 	void ToggleWireFrame();
@@ -134,6 +140,8 @@ public:
 	void ToggleSkyBox();
 	void LoadSkyBox(int skyNum);
 	void DrawSkyBox();
+
+	void DrawCanvas();
 
 
 private:

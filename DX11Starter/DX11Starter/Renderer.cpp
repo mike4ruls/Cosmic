@@ -63,6 +63,7 @@ Renderer::~Renderer()
 	delete  instanceDVShader;
 	delete  skyVShader;
 	delete  quadVShader;
+	delete  canvasVShader;
 
 
 	delete pixelFShader;
@@ -73,6 +74,8 @@ Renderer::~Renderer()
 	delete skyPShader;
 	delete bloomShader;
 	delete hdrShader;
+	delete canvasPShader;
+	delete canvasPTShader;
 
 	delete[] localInstanceData;
 
@@ -292,12 +295,11 @@ void Renderer::Render(float dt)
 		/*Insert code here*/
 	}
 
-
+	DrawCanvas();
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
 	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
-	swap->Present(0, 0);
 	}
 
 	void Renderer::CreateRenderTargets()
@@ -398,6 +400,12 @@ void Renderer::PushToTranslucent(RenderingComponent * com)
 	transRendComponents.push_back(com);
 }
 
+void Renderer::PushToCanvas(RenderingComponent * com)
+{
+	com->rendID = (unsigned int)canvasRendComponents.size();
+	canvasRendComponents.push_back(com);
+}
+
 void Renderer::Flush()
 {
 	for (auto& x : assets->meshStorage)
@@ -409,6 +417,9 @@ void Renderer::Flush()
 			x.second->canInstRender = false;
 		}
 	}
+
+	transRendComponents.clear();
+	canvasRendComponents.clear();
 
 	for (unsigned int i = 0; i < allLights.size(); i++)
 	{
@@ -781,6 +792,16 @@ void Renderer::RemoveFromTranslucent(unsigned int Id)
 	}
 }
 
+void Renderer::RemoveFromCanvas(unsigned int Id)
+{
+	canvasRendComponents.erase(canvasRendComponents.begin() + Id);
+
+	for (unsigned int i = 0; i < canvasRendComponents.size(); i++)
+	{
+		canvasRendComponents[i]->rendID= i;
+	}
+}
+
 void Renderer::LoadShaders()
 {
 	//=================================================
@@ -805,6 +826,8 @@ void Renderer::LoadShaders()
 	quadVShader = new SimpleVertexShader(device, context);
 	quadVShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/PostProcessShaders/QuadVShader.cso");
 
+	canvasVShader = new SimpleVertexShader(device, context);
+	canvasVShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/CanvasShaders/CanvasVShader.cso");
 
 	//=================================================
 	// Init Pixel Shaders
@@ -833,6 +856,12 @@ void Renderer::LoadShaders()
 
 	hdrShader = new SimplePixelShader(device, context);
 	hdrShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/PostProcessShaders/HdrPShader.cso");
+
+	canvasPShader = new SimplePixelShader(device, context);
+	canvasPShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/CanvasShaders/CanvasPShader.cso");
+
+	canvasPTShader = new SimplePixelShader(device, context);
+	canvasPTShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/CanvasShaders/CanvasPTShader.cso");
 }
 
 void Renderer::SetWireFrame()
@@ -1136,5 +1165,45 @@ void Renderer::DrawSkyBox()
 	context->OMSetDepthStencilState(0, 0);
 
 	oldR->Release();
+}
+
+void Renderer::DrawCanvas()
+{
+	for(unsigned int i = 0; i < canvasRendComponents.size(); i ++)
+	{
+		if(canvasRendComponents[i]->canRender)
+		{
+			canvasVShader->SetMatrix4x4("world", canvasRendComponents[i]->worldMat);
+			canvasVShader->SetMatrix4x4("projection", cam->projectionMatrix);
+			canvasVShader->SetFloat4("surColor", canvasRendComponents[i]->mat.surfaceColor);
+			canvasVShader->CopyAllBufferData();
+			canvasVShader->SetShader();
+
+			SimplePixelShader* currentPixel = nullptr;
+			if (!canvasRendComponents[i]->mat.hasSurText)
+			{
+				currentPixel = canvasPShader; 
+			}
+			else
+			{
+				currentPixel = canvasPTShader;
+				currentPixel->SetFloat("uvXOffset", canvasRendComponents[i]->mat.uvXOffSet);
+				currentPixel->SetFloat("uvYOffset", canvasRendComponents[i]->mat.uvYOffSet);
+				currentPixel->SetShaderResourceView("surfaceTexture", canvasRendComponents[i]->mat.GetSurfaceTexture()); 
+				currentPixel->SetSamplerState("Sampler", sample);
+			}
+
+
+			currentPixel->CopyAllBufferData();
+			currentPixel->SetShader();
+
+			UINT stride = sizeof(Vertex);
+			UINT offset = 0;
+			context->IASetVertexBuffers(0, 1, &assets->meshStorage[canvasRendComponents[i]->meshName]->vertArr, &stride, &offset);
+			context->IASetIndexBuffer(assets->meshStorage[canvasRendComponents[i]->meshName]->indArr, DXGI_FORMAT_R32_UINT, 0);
+
+			context->DrawIndexed(assets->meshStorage[canvasRendComponents[i]->meshName]->indCount, 0, 0);
+		}
+	}
 }
 

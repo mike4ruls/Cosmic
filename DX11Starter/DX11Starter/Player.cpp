@@ -12,7 +12,10 @@ Player::Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg)
 	currentTilt = LEFT;
 	previousTurnState = LEFT;
 
-	health = hlt;
+	maxHealth = hlt;
+	health = maxHealth;
+	topDisplayHealth = maxHealth;
+	botDisplayHealth = maxHealth;
 
 	normSpeed = 20.0f;
 	strafeSpeed = 0.0f;
@@ -32,6 +35,19 @@ Player::Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg)
 	canStrafe = false;
 	canTilt = true;
 	isDead = false;
+
+	strafeImmune = false;
+	damageImmune = false;
+
+	canStrafeImmuneTimer = false;
+	canDamageImmuneTimer = false;
+
+	strafeImmuneCD = 1.0f;
+	damageImmuneCD = 0.01f;
+
+	strafeImmuneTimer = strafeImmuneCD;
+	damageImmuneTimer = damageImmuneCD;
+
 	atkSpeed = atkSpd;
 	atkDamage = atkdmg;
 	timer = atkSpeed;
@@ -61,8 +77,34 @@ void Player::Update(float dt)
 	{
 		Strafe(dt);
 	}
-	if (canTilt) {
+	if (canTilt) 
+	{
 		Tilt(dt);
+	}
+	if(canDamageImmuneTimer)
+	{
+		DamageImmuneCD(dt);
+	}
+	if (canStrafeImmuneTimer)
+	{
+		StrafeImmuneCD(dt);
+	}
+
+	if (health < botDisplayHealth)
+	{
+		botDisplayHealth -= 20.0f * dt;
+		if(botDisplayHealth < health)
+		{
+			botDisplayHealth = health;
+		}
+	}
+	if(health > topDisplayHealth)
+	{
+		topDisplayHealth += 20.0f * dt;
+		if (topDisplayHealth > health)
+		{
+			topDisplayHealth = health;
+		}
 	}
 
 	player->Update(dt);
@@ -139,12 +181,52 @@ void Player::Tilt(float dt)
 	}
 }
 
+void Player::GainHealth(float hlt)
+{
+	health += hlt;
+	if(health > maxHealth)
+	{
+		health = maxHealth;
+	}
+	botDisplayHealth = health;
+}
+
 void Player::TakeDamage(float dmg)
 {
-	health -= dmg;
-	if (health <= 0.0f)
+	if(!damageImmune && !strafeImmune && !isDead)
 	{
-		isDead = true;
+		health -= dmg;
+		if (health <= 0.0f)
+		{
+			health = 0.0f;
+			isDead = true;
+			player->renderingComponent.canRender = false;
+		}
+		topDisplayHealth = health;
+		damageImmune = true;
+		canDamageImmuneTimer = true;
+	}
+}
+
+void Player::StrafeImmuneCD(float dt)
+{
+	strafeImmuneTimer -= 1.0f *dt;
+	if (strafeImmuneTimer <= 0.0f)
+	{
+		strafeImmune = false;
+		canStrafeImmuneTimer = false;
+		strafeImmuneTimer = strafeImmuneCD;
+	}
+}
+
+void Player::DamageImmuneCD(float dt)
+{
+	damageImmuneTimer -= 1.0f *dt;
+	if (damageImmuneTimer <= 0.0f)
+	{
+		damageImmune = false;
+		canDamageImmuneTimer = false;
+		damageImmuneTimer = damageImmuneCD;
 	}
 }
 
