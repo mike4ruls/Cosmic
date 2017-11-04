@@ -1,4 +1,4 @@
-﻿  AssetManager.cpp
+﻿  Tyrian2000.cpp
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
 DirectXTK.lib(WICTextureLoader.obj) : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
   DX11Starter.vcxproj -> G:\DX11Starter\Debug\DX11Starter.exe

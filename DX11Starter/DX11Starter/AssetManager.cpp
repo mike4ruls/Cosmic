@@ -187,6 +187,9 @@ void AssetManager::LoadSurfaceTextures()
 	StoreSurfaceTexture("failed1", L"Assets/Textures/failed1.jpg");
 	StoreSurfaceTexture("failed2", L"Assets/Textures/failed2.jpg");
 	StoreSurfaceTexture("failed3", L"Assets/Textures/failed3.jpg");
+	StoreSurfaceTexture("tyrian2000Logo", L"Assets/Textures/tyrian2000Logo.jpg");
+	StoreSurfaceTexture("pausedLogo", L"Assets/Textures/pausedLogo.jpg");
+	StoreSurfaceTexture("startButtontext", L"Assets/Textures/startButton.jpg");
 	StoreSurfaceTexture("complete1", L"Assets/Textures/complete1.jpg");
 	StoreSurfaceTexture("dragonSur", L"Assets/Textures/BlackDragon/Dragon_ground_color.jpg");
 	StoreSurfaceTexture("fighterShipSur", L"Assets/Textures/FighterShip/vj2c.jpg");

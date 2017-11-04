@@ -8,6 +8,8 @@ class Scene2 :
 	public Game
 {
 public:
+
+
 	Scene2(CosmicEngine* eng);
 	~Scene2();
 
@@ -20,6 +22,8 @@ public:
 
 	CosmicEngine* engine;
 	Light* pointLight;
+
+	Button* but;
 
 private:
 

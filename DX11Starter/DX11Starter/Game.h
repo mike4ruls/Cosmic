@@ -1,7 +1,9 @@
 #pragma once
 #include <vector>
 #include "GameEntity.h"
-#include "UI.h"
+#include "Image.h"
+#include "TextBox.h"
+#include "Button.h"
 #include "Camera.h"
 #include "Renderer.h"
 

@@ -4,8 +4,14 @@
 class UI
 {
 public:
+	enum UIType {
+		TextBox,
+		Button,
+		Image
+	}uiType;
+
 	UI();
-	UI(GameEntity* o);
+	UI(GameEntity* o, UIType t);
 	~UI();
 
 	enum Alignment {
@@ -16,21 +22,27 @@ public:
 		Top
 	};
 	GameEntity* obj;
+	DirectX::XMFLOAT4 uiSurColor;
 	float posX;
 	float posY;
 	//int zOrder; ?
 	unsigned int Id;
 
-	void Update(float dt);
+	virtual void Update(float dt) = 0;
+	void UpdateVars(float dt);
 	float GetWidth();
 	float GetHeight();
+	float GetXOffSet();
+	float GetYOffSet();
 	UI::Alignment GetAlignment();
 	void SetWidth(float wd);
 	void SetHeight(float he);
 	void SetAlignment(Alignment al);
+	void SetUIColor(DirectX::XMFLOAT4 color);
+	void SetVisibility(bool vis);
+	void SetActive(bool act);
 
-
-private:
+protected:
 	Alignment align;
 
 	float posXOffset;
@@ -38,6 +50,8 @@ private:
 
 	float width;
 	float height;
+
+private:
 
 	void CalculateXOffsets();
 	void CalculateYOffsets();

@@ -4,11 +4,6 @@
 
 namespace CosmicInput
 {
-	enum InputType {
-		Keyboard,
-		Controller
-	};
-
 	enum ControllerButton
 	{
 		BUTTON_L3,
@@ -33,8 +28,6 @@ namespace CosmicInput
 	//std::unordered_map<char*, int> Actions;
 
 	int Initialize();
-	void InitButtonMap();
-	void SetButton(int key, int value);
 	void Update();
 	bool KeyDown(int key);
 	bool KeyUp(int key);
@@ -57,5 +50,4 @@ namespace CosmicInput
 
 	void UpdateLStick();
 	void UpdateRStick();
-	InputType GetInputType();
 };

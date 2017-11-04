@@ -35,6 +35,7 @@ void Tyrian2000::Init()
 	inputManager = engine->inputManager;
 	cam->inputManager = inputManager;
 	SetUpActions();
+	InitUI();
 	// ========== ====================//
 
 	engine->lockCamera = true;
@@ -45,7 +46,13 @@ void Tyrian2000::Init()
 	cam->transform.Translate(0.0f, 5.0f, 0.0f);
 
 	engine->rend->sunLight->ligComponent->lightDir = {0.7f, -0.5f, 0.0f};
+	
+	currentState = GameState::StartMenu;
+	SetUpLevel();
+}
 
+void Tyrian2000::SetUpLevel()
+{
 	endGame = false;
 	waveCount = 3;
 	currentWave = 0;
@@ -64,99 +71,149 @@ void Tyrian2000::Init()
 
 	CreatePlayer();
 	CreateFinishLine();
-	InitUI();
 	SpawnWaveEnemies();
 	SpawnWaveBlockers();
 	LoadBulletPool();
 	LoadBackgroundTilePool("grass");
+
 }
 
 void Tyrian2000::Update(float deltaTime, float totalTime)
 {
-	p1->Update(deltaTime);
-
-	healthBar->SetWidth(healthBarBack->GetWidth() * (p1->topDisplayHealth / p1->maxHealth));
-	healthBarFade->SetWidth(healthBarBack->GetWidth() * (p1->botDisplayHealth / p1->maxHealth));
-
-	if(waveSpawnTimer <= 0.0f)
+	switch (currentState)
 	{
-		if (!fLine->finishLine->isActive)
+	case GameState::StartMenu:
+		if(startButton->IsClicked() || inputManager->IsActionPressed(Actions::Start) || inputManager->IsActionPressed(Actions::Strafe))
 		{
-			SpawnWaveEnemies();
-			SpawnWaveBlockers();
-			currentWave++;
+			startButton->SetVisibility(false);
+			startButton->SetActive(false);
+
+			Tyrian2000Logo->SetVisibility(false);
+
+			healthBar->SetVisibility(true);
+			healthBarFade->SetVisibility(true);
+			healthBarBack->SetVisibility(true);
+			healthBarBorder->SetVisibility(true);
+
+
+			currentState = GameState::Game;
+		}
+		else
+		{
+			for (unsigned int i = 0; i < backgroundTilePool.size(); i++)
+			{
+				if (backgroundTilePool[i]->tile->transform.position.z <= tileDistOffScreen)
+				{
+					backgroundTilePool[i]->Teleport({ 0.0f, 0.0f, (12.2222221f * tileSize) *  backgroundTilePool.size() });
+				}
+				backgroundTilePool[i]->Update(deltaTime);
+			}
+			CalculateCamPos();
 		}
 
-		waveSpawnTimer = waveSpawnCD;
-	}
+		break;
+	case GameState::Game:
+		p1->Update(deltaTime);
 
-	if(currentWave == waveCount)
-	{
-		fLine->finishLine->SetActive(true);
-		currentWave++;
-	}
-	if(fLine->finishLine->isActive && p1->player->transform.position.z >= fLine->finishLine->transform.position.z)
-	{
-		fLine->finishLine->SetActive(false);
-		ChooseEndPanelText();
-	}
-	if(p1->isDead && !endGame)
-	{
-		ChooseEndPanelText();
-	}
-	fLine->Update(deltaTime);
-	for (unsigned int i = 0; i < bulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
-	{
-		if (bulletPool[i]->bullet->isActive)
+		healthBar->SetWidth(healthBarBack->GetWidth() * (p1->topDisplayHealth / p1->maxHealth));
+		healthBarFade->SetWidth(healthBarBack->GetWidth() * (p1->botDisplayHealth / p1->maxHealth));
+
+		if (waveSpawnTimer <= 0.0f && currentWave < waveCount)
 		{
-		bulletPool[i]->Update(deltaTime);
-
-			for (unsigned int j = 0; j < enemyPool.size(); j++)
+			if (!fLine->finishLine->isActive)
 			{
-				if (engine->physicEngine->SphereVSphereCollision(bulletPool[i]->bullet, enemyPool[j]->enemyObj))
+				SpawnWaveEnemies();
+				SpawnWaveBlockers();
+				currentWave++;
+			}
+
+			waveSpawnTimer = waveSpawnCD;
+		}
+
+		if (currentWave == waveCount)
+		{
+			fLine->finishLine->SetActive(true);
+			currentWave++;
+		}
+		if (fLine->finishLine->isActive && p1->player->transform.position.z >= fLine->finishLine->transform.position.z)
+		{
+			fLine->finishLine->SetActive(false);
+			ChooseEndPanelText();
+		}
+		if (p1->isDead && !endGame)
+		{
+			ChooseEndPanelText();
+		}
+		fLine->Update(deltaTime);
+		for (unsigned int i = 0; i < bulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
+		{
+			if (bulletPool[i]->bullet->isActive)
+			{
+				bulletPool[i]->Update(deltaTime);
+
+				for (unsigned int j = 0; j < enemyPool.size(); j++)
 				{
-					enemyPool[j]->TakeDamage(p1->atkDamage);
-					bulletPool[i]->Deactivate();
-					bulletPool[i]->bullet->transform.Translate(0.0f, 100.0f, 0.0f);
-					bulletPool[i]->bullet->SetWorld();
+					if (engine->physicEngine->SphereVSphereCollision(bulletPool[i]->bullet, enemyPool[j]->enemyObj))
+					{
+						enemyPool[j]->TakeDamage(p1->atkDamage);
+						bulletPool[i]->Deactivate();
+						bulletPool[i]->bullet->transform.Translate(0.0f, 100.0f, 0.0f);
+						bulletPool[i]->bullet->SetWorld();
+					}
 				}
 			}
 		}
-	}
-	for (unsigned int i = 0; i < enemyPool.size(); i++)
-	{
-		enemyPool[i]->Update(deltaTime);
-		if (enemyPool[i]->isDead || enemyPool[i]->enemyObj->transform.position.z <= -negZConstraint -2) {
-			KillEnemy(i);
-			continue;
-		}
-		if (engine->physicEngine->SphereVSphereCollision(p1->player, enemyPool[i]->enemyObj))
+		for (unsigned int i = 0; i < enemyPool.size(); i++)
 		{
-			p1->TakeDamage(enemyPool[i]->damage);
+			enemyPool[i]->Update(deltaTime);
+			if (enemyPool[i]->isDead || enemyPool[i]->enemyObj->transform.position.z <= -negZConstraint - 2) {
+				KillEnemy(i);
+				continue;
+			}
+			if (engine->physicEngine->SphereVSphereCollision(p1->player, enemyPool[i]->enemyObj))
+			{
+				p1->TakeDamage(enemyPool[i]->damage);
+			}
+
 		}
-		
-	}
-	for (unsigned int i = 0; i < backgroundTilePool.size(); i++)
-	{
-		if (backgroundTilePool[i]->tile->transform.position.z <= tileDistOffScreen)
+		for (unsigned int i = 0; i < backgroundTilePool.size(); i++)
 		{
-			backgroundTilePool[i]->Teleport({ 0.0f, 0.0f, (12.2222221f * tileSize) *  backgroundTilePool.size()});
+			if (backgroundTilePool[i]->tile->transform.position.z <= tileDistOffScreen)
+			{
+				backgroundTilePool[i]->Teleport({ 0.0f, 0.0f, (12.2222221f * tileSize) *  backgroundTilePool.size() });
+			}
+			backgroundTilePool[i]->Update(deltaTime);
 		}
-		backgroundTilePool[i]->Update(deltaTime);
+
+		CheckOutOfBounds();
+		CalculateCamPos();
+
+		if (inputManager->IsControllerConnected())
+		{
+			CheckControllerInputs(deltaTime);
+		}
+		else
+		{
+			CheckInputs(deltaTime);
+		}
+		waveSpawnTimer -= deltaTime;
+		break;
+	case GameState::Paused:
+		if (inputManager->IsActionPressed(Actions::Start))
+		{
+			currentState = GameState::Game;
+			pausedLogo->SetVisibility(false);
+		}
+		break;
+	case GameState::EndLevel:
+		if (inputManager->IsActionPressed(Actions::Start) || inputManager->IsActionPressed(Actions::Strafe))
+		{
+			Tyrian2000* tyrian = new Tyrian2000(engine);
+			engine->LoadScene(tyrian);
+		}
+		break;
 	}
 
-	CheckOutOfBounds();
-	CalculateCamPos();
-
-	if(inputManager->IsControllerConnected())
-	{
-		CheckControllerInputs(deltaTime);
-	}
-	else 
-	{
-		CheckInputs(deltaTime);
-	}
-	waveSpawnTimer -= deltaTime;
 }
 
 void Tyrian2000::CheckInputs(float dt)
@@ -216,10 +273,10 @@ void Tyrian2000::CheckInputs(float dt)
 			}
 		}
 	}
-	if (inputManager->IsActionPressed(Actions::Restart))
+	if (inputManager->IsActionPressed(Actions::Start))
 	{
-		Tyrian2000* tyrian = new Tyrian2000(engine);
-		engine->LoadScene(tyrian);
+		currentState = GameState::Paused;
+		pausedLogo->SetVisibility(true);
 	}
 	if (inputManager->IsKeyDown(96))
 	{
@@ -242,14 +299,14 @@ void Tyrian2000::CheckControllerInputs(float dt)
 		float LX = inputManager->GetLeftStickX();
 		float LY = inputManager->GetLeftStickY();
 
-		if (inputManager->IsActionDown(Actions::ButtonLeft) || LX < -0.2f) //A
+		if (inputManager->IsActionDown(Actions::ButtonLeft) || LX < 0.0f) //A
 		{
 			butCheckX = true;
 			p1->currentTurnState = Player::LEFT;
 			p1->previousTurnState = Player::LEFT;
 			p1->player->transform.Translate((p1->player->transform.right.x * -p1->speed) * dt, 0.0f, (p1->player->transform.right.z * -p1->speed) * dt);
 		}
-		if (inputManager->IsActionDown(Actions::ButtonRight) || LX > 0.2f) //D
+		if (inputManager->IsActionDown(Actions::ButtonRight) || LX > 0.0f) //D
 		{
 			butCheckX = true;
 			p1->currentTurnState = Player::RIGHT;
@@ -257,12 +314,12 @@ void Tyrian2000::CheckControllerInputs(float dt)
 			p1->player->transform.Translate((p1->player->transform.right.x * p1->speed) * dt, 0.0f, (p1->player->transform.right.z * p1->speed) * dt);
 		}
 
-		if (inputManager->IsActionDown(Actions::ButtonUp) || LY > 0.2f) //W
+		if (inputManager->IsActionDown(Actions::ButtonUp) || LY > 0.0f) //W
 		{
 			butCheckY = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * p1->speed) * dt);
 		}
-		if (inputManager->IsActionDown(Actions::ButtonDown) || LY < -0.2f) //S
+		if (inputManager->IsActionDown(Actions::ButtonDown) || LY < 0.0f) //S
 		{
 			butCheckY = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * -p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * -p1->speed) * dt);
@@ -294,10 +351,10 @@ void Tyrian2000::CheckControllerInputs(float dt)
 			}
 		}
 	}
-	if (inputManager->IsActionPressed(Actions::Restart))
+	if (inputManager->IsActionPressed(Actions::Start))
 	{
-		Tyrian2000* tyrian = new Tyrian2000(engine);
-		engine->LoadScene(tyrian);
+		currentState = GameState::Paused;
+		pausedLogo->SetVisibility(true);
 	}
 	if (inputManager->IsKeyDown(96))
 	{
@@ -337,36 +394,65 @@ void Tyrian2000::CheckOutOfBounds()
 
 void Tyrian2000::InitUI()
 {
-	healthBar = engine->CreateCanvasElement();
-	healthBar->obj->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+	healthBar = engine->CreateCanvasImage();
+	healthBar->SetUIColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	healthBar->SetAlignment(UI::Alignment::Left);
+	healthBar->posX = 0.3f;
 	healthBar->posY = -1.0f;
-	//healthBar->SetAlignment(UI::Alignment::Left);
 	healthBar->SetWidth(0.6f);
 	healthBar->SetHeight(0.02f);
 
-	healthBarFade = engine->CreateCanvasElement();
-	healthBarFade->obj->renderingComponent.mat.surfaceColor = { 0.3f, 0.0f, 0.0f, 1.0f };
+	healthBarFade = engine->CreateCanvasImage();
+	healthBarFade->SetUIColor({ 0.3f, 0.0f, 0.0f, 1.0f });
 	healthBarFade->SetAlignment(healthBar->GetAlignment());
+	healthBarFade->posX = healthBar->posX;
 	healthBarFade->posY = healthBar->posY;
 	healthBarFade->SetWidth(healthBar->GetWidth());
 	healthBarFade->SetHeight(healthBar->GetHeight());
 
-	healthBarBack = engine->CreateCanvasElement();
-	healthBarBack->obj->renderingComponent.mat.surfaceColor = { 0.1f, 0.1f, 0.1f, 1.0f };
-	healthBarBack->posY = healthBar->posY;
+	healthBarBack = engine->CreateCanvasImage();
+	healthBarBack->SetUIColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+	healthBarBack->posX = healthBar->posX + healthBar->GetXOffSet();
+	healthBarBack->posY = healthBar->posY + healthBar->GetYOffSet();
 	healthBarBack->SetWidth(healthBar->GetWidth());
 	healthBarBack->SetHeight(healthBar->GetHeight());
 
-	healthBarBorder = engine->CreateCanvasElement();
-	healthBarBorder->obj->renderingComponent.mat.surfaceColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	healthBarBorder->posY = healthBar->posY;
+	healthBarBorder = engine->CreateCanvasImage();
+	healthBarBorder->SetUIColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	healthBarBorder->posX = healthBar->posX + healthBar->GetXOffSet();
+	healthBarBorder->posY = healthBar->posY + healthBar->GetYOffSet();
 	healthBarBorder->SetWidth(healthBar->GetWidth() + 0.04f);
 	healthBarBorder->SetHeight(healthBar->GetHeight() + 0.04f);
 
-	endGamePanel = engine->CreateCanvasElement();
+	endGamePanel = engine->CreateCanvasImage();
 	endGamePanel->SetWidth(0.8f);
 	endGamePanel->SetHeight(0.8f);
-	endGamePanel->obj->SetVisibility(false);
+
+
+	healthBar->SetVisibility(false);
+	healthBarFade->SetVisibility(false);
+	healthBarBack->SetVisibility(false);
+	healthBarBorder->SetVisibility(false);
+	endGamePanel->SetVisibility(false);
+
+	Tyrian2000Logo = engine->CreateCanvasImage();
+	Tyrian2000Logo->LoadTexture(engine->rend->assets->GetSurfaceTexture("tyrian2000Logo"));
+	Tyrian2000Logo->SetHeight(0.5f);
+	Tyrian2000Logo->SetHeight(0.3f);
+	Tyrian2000Logo->posY = 0.6f;
+
+	pausedLogo = engine->CreateCanvasImage();
+	pausedLogo->LoadTexture(engine->rend->assets->GetSurfaceTexture("pausedLogo"));
+	pausedLogo->SetHeight(0.5f);
+	pausedLogo->SetHeight(0.3f);
+	pausedLogo->posY = 0.6f;
+	pausedLogo->SetVisibility(false);
+
+	startButton = engine->CreateCanvasButton();
+	startButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("startButtontext"));
+	startButton->SetWidth(0.3f);
+	startButton->SetHeight(0.1f);
+	startButton->posY = -0.7f;
 }
 
 void Tyrian2000::CreatePlayer()
@@ -375,7 +461,7 @@ void Tyrian2000::CreatePlayer()
 	p1->player->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("fighterShipSur"));
 	p1->player->renderingComponent.mat.surfaceReflectance = 0.3f;
 	p1->player->transform.Scale(0.005f);
-	p1->player->transform.Translate(0.0f, 4.0f + moveDownHeight, 0.0f);
+	p1->player->transform.Translate(0.0f, 4.0f + moveDownHeight, -4.0f);
 }
 
 void Tyrian2000::CreateFinishLine()
@@ -394,7 +480,7 @@ void Tyrian2000::SpawnWaveEnemies()
 	int numOfEnemies = 10;
 	for(int i = 0; i < numOfEnemies; i++)
 	{
-		Enemy* newEnemy = new Enemy(engine->CreateGameObject("Cone"), 4.0f, -3.0f, 1.0f);
+		Enemy* newEnemy = new Enemy(engine->CreateGameObject("Cone"), 4.0f, -3.0f, 1.0f, Enemy::EnemyType::Regular);
 		newEnemy->enemyObj->transform.Translate(-18.0f + (i*4), p1->player->transform.position.y, 18.0f);
 		newEnemy->enemyObj->transform.Scale(1.3f);
 		newEnemy->enemyObj->transform.Rotate(0.0f, 0.0f, 90.0f);
@@ -408,7 +494,7 @@ void Tyrian2000::SpawnWaveBlockers()
 	int numOfEnemies = 15;
 	for (int i = 0; i < numOfEnemies; i++)
 	{
-		Enemy* newEnemy = new Enemy(engine->CreateGameObject("Sphere"), 15.0f, -2.0f, 3.0f);
+		Enemy* newEnemy = new Enemy(engine->CreateGameObject("Sphere"), 15.0f, -2.0f, 3.0f, Enemy::EnemyType::ZigZag);
 		newEnemy->enemyObj->transform.Translate(-20.0f + (i * 3), p1->player->transform.position.y, 22.0f);
 		newEnemy->enemyObj->transform.Scale(2.0f);
 		enemyPool.push_back(newEnemy);
@@ -481,20 +567,22 @@ void Tyrian2000::SetUpActions()
 	inputManager->AddActionBinding(Actions::ButtonRight, { 68, CosmicInput::ControllerButton::DPAD_RIGHT });
 	inputManager->AddActionBinding(Actions::Fire, { VK_RETURN,  CosmicInput::ControllerButton::BUTTON_R2 });
 	inputManager->AddActionBinding(Actions::Strafe, { VK_SPACE, CosmicInput::ControllerButton::BUTTON_CROSS });
-	inputManager->AddActionBinding(Actions::Restart, { 99, CosmicInput::ControllerButton::BUTTON_OPTIONS });
+	inputManager->AddActionBinding(Actions::Start, { 99, CosmicInput::ControllerButton::BUTTON_OPTIONS });
 	//inputManager->AddActionBinding("Button4", { 13, CosmicInput::ControllerButton::BUTTON_SQUARE });
 }
 
 void Tyrian2000::ChooseEndPanelText()
 {
+	currentState = GameState::EndLevel;
+
 	endGame = true;
 	if(p1->isDead)
 	{
-		endGamePanel->obj->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("failed2"));
+		endGamePanel->LoadTexture(engine->rend->assets->GetSurfaceTexture("failed2"));
 	}
 	else 
 	{
-		endGamePanel->obj->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("complete1"));
+		endGamePanel->LoadTexture(engine->rend->assets->GetSurfaceTexture("complete1"));
 	}
-	endGamePanel->obj->SetVisibility(true);
+	endGamePanel->SetVisibility(true);
 }

@@ -18,6 +18,8 @@ struct ThumbStick {
 volatile ThumbStick LeftStick = {};
 volatile ThumbStick RightStick = {};
 
+float deadzone;
+
 uint32_t Button[]
 {
 	XINPUT_GAMEPAD_LEFT_THUMB, /*BUTTON_L3*/
@@ -66,16 +68,8 @@ int CosmicInput::Initialize()
 	{
 		controllerConnected = false;
 	}
-
+	deadzone = 0.2f;
 	return 0;
-}
-
-void CosmicInput::InitButtonMap()
-{
-}
-
-void CosmicInput::SetButton(int key, int value)
-{
 }
 
 void CosmicInput::Update()
@@ -306,36 +300,60 @@ void CosmicInput::UpdateLStick()
 		LeftStick.magnitude = 0.0;
 		LeftStick.normalizedMagnitude = 0.0;
 	}
+
+	if(std::abs(LeftStick.normalizedX) < deadzone)
+	{
+		LeftStick.normalizedX = 0.0f;
+	}
+	if (std::abs(LeftStick.normalizedY) < deadzone)
+	{
+		LeftStick.normalizedY = 0.0f;
+	}
 }
 void CosmicInput::UpdateRStick()
 {
-	RightStick.x = currentData.Gamepad.sThumbLX;
-	RightStick.y = currentData.Gamepad.sThumbLY;
+	RightStick.x = (float)currentData.Gamepad.sThumbRX;
+	RightStick.y = (float)currentData.Gamepad.sThumbRY;
 
-	RightStick.magnitude = sqrt(RightStick.x*RightStick.x + RightStick.y*RightStick.y);
 
-	RightStick.normalizedX = RightStick.x / RightStick.magnitude;
+	//determine how far the controller is pushed
+	RightStick.magnitude = std::sqrtf((RightStick.x  * RightStick.x) + (RightStick.y * RightStick.y));
+
+	//determine the direction the controller is pushed
+	RightStick.normalizedX = (RightStick.x / RightStick.magnitude);
+	//LeftStick.normalizedX -= 9.0f;
 	RightStick.normalizedY = RightStick.y / RightStick.magnitude;
 
 	RightStick.normalizedMagnitude = 0;
 
+	//check if the controller is outside a circular dead zone
 	if (RightStick.magnitude > RightStick.deadZone)
 	{
+		//clip the magnitude at its expected maximum value
 		if (RightStick.magnitude > 32767) RightStick.magnitude = 32767;
 
+		//adjust magnitude relative to the end of the dead zone
 		RightStick.magnitude -= RightStick.deadZone;
 
+		//optionally normalize the magnitude with respect to its expected range
+		//giving a magnitude value of 0.0 to 1.0
 		RightStick.normalizedMagnitude = RightStick.magnitude / (32767 - RightStick.deadZone);
 	}
-	else
+	else //if the controller is in the deadzone zero out the magnitude
 	{
+		RightStick.normalizedX = 0.0f;
+		RightStick.normalizedY = 0.0f;
+
 		RightStick.magnitude = 0.0;
 		RightStick.normalizedMagnitude = 0.0;
 	}
-}
 
-
-InputType CosmicInput::GetInputType()
-{
-	return InputType();
+	if (std::abs(RightStick.normalizedX) < deadzone)
+	{
+		RightStick.normalizedX = 0.0f;
+	}
+	if (std::abs(RightStick.normalizedY) < deadzone)
+	{
+		RightStick.normalizedY = 0.0f;
+	}
 }

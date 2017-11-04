@@ -53,13 +53,20 @@ void CosmicEngine::Init()
 
 	dayTime = 0.0f;
 	click = false;
+	pauseGame = false;
 
 	srand((unsigned int)time(NULL));
+
+	currentMousePos = MouseScreen();
+	currentMousePos.x = 0.0f;
+	currentMousePos.y = 0.0f;
 
 	currentScene->Init();
 	inputManager = InputManager::GetInstance();
 	physicEngine = new CosmicPhysic();
 	initFinished = true;
+
+
 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -148,10 +155,14 @@ void CosmicEngine::OnResize()
 
 void CosmicEngine::UpdateObjects(float dt)
 {
-	for (unsigned int i = 0; i < allObj.size(); i++)
+	if (!pauseGame)
 	{
-		allObj[i]->Update(dt);
+		for (unsigned int i = 0; i < allObj.size(); i++)
+		{
+			allObj[i]->Update(dt);
+		}
 	}
+
 	for (unsigned int i = 0; i < allUI.size(); i++)
 	{
 		allUI[i]->Update(dt);
@@ -171,6 +182,7 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 
 	currentScene->Update(deltaTime, totalTime);
 	cam->Update(deltaTime);
+
 	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
 
 	inputManager->Update();
@@ -232,6 +244,7 @@ void CosmicEngine::OnMouseDown(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
 	click = true;
+	printf("click");
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
 	prevMousePos.y = y;
@@ -262,6 +275,13 @@ void CosmicEngine::OnMouseUp(WPARAM buttonState, int x, int y)
 void CosmicEngine::OnMouseMove(WPARAM buttonState, int x, int y)
 {
 	float sensitivity = 0.005f;
+
+	float newWidth = (float)width / 2.0f;
+	float newHeigth = (float)height / 2.0f;
+	currentMousePos.x = (-newWidth + x) / (newWidth / 1.1f);
+	currentMousePos.y = (newHeigth - y) / (newHeigth / 0.62f);
+
+	//printf("X: %f, Y: %f\n", currentMousePos.x, currentMousePos.y);
 	// Add any custom code here...
 	if (click && !lockCamera)
 	{
@@ -293,9 +313,30 @@ GameEntity * CosmicEngine::CreateGameObject(std::string name)
 	
 	return newObj;
 }
-UI* CosmicEngine::CreateCanvasElement()
+TextBox * CosmicEngine::CreateCanvasTextBox()
 {
-	UI* newObj = new UI(new GameEntity(rend->assets->GetMesh("Quad"), rend, true));
+	TextBox* newObj = new TextBox(new GameEntity(rend->assets->GetMesh("Quad"), rend, true), UI::UIType::TextBox);
+
+	newObj->Id = allUI.size();
+
+	allUI.push_back(newObj);
+
+	return newObj;
+}
+Button * CosmicEngine::CreateCanvasButton()
+{
+	Button* newObj = new Button(new GameEntity(rend->assets->GetMesh("Quad"), rend, true), UI::UIType::Button, this);
+
+	newObj->Id = allUI.size();
+
+	allUI.push_back(newObj);
+
+	return newObj;
+}
+Image * CosmicEngine::CreateCanvasImage()
+{
+	Image* newObj = new Image(new GameEntity(rend->assets->GetMesh("Quad"), rend, true), UI::UIType::Image);
+
 	newObj->Id = allUI.size();
 
 	allUI.push_back(newObj);

@@ -155,6 +155,7 @@
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BackGroundTiles.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CosmicEngine.cpp" />
     <ClCompile Include="CosmicInput.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="FinishLine.cpp" />
     <ClCompile Include="FrameRateTestScene.cpp" />
     <ClCompile Include="GameEntity.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -177,6 +179,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene2.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
+    <ClCompile Include="TextBox.cpp" />
     <ClCompile Include="Tyrian2000.cpp" />
     <ClCompile Include="UI.cpp" />
   </ItemGroup>
@@ -186,6 +189,7 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="BackGroundTiles.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CosmicEngine.h" />
@@ -198,6 +202,7 @@
     <ClInclude Include="FrameRateTestScene.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameEntity.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstanceData.h" />
     <ClInclude Include="Light.h" />
@@ -217,6 +222,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Scene2.h" />
     <ClInclude Include="SimpleShader.h" />
+    <ClInclude Include="TextBox.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Tyrian2000.h" />
     <ClInclude Include="UI.h" />

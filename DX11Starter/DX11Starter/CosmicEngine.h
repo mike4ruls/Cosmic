@@ -9,7 +9,9 @@
 #include "InputManager.h"
 #include "Mesh.h"
 #include "GameEntity.h"
-#include "UI.h"
+#include "TextBox.h"
+#include "Button.h"
+#include "Image.h"
 #include "Camera.h"
 #include "Renderer.h"
 #include "Game.h"
@@ -20,6 +22,11 @@ class CosmicEngine
 {
 
 public:
+	struct MouseScreen
+	{
+		float x;
+		float y;
+	};
 	CosmicEngine(HINSTANCE hInstance);
 	~CosmicEngine();
 
@@ -33,6 +40,7 @@ public:
 	Game* currentScene = nullptr;
 
 	float dayTime;
+	bool pauseGame;
 	bool click;
 	bool initFinished = false;
 	bool lockSunLight = false;
@@ -47,7 +55,9 @@ public:
 	void Draw(float deltaTime, float totalTime);
 
 	GameEntity* CreateGameObject(std::string name);
-	UI* CreateCanvasElement();
+	TextBox* CreateCanvasTextBox();
+	Button* CreateCanvasButton();
+	Image* CreateCanvasImage();
 
 	// Loading new scenes
 	void LoadDefaultScene(Game* newScene);
@@ -60,6 +70,9 @@ public:
 	CosmicPhysic* physicEngine;
 	InputManager* inputManager;
 
+	MouseScreen currentMousePos;
+	POINT prevMousePos;
+
 	// Overridden mouse input helper methods
 	void OnMouseDown(WPARAM buttonState, int x, int y);
 	void OnMouseUp(WPARAM buttonState, int x, int y);
@@ -70,8 +83,6 @@ private:
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void CreateBasicGeometry();
 
-	// Keeps track of the old mouse position.  Useful for 
-	// determining how far the mouse moved in a single frame.
-	POINT prevMousePos;
+
 };
 //CosmicEngine

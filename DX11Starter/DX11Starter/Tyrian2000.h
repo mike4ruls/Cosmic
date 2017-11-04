@@ -19,14 +19,21 @@ public:
 		ButtonRight,
 		Fire,
 		Strafe,
-		Restart
+		Start
 	};
+	enum GameState {
+		StartMenu,
+		Game,
+		Paused,
+		EndLevel
+	}currentState;
 
 	Tyrian2000(CosmicEngine* eng);
 	~Tyrian2000();
 	CosmicEngine* engine;
 
 	void Init();
+	void SetUpLevel();
 	void Update(float deltaTime, float totalTime);
 	void CheckInputs(float dt);
 	void CheckControllerInputs(float dt);
@@ -44,15 +51,27 @@ public:
 	void SetUpActions();
 	void ChooseEndPanelText();
 
-	Player* p1;
-	FinishLine* fLine;
+	Player* p1 = nullptr;
+	FinishLine* fLine = nullptr;
 
-	UI* healthBar;
-	UI* healthBarFade;
-	UI* healthBarBack;
-	UI* healthBarBorder;
+	Image* healthBar = nullptr;
+	Image* healthBarFade = nullptr;
+	Image* healthBarBack = nullptr;
+	Image* healthBarBorder = nullptr;
 
-	UI* endGamePanel;
+	Image* Tyrian2000Logo = nullptr;
+	Image* pausedLogo = nullptr;
+	Image* endGamePanel = nullptr;
+
+	Button* startButton = nullptr;
+
+	Button* resumeButton = nullptr;
+	Button* retryButton = nullptr;
+	Button* quitButton = nullptr;
+
+	Button* endRetryButton = nullptr;
+	Button* endQuitButton = nullptr;
+	Button* endContinueButton = nullptr;
 
 	std::vector<Enemy*> enemyPool;
 	std::vector<Bullet*> bulletPool;
