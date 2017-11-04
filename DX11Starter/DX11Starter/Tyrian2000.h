@@ -50,6 +50,8 @@ public:
 	void KillEnemy(int pos);
 	void SetUpActions();
 	void ChooseEndPanelText();
+	void TogglePauseMenu();
+	void ResetLevel();
 
 	Player* p1 = nullptr;
 	FinishLine* fLine = nullptr;
@@ -70,7 +72,6 @@ public:
 	Button* quitButton = nullptr;
 
 	Button* endRetryButton = nullptr;
-	Button* endQuitButton = nullptr;
 	Button* endContinueButton = nullptr;
 
 	std::vector<Enemy*> enemyPool;
@@ -91,5 +92,7 @@ public:
 	int waveCount;
 	int currentWave;
 	bool endGame;
+
+	int pauseOption;
 };
 

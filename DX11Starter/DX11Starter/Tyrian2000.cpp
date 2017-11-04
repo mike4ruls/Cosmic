@@ -56,6 +56,7 @@ void Tyrian2000::SetUpLevel()
 	endGame = false;
 	waveCount = 3;
 	currentWave = 0;
+	pauseOption = 0;
 
 	waveSpawnCD = 5.0f;
 	waveSpawnTimer = waveSpawnCD;
@@ -199,17 +200,104 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		waveSpawnTimer -= deltaTime;
 		break;
 	case GameState::Paused:
-		if (inputManager->IsActionPressed(Actions::Start))
+		if(inputManager->IsActionPressed(Actions::ButtonDown))
+		{
+			if(pauseOption < 3)
+			{
+				pauseOption++;
+
+				switch (pauseOption)
+				{
+				case 1:
+					resumeButton->constantHighlight = true;
+					retryButton->constantHighlight = false;
+					quitButton->constantHighlight = false;
+					break;
+				case 2:
+					resumeButton->constantHighlight = false;
+					retryButton->constantHighlight = true;
+					quitButton->constantHighlight = false;
+					break;
+				case 3:
+					resumeButton->constantHighlight = false;
+					retryButton->constantHighlight = false;
+					quitButton->constantHighlight = true;
+					break;
+				}
+			}
+		}
+		if (inputManager->IsActionPressed(Actions::ButtonUp))
+		{
+			if (pauseOption > 1)
+			{
+				pauseOption--;
+
+				switch (pauseOption)
+				{
+				case 1:
+					resumeButton->constantHighlight = true;
+					retryButton->constantHighlight = false;
+					quitButton->constantHighlight = false;
+					break;
+				case 2:
+					resumeButton->constantHighlight = false;
+					retryButton->constantHighlight = true;
+					quitButton->constantHighlight = false;
+					break;
+				case 3:
+					resumeButton->constantHighlight = false;
+					retryButton->constantHighlight = false;
+					quitButton->constantHighlight = true;
+					break;
+				}
+			}
+		}
+
+
+		if (inputManager->IsActionPressed(Actions::Start) || resumeButton->IsClicked() || (pauseOption == 1 && inputManager->IsActionDown(Actions::Strafe)))
 		{
 			currentState = GameState::Game;
-			pausedLogo->SetVisibility(false);
+
+			pauseOption = 0;
+			resumeButton->constantHighlight = false;
+			retryButton->constantHighlight = false;
+			quitButton->constantHighlight = false;
+
+			TogglePauseMenu();
 		}
-		break;
-	case GameState::EndLevel:
-		if (inputManager->IsActionPressed(Actions::Start) || inputManager->IsActionPressed(Actions::Strafe))
+		else if(retryButton->IsClicked() || (pauseOption == 2 && inputManager->IsActionDown(Actions::Strafe)))
+		{
+			currentState = GameState::Game;
+
+			resumeButton->constantHighlight = false;
+			retryButton->constantHighlight = false;
+			quitButton->constantHighlight = false;
+
+			ResetLevel();
+			TogglePauseMenu();
+		}
+		else if (quitButton->IsClicked() || (pauseOption == 3 && inputManager->IsActionDown(Actions::Strafe)))
 		{
 			Tyrian2000* tyrian = new Tyrian2000(engine);
 			engine->LoadScene(tyrian);
+		}
+		break;
+	case GameState::EndLevel:
+		if (inputManager->IsActionPressed(Actions::Start) || inputManager->IsActionPressed(Actions::Strafe) || endRetryButton->IsClicked() || endContinueButton->IsClicked())
+		{
+			if(p1->isDead)
+			{
+				currentState = GameState::Game;
+				endRetryButton->SetActive(false);
+				endRetryButton->SetVisibility(false);
+				endGamePanel->SetVisibility(false);
+				ResetLevel();
+			}
+			else
+			{
+				Tyrian2000* tyrian = new Tyrian2000(engine);
+				engine->LoadScene(tyrian);
+			}
 		}
 		break;
 	}
@@ -276,7 +364,7 @@ void Tyrian2000::CheckInputs(float dt)
 	if (inputManager->IsActionPressed(Actions::Start))
 	{
 		currentState = GameState::Paused;
-		pausedLogo->SetVisibility(true);
+		TogglePauseMenu();
 	}
 	if (inputManager->IsKeyDown(96))
 	{
@@ -354,7 +442,7 @@ void Tyrian2000::CheckControllerInputs(float dt)
 	if (inputManager->IsActionPressed(Actions::Start))
 	{
 		currentState = GameState::Paused;
-		pausedLogo->SetVisibility(true);
+		TogglePauseMenu();
 	}
 	if (inputManager->IsKeyDown(96))
 	{
@@ -394,6 +482,56 @@ void Tyrian2000::CheckOutOfBounds()
 
 void Tyrian2000::InitUI()
 {
+	float pauseButtondist = 0.00f;
+	float endButtondist = 1.0f;
+
+	startButton = engine->CreateCanvasButton();
+	startButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("startButtontext"));
+	startButton->SetWidth(0.3f);
+	startButton->SetHeight(0.1f);
+	startButton->posY = -0.7f;
+	//startButton->SetVisibility(false);
+
+	resumeButton = engine->CreateCanvasButton();
+	resumeButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("resumeButtontext"));
+	resumeButton->SetWidth(0.5f);
+	resumeButton->SetHeight(0.1f);
+	resumeButton->posY = -pauseButtondist;
+	resumeButton->SetVisibility(false);
+	resumeButton->SetActive(false);
+
+	retryButton = engine->CreateCanvasButton();
+	retryButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("retryButtontext"));
+	retryButton->SetWidth(0.5f);
+	retryButton->SetHeight(0.1f);
+	retryButton->posY = -0.4f - pauseButtondist;
+	retryButton->SetVisibility(false);
+	retryButton->SetActive(false);
+
+	quitButton = engine->CreateCanvasButton();
+	quitButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("quitButtontext"));
+	quitButton->SetWidth(0.5f);
+	quitButton->SetHeight(0.1f);
+	quitButton->posY = -0.8f - pauseButtondist;
+	quitButton->SetVisibility(false);
+	quitButton->SetActive(false);
+
+	endRetryButton = engine->CreateCanvasButton();
+	endRetryButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("retryButtontext"));
+	endRetryButton->SetWidth(0.5f);
+	endRetryButton->SetHeight(0.1f);
+	endRetryButton->posY = -endButtondist;
+	endRetryButton->SetVisibility(false);
+	endRetryButton->SetActive(false);
+
+	endContinueButton = engine->CreateCanvasButton();
+	endContinueButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("continueButtontext"));
+	endContinueButton->SetWidth(0.5f);
+	endContinueButton->SetHeight(0.1f);
+	endContinueButton->posY = -endButtondist;
+	endContinueButton->SetVisibility(false);
+	endContinueButton->SetActive(false);
+
 	healthBar = engine->CreateCanvasImage();
 	healthBar->SetUIColor({ 0.0f, 1.0f, 0.0f, 1.0f });
 	healthBar->SetAlignment(UI::Alignment::Left);
@@ -440,6 +578,7 @@ void Tyrian2000::InitUI()
 	Tyrian2000Logo->SetHeight(0.5f);
 	Tyrian2000Logo->SetHeight(0.3f);
 	Tyrian2000Logo->posY = 0.6f;
+	//Tyrian2000Logo->SetVisibility(false);
 
 	pausedLogo = engine->CreateCanvasImage();
 	pausedLogo->LoadTexture(engine->rend->assets->GetSurfaceTexture("pausedLogo"));
@@ -447,12 +586,6 @@ void Tyrian2000::InitUI()
 	pausedLogo->SetHeight(0.3f);
 	pausedLogo->posY = 0.6f;
 	pausedLogo->SetVisibility(false);
-
-	startButton = engine->CreateCanvasButton();
-	startButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("startButtontext"));
-	startButton->SetWidth(0.3f);
-	startButton->SetHeight(0.1f);
-	startButton->posY = -0.7f;
 }
 
 void Tyrian2000::CreatePlayer()
@@ -574,15 +707,102 @@ void Tyrian2000::SetUpActions()
 void Tyrian2000::ChooseEndPanelText()
 {
 	currentState = GameState::EndLevel;
-
 	endGame = true;
+
+	healthBar->SetVisibility(false);
+	healthBarFade->SetVisibility(false);
+	healthBarBack->SetVisibility(false);
+	healthBarBorder->SetVisibility(false);
+
+
 	if(p1->isDead)
 	{
 		endGamePanel->LoadTexture(engine->rend->assets->GetSurfaceTexture("failed2"));
+		endRetryButton->SetActive(true);
+		endRetryButton->SetVisibility(true);
 	}
 	else 
 	{
 		endGamePanel->LoadTexture(engine->rend->assets->GetSurfaceTexture("complete1"));
+		endContinueButton->SetActive(true);
+		endContinueButton->SetVisibility(true); 
 	}
 	endGamePanel->SetVisibility(true);
+}
+
+void Tyrian2000::TogglePauseMenu()
+{
+	if(currentState == GameState::Paused)
+	{
+		pausedLogo->SetVisibility(true);
+
+		resumeButton->SetActive(true);
+		resumeButton->SetVisibility(true);
+
+		retryButton->SetActive(true);
+		retryButton->SetVisibility(true);
+
+		quitButton->SetActive(true);
+		quitButton->SetVisibility(true);
+	}
+	else
+	{
+		pausedLogo->SetVisibility(false);
+
+		resumeButton->SetActive(false);
+		resumeButton->SetVisibility(false);
+
+		retryButton->SetActive(false);
+		retryButton->SetVisibility(false);
+
+		quitButton->SetActive(false);
+		quitButton->SetVisibility(false);
+	}
+}
+
+void Tyrian2000::ResetLevel()
+{
+	float tileDist = 12.2222221f * tileSize;
+
+	for (unsigned int i = 0; i < bulletPool.size(); i++)
+	{
+		bulletPool[i]->bullet->transform.position = {0.0f, 10.0f, 0.0f};
+		bulletPool[i]->bullet->SetWorld();
+	}
+	for (unsigned int i = 0; i < enemyPool.size(); i++)
+	{
+		engine->DestroyGameObject(enemyPool[i]->enemyObj);
+		if (enemyPool[i] != nullptr) { delete enemyPool[i]; enemyPool[i] = nullptr; }
+	}
+	enemyPool.clear();
+	for (unsigned int i = 0; i < backgroundTilePool.size(); i++)
+	{
+		backgroundTilePool[i]->tile->transform.position = { 0.0f, moveDownHeight, (i * tileDist) };
+	}
+
+	p1->player->transform.position = { 0.0f, 4.0f + moveDownHeight, -4.0f };
+	p1->health = p1->maxHealth;
+	p1->topDisplayHealth = p1->maxHealth;
+	p1->botDisplayHealth = p1->maxHealth;
+	p1->player->SetVisibility(true);
+	p1->isDead = false;
+	
+	fLine->finishLine->SetActive(false);
+	fLine->finishLine->transform.position = { 0.0f, p1->player->transform.position.y, 18.0f };
+	fLine->finishLine->SetWorld();
+
+	endGame = false;
+	currentWave = 0;
+	
+	pauseOption = 0;
+
+	waveSpawnTimer = waveSpawnCD;
+
+	healthBar->SetVisibility(true);
+	healthBarFade->SetVisibility(true);
+	healthBarBack->SetVisibility(true);
+	healthBarBorder->SetVisibility(true);
+
+	SpawnWaveEnemies();
+	SpawnWaveBlockers();
 }

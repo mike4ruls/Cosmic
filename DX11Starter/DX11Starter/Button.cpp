@@ -8,6 +8,8 @@ Button::Button(GameEntity* o, UIType t, void* eng):UI(o, t)
 	prevMousePos = MouseScreen();
 	prevMousePos.x = 0.0f;
 	prevMousePos.y = 0.0f;
+	constantHighlight = false;
+	isHovering = false;
 }
 
 
@@ -27,7 +29,7 @@ void Button::Update(float dt)
 			CheckHovering();
 		}
 
-		if (isHovering)
+		if (isHovering || constantHighlight)
 		{
 			obj->renderingComponent.mat.surfaceColor = uiSurColor;
 		}

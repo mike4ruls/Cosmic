@@ -16,6 +16,7 @@ public:
 	MouseScreen prevMousePos;
 
 	bool isHovering;
+	bool constantHighlight;
 
 	void Update(float dt);
 	bool IsClicked();
