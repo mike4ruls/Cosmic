@@ -581,7 +581,7 @@ LRESULT DXCore::ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	// Cursor moves over the window (or outside, while we're currently capturing it)
 	case WM_MOUSEMOVE:
 		IO.MousePos = ImVec2(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), deltaTime);
 		return 0;
 
 	// Mouse wheel is scrolled

@@ -301,7 +301,12 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		}
 		break;
 	}
-
+	if (inputManager->IsKeyDown(96))
+	{
+		DefaultScene* defaultScene = new DefaultScene(engine);
+		engine->rend->skyBoxOn = true;
+		engine->LoadScene(defaultScene);
+	}
 }
 
 void Tyrian2000::CheckInputs(float dt)
@@ -365,12 +370,6 @@ void Tyrian2000::CheckInputs(float dt)
 	{
 		currentState = GameState::Paused;
 		TogglePauseMenu();
-	}
-	if (inputManager->IsKeyDown(96))
-	{
-		DefaultScene* defaultScene = new DefaultScene(engine);
-		engine->rend->skyBoxOn = true;
-		engine->LoadScene(defaultScene);
 	}
 	/*if(engine->IsKeyPressed(VK_CONTROL) && engine->IsKeyDown(67))
 	{
@@ -443,12 +442,6 @@ void Tyrian2000::CheckControllerInputs(float dt)
 	{
 		currentState = GameState::Paused;
 		TogglePauseMenu();
-	}
-	if (inputManager->IsKeyDown(96))
-	{
-		DefaultScene* defaultScene = new DefaultScene(engine);
-		engine->rend->skyBoxOn = true;
-		engine->LoadScene(defaultScene);
 	}
 	/*if(engine->IsKeyPressed(VK_CONTROL) && engine->IsKeyDown(67))
 	{

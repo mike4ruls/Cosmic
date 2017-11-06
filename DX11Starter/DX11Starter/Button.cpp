@@ -68,7 +68,7 @@ void Button::CheckHovering()
 bool Button::IsClicked()
 {
 	CosmicEngine* en = (CosmicEngine*)engine;
-	if(isHovering && en->click)
+	if(isHovering && en->click && !en->prevClick)
 	{
 		return true;
 	}

@@ -35,13 +35,13 @@ void Camera::Init(unsigned int w, unsigned int h)
 	normSpeed = 10.0f;
 	runSpeed = 30.0f;
 	camSpeed = normSpeed;
+	rotSpeed = 1.0f;
 	SetMatricies();
 }
 
 void Camera::Update(float dt)
 {
 	rigidBody.UpdateVelocity(&transform, dt);
-	transform.CalculateDirections();
 	SetMatricies();
 	if (!lockCameraPos) {
 		CheckInputs(dt);
@@ -53,7 +53,7 @@ void Camera::CheckInputs(float dt)
 	/////////////////////////
 	//CAMERA MOVEMENT
 	/////////////////////////
-	if (inputManager->IsKeyDown(16)) // Left Shift
+	if (inputManager->IsKeyDown(16) || inputManager->IsButtonDown(CosmicInput::BUTTON_L3)) // Left Shift
 	{
 		camSpeed = runSpeed *1000;
 	}
@@ -62,33 +62,67 @@ void Camera::CheckInputs(float dt)
 		camSpeed = normSpeed * 1000;
 	}
 
-	if (inputManager->IsKeyDown(65)) //A
+	if (inputManager->IsKeyDown(65) || inputManager->GetLeftStickX() < 0.0f) //A
 	{
 		rigidBody.ApplyForce((transform.right.x * -camSpeed) * dt, (transform.right.y * -camSpeed) * dt, (transform.right.z * -camSpeed) * dt);
 	}
-	if (inputManager->IsKeyDown(68)) //D
+	if (inputManager->IsKeyDown(68) || inputManager->GetLeftStickX() > 0.0f) //D
 	{
 		rigidBody.ApplyForce((transform.right.x * camSpeed) * dt, (transform.right.y * camSpeed) * dt, (transform.right.z * camSpeed) * dt);
 	}
-	if (inputManager->IsKeyDown(87)) //W
+	if (inputManager->IsKeyDown(87) || inputManager->GetLeftStickY() > 0.0f) //W
 	{
 		rigidBody.ApplyForce((transform.foward.x * camSpeed) * dt, (transform.foward.y * camSpeed) * dt, (transform.foward.z * camSpeed) * dt);
 	}
-	if (inputManager->IsKeyDown(83)) //S
+	if (inputManager->IsKeyDown(83) || inputManager->GetLeftStickY() < 0.0f) //S
 	{
-		rigidBody.ApplyForce((transform.foward.x * -camSpeed) * dt, (-transform.foward.y * -camSpeed) * dt, (transform.foward.z * -camSpeed) * dt);
+		rigidBody.ApplyForce((transform.foward.x * -camSpeed) * dt, (transform.foward.y * -camSpeed) * dt, (transform.foward.z * -camSpeed) * dt);
 	}
-	if (inputManager->IsKeyDown(32)) // SPACE
+	if (inputManager->IsKeyDown(32) || inputManager->IsButtonDown(CosmicInput::BUTTON_CROSS)) // SPACE
 	{
 		rigidBody.ApplyForce(0.0f, camSpeed * dt, 0.0f);
 	}
-	if (inputManager->IsKeyDown(88)) // X
+	if (inputManager->IsKeyDown(88) || inputManager->IsButtonDown(CosmicInput::BUTTON_SQUARE)) // X
 	{
 		rigidBody.ApplyForce(0.0f, -camSpeed * dt, 0.0f);
 	}
+
+	if(inputManager->GetRightStickX() > 0.0f)
+	{
+		RotateCamera(50.0f * dt, 0.0f);
+	}
+	if (inputManager->GetRightStickX() < 0.0f)
+	{
+		RotateCamera(-50.0f * dt, 0.0f);
+	}
+	if (inputManager->GetRightStickY() > 0.0f)
+	{
+		RotateCamera(0.0f, -50.0f * dt);
+	}
+	if (inputManager->GetRightStickY() < 0.0f)
+	{
+		RotateCamera(0.0f, 50.0f * dt);
+	}
+}
+void Camera::RotateCamera(float x, float y)
+{
+	transform.Rotate(x * rotSpeed, y * rotSpeed, 0.0f);
+	transform.rotation.y = (std::max<float>(std::min<float>(transform.rotation.y, 90.0f), -90.0f));
+	transform.CalculateDirections();
 }
 void Camera::SetMatricies()
 {
+	//if (transform.foward.y < ((-90 * 3.1415f) / 180.0f))
+	//{
+	//	transform.foward.y = ((-90 * 3.1415f) / 180.0f);
+	//}
+	//else if (transform.foward.y >((90 * 3.1415f) / 180.0f))
+	//{
+	//	transform.foward.y = ((90 * 3.1415f) / 180.0f);
+	//}
+
+	//printf("%f, %f, %f\n", transform.foward.x, transform.foward.y, transform.foward.z );
+
 	// Create the View matrix
 	// - In an actual game, recreate this matrix every time the camera 
 	//    moves (potentially every frame)
@@ -112,7 +146,7 @@ void Camera::SetMatricies()
 		0.25f * 3.1415926535f,		// Field of View Angle
 		(float)width / height,		// Aspect ratio
 		0.1f,						// Near clip plane distance
-		100.0f);					// Far clip plane distance
+		200.0f);					// Far clip plane distance
 	DirectX::XMStoreFloat4x4(&projectionMatrix, DirectX::XMMatrixTranspose(P)); // Transpose for HLSL!
 }
 

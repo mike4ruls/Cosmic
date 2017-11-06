@@ -83,7 +83,7 @@ void GameEntity::SetWorld()
 	DirectX::XMVECTOR deter = DirectX::XMLoadFloat3(&determinate);
 
 	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(transform.position.x, transform.position.y, transform.position.z);
-	DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(transform.rotation.y, transform.rotation.x, transform.rotation.z);
+	DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw((transform.rotation.y * 3.1415f) / 180, (transform.rotation.x * 3.1415f) / 180, (transform.rotation.z * 3.1415f) / 180);
 	//DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw((transform.rotation.y * 3.1415f) / 180, (transform.rotation.x * 3.1415f) / 180, (transform.rotation.z* 3.1415f) / 180);
 	DirectX::XMMATRIX scaleMat = DirectX::XMMatrixScaling(transform.scale.x, transform.scale.y, transform.scale.z);
 

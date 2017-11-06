@@ -81,7 +81,7 @@ void Scene::CheckInputs(float deltaTime)
 		gameObjects[i]->Update(deltaTime);
 	}
 
-	if (inputManager->IsKeyPressed(VK_RETURN) || inputManager->IsKeyPressed(69))
+	if (inputManager->IsKeyPressed(VK_RETURN) || inputManager->IsKeyPressed(69) || inputManager->IsButtonPressed(CosmicInput::BUTTON_R2))
 	{
 		//"Triangle"
 		//"Square"
@@ -100,11 +100,11 @@ void Scene::CheckInputs(float deltaTime)
 		DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
 		SpawnGameObject("Cube", spawnPoint, true);
 	}
-	if (inputManager->IsKeyDown(49))
+	if (inputManager->IsKeyDown(49) || inputManager->IsButtonDown(CosmicInput::BUTTON_L1))
 	{
 		engine->dayTime += 1.0f * deltaTime;
 	}
-	if (inputManager->IsKeyDown(50))
+	if (inputManager->IsKeyDown(50) || inputManager->IsButtonDown(CosmicInput::BUTTON_R1))
 	{
 		engine->dayTime -= 1.0f * deltaTime;
 	}
@@ -128,7 +128,7 @@ void Scene::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool ca
 	obj->renderingComponent.mat.surfaceColor = { (float)(std::rand() % 100) * 0.01f, (float)(std::rand() % 100)* 0.01f, (float)(std::rand() % 100) * 0.01f, 1.0f };
 	obj->transform.position = pos;
 	obj->transform.rotation = cam->transform.rotation;
-	printf("\nRot - %f, %f, %f", cam->transform.rotation.x, cam->transform.rotation.y, cam->transform.rotation.z);
+	//printf("\nRot - %f, %f, %f", cam->transform.rotation.x, cam->transform.rotation.y, cam->transform.rotation.z);
 
 	if (canShoot)
 	{

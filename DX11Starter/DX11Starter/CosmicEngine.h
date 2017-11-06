@@ -42,6 +42,7 @@ public:
 	float dayTime;
 	bool pauseGame;
 	bool click;
+	bool prevClick;
 	bool initFinished = false;
 	bool lockSunLight = false;
 	bool lockCamera = false;
@@ -76,7 +77,7 @@ public:
 	// Overridden mouse input helper methods
 	void OnMouseDown(WPARAM buttonState, int x, int y);
 	void OnMouseUp(WPARAM buttonState, int x, int y);
-	void OnMouseMove(WPARAM buttonState, int x, int y);
+	void OnMouseMove(WPARAM buttonState, int x, int y, float dt);
 	void OnMouseWheel(float wheelDelta, int x, int y);
 private:
 

@@ -53,6 +53,7 @@ void CosmicEngine::Init()
 
 	dayTime = 0.0f;
 	click = false;
+	click = false;
 	pauseGame = false;
 
 	srand((unsigned int)time(NULL));
@@ -186,11 +187,11 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
 
 	inputManager->Update();
-	if (inputManager->IsKeyPressed(VK_TAB))
+	if (inputManager->IsKeyPressed(VK_TAB) || inputManager->IsButtonPressed(CosmicInput::DPAD_DOWN))
 	{
 		rend->ToggleSkyBox();
 	}
-	if (inputManager->IsKeyPressed(70))
+	if (inputManager->IsKeyPressed(70) || inputManager->IsButtonPressed(CosmicInput::DPAD_RIGHT))
 	{
 		rend->ToggleWireFrame();
 	}
@@ -199,12 +200,12 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 	{
 		rend->sunLight->ligComponent->lightDir = { sin(dayTime),cos(dayTime),0.0f };
 	}
+	prevClick = click;
 	// Quit if the escape key is pressed
 	if (inputManager->IsKeyDown(VK_ESCAPE))
 	{
 		Quit();
 	}
-
 }
 
 // --------------------------------------------------------
@@ -272,9 +273,9 @@ void CosmicEngine::OnMouseUp(WPARAM buttonState, int x, int y)
 // if the mouse is currently over the window, or if we're 
 // currently capturing the mouse.
 // --------------------------------------------------------
-void CosmicEngine::OnMouseMove(WPARAM buttonState, int x, int y)
+void CosmicEngine::OnMouseMove(WPARAM buttonState, int x, int y, float dt)
 {
-	float sensitivity = 0.005f;
+	float sensitivity = 500.0f * dt;
 
 	float newWidth = (float)width / 2.0f;
 	float newHeigth = (float)height / 2.0f;
@@ -285,10 +286,13 @@ void CosmicEngine::OnMouseMove(WPARAM buttonState, int x, int y)
 	// Add any custom code here...
 	if (click && !lockCamera)
 	{
-		cam->transform.rotation = { cam->transform.rotation.x + ((x - prevMousePos.x) * sensitivity), cam->transform.rotation.y + ((y - prevMousePos.y) * sensitivity), 0 };
+		cam->RotateCamera((x - prevMousePos.x) * sensitivity, (y - prevMousePos.y) * sensitivity);
+
+		/*cam->transform.rotation = { cam->transform.rotation.x + ((x - prevMousePos.x) * sensitivity), cam->transform.rotation.y + ((y - prevMousePos.y) * sensitivity), 0 };
+		cam->transform.rotation.y = std::max<float>(std::min<float>(cam->transform.rotation.y, (3.1415f / 2.0f)), (-3.1415f / 2.0f));
 
 		float newX = sinf((cam->transform.rotation.x * 180) / (2.0f*3.14f));
-		cam->transform.foward = { newX, (sinf((cam->transform.rotation.y * 180) / (2.0f*3.14f))), (cosf((cam->transform.rotation.x * 180) / (2.0f*3.14f))) };
+		cam->transform.foward = { newX, (sinf((cam->transform.rotation.y * 180) / (2.0f*3.14f))), (cosf((cam->transform.rotation.x * 180) / (2.0f*3.14f))) };*/
 	}
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

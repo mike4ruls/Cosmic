@@ -54,7 +54,7 @@ public:
 	// can easily grab mouse input from OS-level messages
 	virtual void OnMouseDown (WPARAM buttonState, int x, int y) { }
 	virtual void OnMouseUp	 (WPARAM buttonState, int x, int y) { }
-	virtual void OnMouseMove (WPARAM buttonState, int x, int y) { }
+	virtual void OnMouseMove (WPARAM buttonState, int x, int y, float dt) { }
 	virtual void OnMouseWheel(float wheelDelta,   int x, int y) { }
 	
 protected:
