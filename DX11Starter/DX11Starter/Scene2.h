@@ -20,9 +20,14 @@ public:
 
 	std::vector<GameEntity*> gameObjects;
 
+	Emitter* goldStars;
+	Emitter* grayStars;
+
+	Emitter* blizzard;
+
 	CosmicEngine* engine;
 	Light* pointLight;
-
+	Emitter* particleSystem;
 	Button* but;
 
 private:

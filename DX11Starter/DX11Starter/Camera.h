@@ -31,11 +31,13 @@ public:
 
 	bool lockCameraPos;
 
+
 	void Update(float dt);
-	void SetMatricies();
-	void Init(unsigned int w, unsigned int h);
-	void CheckInputs(float dt);
+	virtual void SetMatricies() = 0;
+	virtual void Init(unsigned int w, unsigned int h) = 0;
+	virtual void CheckInputs(float dt) = 0;
 	void RotateCamera(float x, float y);
+	void ResetCamera();
 
 private:
 

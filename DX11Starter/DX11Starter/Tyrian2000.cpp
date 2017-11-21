@@ -5,7 +5,7 @@
 Tyrian2000::Tyrian2000(CosmicEngine* eng)
 {
 	engine = eng;
-	cam = new Camera();
+	cam = new FreeCamera();
 }
 
 
@@ -46,7 +46,7 @@ void Tyrian2000::Init()
 	cam->transform.Translate(0.0f, 5.0f, 0.0f);
 
 	engine->rend->sunLight->ligComponent->lightDir = {0.7f, -0.5f, 0.0f};
-	
+
 	currentState = GameState::StartMenu;
 	SetUpLevel();
 }
@@ -81,6 +81,7 @@ void Tyrian2000::SetUpLevel()
 
 void Tyrian2000::Update(float deltaTime, float totalTime)
 {
+	UpdateParticlesPos();
 	switch (currentState)
 	{
 	case GameState::StartMenu:
@@ -307,6 +308,20 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		engine->rend->skyBoxOn = true;
 		engine->LoadScene(defaultScene);
 	}
+}
+void Tyrian2000::UpdateParticlesPos()
+{
+	DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw((p1->player->transform.rotation.y * 3.1415f) / 180, (p1->player->transform.rotation.x * 3.1415f) / 180, (p1->player->transform.rotation.z * 3.1415f) / 180);
+
+	DirectX::XMVECTOR p1Pos = DirectX::XMLoadFloat3(&p1->player->transform.position);
+
+	DirectX::XMVECTOR exhaustVec = DirectX::XMLoadFloat3(&exhaustPos);
+	DirectX::XMVECTOR leftWingVec = DirectX::XMLoadFloat3(&leftWingPos);
+	DirectX::XMVECTOR rightWingVec = DirectX::XMLoadFloat3(&rightWingPos);
+
+	DirectX::XMStoreFloat3(&shipExhaust->transform.position, DirectX::XMVectorAdd(p1Pos,DirectX::XMVector3Transform(exhaustVec, rotMat)));
+	DirectX::XMStoreFloat3(&leftWing->transform.position, DirectX::XMVectorAdd(p1Pos, DirectX::XMVector3Transform(leftWingVec, rotMat)));
+	DirectX::XMStoreFloat3(&rightWing->transform.position, DirectX::XMVectorAdd(p1Pos, DirectX::XMVector3Transform(rightWingVec, rotMat)));
 }
 
 void Tyrian2000::CheckInputs(float dt)
@@ -588,6 +603,54 @@ void Tyrian2000::CreatePlayer()
 	p1->player->renderingComponent.mat.surfaceReflectance = 0.3f;
 	p1->player->transform.Scale(0.005f);
 	p1->player->transform.Translate(0.0f, 4.0f + moveDownHeight, -4.0f);
+
+	SetUpParticles();
+}
+
+void Tyrian2000::SetUpParticles()
+{
+	exhaustPos = {0.0f, 0.3f, -1.3f};
+	leftWingPos = {-0.7f, 0.3f, -1.3f};
+	rightWingPos = { 0.7f, 0.3f, -1.3f};
+
+	shipExhaust = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("blackFire"), Emitter::BlendingType::CutOut);
+	shipExhaust->transform.Rotate(0.0f, 200.0f, 0.0f);
+	shipExhaust->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + exhaustPos.x, p1->player->transform.position.y + exhaustPos.y, p1->player->transform.position.z + exhaustPos.z);
+	shipExhaust->accelerationDir = shipExhaust->transform.foward;
+	shipExhaust->emitterAcceleration = 622.0f;
+	shipExhaust->startSize = 0.6f;
+	shipExhaust->endSize = 0.2f;
+	shipExhaust->startRadius = 0.0f;
+	shipExhaust->endRadius = 1.0f;
+	shipExhaust->emissionRate = 0.005f;
+	shipExhaust->lifeTime = 0.15f;
+	shipExhaust->localSpace = false;
+
+	leftWing = engine->CreateParticalEmitter(200, engine->rend->assets->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive);
+	leftWing->transform.Rotate(0.0f, 180.0f, 0.0f);
+	leftWing->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + leftWingPos.x, p1->player->transform.position.y + leftWingPos.y, p1->player->transform.position.z + leftWingPos.z);
+	leftWing->accelerationDir = leftWing->transform.foward;
+	leftWing->emitterAcceleration = 622.0f;
+	leftWing->startSize = 0.2f;
+	leftWing->endSize = 0.2f;
+	leftWing->startRadius = 0.0f;
+	leftWing->endRadius = 0.0f;
+	leftWing->emissionRate = 0.002f;
+	leftWing->lifeTime = 0.5f;
+	leftWing->localSpace = false;
+
+	rightWing = engine->CreateParticalEmitter(200, engine->rend->assets->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive);
+	rightWing->transform.Rotate(0.0f, 180.0f, 0.0f);
+	rightWing->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + rightWingPos.x, p1->player->transform.position.y + rightWingPos.y, p1->player->transform.position.z + rightWingPos.z);
+	rightWing->accelerationDir = leftWing->accelerationDir;
+	rightWing->emitterAcceleration = leftWing->emitterAcceleration;
+	rightWing->startSize = leftWing->startSize;
+	rightWing->endSize = leftWing->endSize;
+	rightWing->startRadius = leftWing->startRadius;
+	rightWing->endRadius = leftWing->endRadius;
+	rightWing->emissionRate = leftWing->emissionRate;
+	rightWing->lifeTime = leftWing->lifeTime;
+	rightWing->localSpace = leftWing->localSpace;
 }
 
 void Tyrian2000::CreateFinishLine()

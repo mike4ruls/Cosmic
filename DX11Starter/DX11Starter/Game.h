@@ -4,7 +4,9 @@
 #include "Image.h"
 #include "TextBox.h"
 #include "Button.h"
-#include "Camera.h"
+#include "FreeCamera.h"
+#include "FirstPersonCamera.h"
+#include "ThirdPersonCamera.h"
 #include "Renderer.h"
 
 

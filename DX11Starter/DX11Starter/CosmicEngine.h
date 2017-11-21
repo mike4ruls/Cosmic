@@ -34,6 +34,7 @@ public:
 
 	std::vector<GameEntity*> allObj;
 	std::vector<UI*> allUI;
+	std::vector<Emitter*> allEmitter;
 
 	Renderer* rend;
 	Camera* cam;
@@ -59,6 +60,7 @@ public:
 	TextBox* CreateCanvasTextBox();
 	Button* CreateCanvasButton();
 	Image* CreateCanvasImage();
+	Emitter* CreateParticalEmitter(int maxP, ID3D11ShaderResourceView* text, Emitter::BlendingType type);
 
 	// Loading new scenes
 	void LoadDefaultScene(Game* newScene);
@@ -67,6 +69,7 @@ public:
 	void Flush();
 	void DestroyGameObject(GameEntity* obj);
 	void DestroyUIObject(UI* obj);
+	void DestroyEmitter(Emitter* obj);
 
 	CosmicPhysic* physicEngine;
 	InputManager* inputManager;

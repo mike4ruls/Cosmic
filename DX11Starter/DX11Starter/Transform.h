@@ -10,6 +10,17 @@ struct Transform {
 	DirectX::XMFLOAT3 up;
 	DirectX::XMFLOAT3 right;
 
+	Transform()
+	{
+		position = {0.0f, 0.0f, 0.0f};
+		rotation = { 0.0f, 0.0f, 0.0f };
+		scale = { 1.0f, 1.0f, 1.0f };
+
+		foward = { 0.0f, 0.0f, 1.0f };
+		up = { 0.0f, 1.0f, 0.0f };
+		right = {1.0f, 0.0f, 0.0f };
+	}
+
 	void Translate(DirectX::XMFLOAT3 trans) {
 
 		position.x += trans.x;
@@ -79,8 +90,8 @@ struct Transform {
 		u = DirectX::XMVector3Transform(u, rotMat);
 		r = DirectX::XMVector3Transform(r, rotMat);
 
-		DirectX::XMStoreFloat3(&foward, f);
-		DirectX::XMStoreFloat3(&up, u);
-		DirectX::XMStoreFloat3(&right, r);
+		DirectX::XMStoreFloat3(&foward, DirectX::XMVector3Normalize(f));
+		DirectX::XMStoreFloat3(&up, DirectX::XMVector3Normalize(u));
+		DirectX::XMStoreFloat3(&right, DirectX::XMVector3Normalize(r));
 	}
 };

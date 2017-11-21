@@ -162,6 +162,10 @@ void CosmicEngine::UpdateObjects(float dt)
 		{
 			allObj[i]->Update(dt);
 		}
+		for (unsigned int i = 0; i < allEmitter.size(); i++)
+		{
+			allEmitter[i]->Update(dt);
+		}
 	}
 
 	for (unsigned int i = 0; i < allUI.size(); i++)
@@ -347,6 +351,19 @@ Image * CosmicEngine::CreateCanvasImage()
 
 	return newObj;
 }
+Emitter * CosmicEngine::CreateParticalEmitter(int maxP, ID3D11ShaderResourceView * text, Emitter::BlendingType type)
+{
+	Emitter* newEmitter = new Emitter(maxP, text, type, device);
+	//newEmitter->InitBuffers(device);
+
+	newEmitter->engineID = allEmitter.size();
+
+	allEmitter.push_back(newEmitter);
+
+	rend->PushToEmitter(newEmitter);
+
+	return newEmitter;
+}
 void CosmicEngine::LoadDefaultScene(Game * newScene)
 {
 	currentScene = newScene;
@@ -386,9 +403,14 @@ void CosmicEngine::Flush()
 	{
 		if (allUI[i] != nullptr) { delete allUI[i]; allUI[i] = nullptr; }
 	}
+	for (unsigned int i = 0; i < allEmitter.size(); i++)
+	{
+		if (allEmitter[i] != nullptr) { delete allEmitter[i]; allEmitter[i] = nullptr; }
+	}
 
 	allObj.clear();
 	allUI.clear();
+	allEmitter.clear();
 }
 void CosmicEngine::DestroyGameObject(GameEntity * obj)
 {
@@ -414,6 +436,20 @@ void CosmicEngine::DestroyUIObject(UI * obj)
 	for (unsigned int i = Id; i < allUI.size(); i++)
 	{
 		allUI[i]->Id = i;
+	}
+}
+void CosmicEngine::DestroyEmitter(Emitter * obj)
+{
+	unsigned int Id = obj->emitterID;
+	rend->RemoveFromEmitter(Id);
+
+	allEmitter.erase(allEmitter.begin() + obj->engineID);
+
+	if (obj != nullptr) { delete obj; obj = nullptr; }
+
+	for (unsigned int i = Id; i < allEmitter.size(); i++)
+	{
+		allEmitter[i]->engineID = i;
 	}
 }
 //void CosmicEngine::SetKeyInputs()

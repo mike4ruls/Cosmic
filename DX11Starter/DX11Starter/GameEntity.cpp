@@ -68,6 +68,7 @@ void GameEntity::ResetGameEntity()
 	rigidBody.maxSpeed = 1.0f;
 	rigidBody.fricStrength = 2.0f;
 	rigidBody.applyFriction = true;
+	rigidBody.applyGravity = false;
 	rigidBody.isMoving = false;
 
 	rigidBody.myCollider.colliderType = Collider::ColliderType::SphereCollider;

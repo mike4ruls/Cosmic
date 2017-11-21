@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include "AssetManager.h"
+#include "Emitter.h"
 #include "Camera.h"
 #include "Light.h"
 #include "SimpleShader.h"
@@ -28,6 +29,8 @@ public:
 	std::vector<Light::LightComponent> pointLights;
 	std::vector<Light::LightComponent> spotLights;
 
+	std::vector<Emitter*> particleEmitters;
+
 	Camera* cam;
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
@@ -50,6 +53,7 @@ public:
 	SimpleVertexShader* skyVShader;
 	SimpleVertexShader* quadVShader;
 	SimpleVertexShader* canvasVShader;
+	SimpleVertexShader* particleVShader;
 
 
 	SimplePixelShader* pixelFShader;
@@ -62,6 +66,7 @@ public:
 	SimplePixelShader* hdrShader;
 	SimplePixelShader* canvasPShader;
 	SimplePixelShader* canvasPTShader;
+	SimplePixelShader* particlePShader;
 
 	ID3D11SamplerState* textureSample = nullptr;
 
@@ -69,6 +74,11 @@ public:
 	ID3D11RasterizerState* skyRast = nullptr;
 	ID3D11DepthStencilState* skyDepth = nullptr;
 	ID3D11SamplerState* sample = nullptr;
+
+	ID3D11DepthStencilState* particleDepthState;
+	ID3D11BlendState* addBlendState;
+	ID3D11BlendState* subBlendState;
+	ID3D11BlendState* cutBlendState;
 
 	unsigned int instanceThreshold;
 	bool instanceRenderingOn;
@@ -102,6 +112,7 @@ public:
 	void PushToRenderer(RenderingComponent* com);
 	void PushToTranslucent(RenderingComponent* com);
 	void PushToCanvas(RenderingComponent* com);
+	void PushToEmitter(Emitter* emit);
 	void Flush();
 
 	Light* CreateLight(Light::LightType lType);
@@ -123,6 +134,7 @@ public:
 	void RemoveFromRenderer(std::string meshName, unsigned int Id);
 	void RemoveFromTranslucent(unsigned int Id);
 	void RemoveFromCanvas(unsigned int Id);
+	void RemoveFromEmitter(unsigned int Id);
 	void LoadShaders();
 	void SetWireFrame();
 	void ToggleWireFrame();
@@ -140,6 +152,8 @@ public:
 	void ToggleSkyBox();
 	void LoadSkyBox(int skyNum);
 	void DrawSkyBox();
+
+	void DrawEmiters();
 
 	void DrawCanvas();
 

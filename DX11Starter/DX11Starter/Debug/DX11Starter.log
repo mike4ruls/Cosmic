@@ -1,38 +1,4 @@
-﻿  UI.cpp
-  Tyrian2000.cpp
-  TextBox.cpp
-  SimpleShader.cpp
-  Scene2.cpp
-  Scene.cpp
-  Renderer.cpp
-  Player.cpp
-  imgui_impl_dx11.cpp
-  imgui_draw.cpp
-  imgui_demo.cpp
-  imgui.cpp
-  Mesh.cpp
-  Main.cpp
-  InputManager.cpp
-  Image.cpp
-  GameEntity.cpp
-  FrameRateTestScene.cpp
-  FinishLine.cpp
-  Enemy.cpp
-  Generating Code...
-  Compiling...
-  DXCore.cpp
-DXCore.cpp(583): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  DefaultScene.cpp
-  CosmicPhysic.cpp
-  CosmicInput.cpp
-  CosmicEngine.cpp
-  Camera.cpp
-  Button.cpp
-  Bullet.cpp
-  BackGroundTiles.cpp
-  AssetManager.cpp
-  Animation.cpp
-  Generating Code...
+﻿  Scene2.cpp
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
 DirectXTK.lib(WICTextureLoader.obj) : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
   DX11Starter.vcxproj -> G:\DX11Starter\Debug\DX11Starter.exe

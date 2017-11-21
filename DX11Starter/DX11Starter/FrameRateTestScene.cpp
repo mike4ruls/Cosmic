@@ -3,7 +3,7 @@
 FrameRateTestScene::FrameRateTestScene(CosmicEngine* eng) :Game()
 {
 	engine = eng;
-	cam = new Camera();
+	cam = new FreeCamera();
 }
 
 

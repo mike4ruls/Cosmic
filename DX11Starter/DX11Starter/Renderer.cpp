@@ -64,6 +64,7 @@ Renderer::~Renderer()
 	delete  skyVShader;
 	delete  quadVShader;
 	delete  canvasVShader;
+	delete  particleVShader;
 
 
 	delete pixelFShader;
@@ -76,10 +77,15 @@ Renderer::~Renderer()
 	delete hdrShader;
 	delete canvasPShader;
 	delete canvasPTShader;
+	delete particlePShader;
 
 	delete[] localInstanceData;
 
 	instanceWorldMatrixBuffer->Release();
+	addBlendState->Release();
+	subBlendState->Release();
+	cutBlendState->Release();
+	particleDepthState->Release();
 
 	if (wireFrame != nullptr) { wireFrame->Release(); wireFrame = nullptr; }
 	if (fillFrame != nullptr) { fillFrame->Release(); fillFrame = nullptr; }
@@ -169,6 +175,59 @@ void Renderer::Init()
 	instDesc.StructureByteStride = 0;
 	instDesc.Usage = D3D11_USAGE_DYNAMIC;
 	device->CreateBuffer(&instDesc, 0, &instanceWorldMatrixBuffer);
+
+	// A depth state for the particles
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // Turns off depth writing
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	device->CreateDepthStencilState(&dsDesc, &particleDepthState);
+
+
+	// Blend for particles (additive)
+	D3D11_BLEND_DESC addblend = {};
+	addblend.AlphaToCoverageEnable = false;
+	addblend.IndependentBlendEnable = false;
+	addblend.RenderTarget[0].BlendEnable = true;
+	addblend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	addblend.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	addblend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	addblend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	addblend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	addblend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	addblend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	device->CreateBlendState(&addblend, &addBlendState);
+
+	// Blend for particles (subtract)
+	D3D11_BLEND_DESC subblend = {};
+	subblend.AlphaToCoverageEnable = false;
+	subblend.IndependentBlendEnable = false;
+	subblend.RenderTarget[0].BlendEnable = true;
+	subblend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_SUBTRACT;
+	subblend.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	subblend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	subblend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	subblend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	subblend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	subblend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	device->CreateBlendState(&subblend, &subBlendState);
+
+	D3D11_BLEND_DESC cutblend = {};
+
+	cutblend.AlphaToCoverageEnable = false;
+	cutblend.IndependentBlendEnable = false;
+	cutblend.RenderTarget[0].BlendEnable = true;
+	cutblend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	cutblend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;;
+	cutblend.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	cutblend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	cutblend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	cutblend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	cutblend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	device->CreateBlendState(&cutblend, &cutBlendState);
 }
 
 void Renderer::Render(float dt)
@@ -260,7 +319,7 @@ void Renderer::Render(float dt)
 	{
 		DrawSkyBox();
 	}
-
+	DrawEmiters();
 	////////////////////////////////////////
 	//POST PROCESSING
 	////////////////////////////////////////
@@ -406,6 +465,12 @@ void Renderer::PushToCanvas(RenderingComponent * com)
 	canvasRendComponents.push_back(com);
 }
 
+void Renderer::PushToEmitter(Emitter * emit)
+{
+	emit->emitterID = (unsigned int)particleEmitters.size();
+	particleEmitters.push_back(emit);
+}
+
 void Renderer::Flush()
 {
 	for (auto& x : assets->meshStorage)
@@ -420,6 +485,7 @@ void Renderer::Flush()
 
 	transRendComponents.clear();
 	canvasRendComponents.clear();
+	particleEmitters.clear();
 
 	for (unsigned int i = 0; i < allLights.size(); i++)
 	{
@@ -802,6 +868,16 @@ void Renderer::RemoveFromCanvas(unsigned int Id)
 	}
 }
 
+void Renderer::RemoveFromEmitter(unsigned int Id)
+{
+	particleEmitters.erase(particleEmitters.begin() + Id);
+
+	for (unsigned int i = 0; i < particleEmitters.size(); i++)
+	{
+		particleEmitters[i]->emitterID = i;
+	}
+}
+
 void Renderer::LoadShaders()
 {
 	//=================================================
@@ -828,6 +904,9 @@ void Renderer::LoadShaders()
 
 	canvasVShader = new SimpleVertexShader(device, context);
 	canvasVShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/CanvasShaders/CanvasVShader.cso");
+
+	particleVShader = new SimpleVertexShader(device, context);
+	particleVShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/ParticleShaders/ParticleVShader.cso");
 
 	//=================================================
 	// Init Pixel Shaders
@@ -862,6 +941,9 @@ void Renderer::LoadShaders()
 
 	canvasPTShader = new SimplePixelShader(device, context);
 	canvasPTShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/CanvasShaders/CanvasPTShader.cso");
+
+	particlePShader = new SimplePixelShader(device, context);
+	particlePShader->LoadShaderFile(L"../DX11Starter/Debug/Shaders/ParticleShaders/ParticlePShader.cso");
 }
 
 void Renderer::SetWireFrame()
@@ -1013,6 +1095,9 @@ void Renderer::DrawFInstance(std::string meshName, InstanceData * components, un
 	instanceFVShader->CopyAllBufferData();
 
 	SetLights(pixelFShader);
+	pixelFShader->SetSamplerState("basicSampler", textureSample);
+	pixelFShader->SetShaderResourceView("skyTexture", skyBoxSVR);
+	pixelFShader->SetFloat("reflectance", 0.0f);
 	pixelFShader->CopyAllBufferData();
 
 	instanceFVShader->SetShader();
@@ -1165,6 +1250,59 @@ void Renderer::DrawSkyBox()
 	context->OMSetDepthStencilState(0, 0);
 
 	oldR->Release();
+}
+
+void Renderer::DrawEmiters()
+{
+	float blend[4] = { 1,1,1,1 };
+	context->OMSetDepthStencilState(particleDepthState, 0);			// No depth WRITING
+
+	for (unsigned int i = 0; i < particleEmitters.size(); i++)
+	{
+		Emitter* curEmitter = particleEmitters[i];
+
+		switch (curEmitter->blendType) {
+		case Emitter::BlendingType::Additive:
+			context->OMSetBlendState(addBlendState, blend, 0xFFFFFFFF);  // Additive blending
+		case Emitter::BlendingType::AlphaBlend:
+			context->OMSetBlendState(subBlendState, blend, 0xFFFFFFFF);  // Additive blending
+		case Emitter::BlendingType::CutOut:
+			context->OMSetBlendState(cutBlendState, blend, 0xFFFFFFFF);  // Additive blending
+		}
+
+		curEmitter->LoadParticlesForGPU(context);
+
+		UINT stride = sizeof(ParticleVertex);
+		UINT offset = 0;
+		context->IASetVertexBuffers(0, 1, &curEmitter->emitterBuffer, &stride, &offset);
+		context->IASetIndexBuffer(curEmitter->indBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+		particleVShader->SetMatrix4x4("view", cam->viewMatrix);
+		particleVShader->SetMatrix4x4("projection", cam->projectionMatrix);
+		particleVShader->SetShader();
+		particleVShader->CopyAllBufferData();
+
+		particlePShader->SetShaderResourceView("particle", curEmitter->particleMat.GetSurfaceTexture());
+		particlePShader->SetSamplerState("trilinear", textureSample);
+		particlePShader->SetShader();
+		particlePShader->CopyAllBufferData();
+
+		// Draw the correct parts of the buffer
+		if (curEmitter->oldestParticlePos < curEmitter->newestParticlePos)
+		{
+			context->DrawIndexed(curEmitter->particleCount * 6, curEmitter->oldestParticlePos * 6, 0);
+		}
+		else
+		{
+			// Draw first half (0 -> dead)
+			context->DrawIndexed(curEmitter->newestParticlePos * 6, 0, 0);
+
+			// Draw second half (alive -> max)
+			context->DrawIndexed((curEmitter->maxParticles - curEmitter->oldestParticlePos) * 6, curEmitter->oldestParticlePos * 6, 0);
+		}
+	}
+	context->OMSetBlendState(0, blend, 0xffffffff);
+	context->OMSetDepthStencilState(0, 0);
 }
 
 void Renderer::DrawCanvas()

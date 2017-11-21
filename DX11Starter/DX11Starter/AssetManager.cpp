@@ -197,6 +197,13 @@ void AssetManager::LoadSurfaceTextures()
 	StoreSurfaceTexture("complete1", L"Assets/Textures/complete1.jpg");
 	StoreSurfaceTexture("dragonSur", L"Assets/Textures/BlackDragon/Dragon_ground_color.jpg");
 	StoreSurfaceTexture("fighterShipSur", L"Assets/Textures/FighterShip/vj2c.jpg");
+	StoreSurfaceTexture("orangeFire", L"Assets/Textures/orangeFire.png");
+	StoreSurfaceTexture("blackFire", L"Assets/Textures/blackFire.png");
+	StoreSurfaceTexture("whiteBox", L"Assets/Textures/whiteBox.jpg");
+	StoreSurfaceTexture("whiteSmoke", L"Assets/Textures/whiteSmoke.png");
+	StoreSurfaceTexture("goldStar", L"Assets/Textures/goldStar.png");
+	StoreSurfaceTexture("grayStar", L"Assets/Textures/grayStar.png");
+	StoreSurfaceTexture("snowFlake", L"Assets/Textures/snowFlake.png");
 	//StoreSurfaceTexture("raygun", L"Assets/Textures/raygunUVTest.tga");
 }
 

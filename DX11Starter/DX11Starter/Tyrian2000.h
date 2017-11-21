@@ -35,11 +35,13 @@ public:
 	void Init();
 	void SetUpLevel();
 	void Update(float deltaTime, float totalTime);
+	void UpdateParticlesPos();
 	void CheckInputs(float dt);
 	void CheckControllerInputs(float dt);
 	void CheckOutOfBounds();
 	void InitUI();
 	void CreatePlayer();
+	void SetUpParticles();
 	void CreateFinishLine();
 	void SpawnWaveEnemies();
 	void SpawnWaveBlockers();
@@ -73,6 +75,14 @@ public:
 
 	Button* endRetryButton = nullptr;
 	Button* endContinueButton = nullptr;
+
+	Emitter* shipExhaust;
+	Emitter* leftWing;
+	Emitter* rightWing;
+
+	DirectX::XMFLOAT3 exhaustPos;
+	DirectX::XMFLOAT3 leftWingPos;
+	DirectX::XMFLOAT3 rightWingPos;
 
 	std::vector<Enemy*> enemyPool;
 	std::vector<Bullet*> bulletPool;

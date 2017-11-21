@@ -96,6 +96,27 @@
     <Filter Include="UISystem\Source">
       <UniqueIdentifier>{54b8202f-ce06-4a13-98c8-bbf4db3226f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Cameras">
+      <UniqueIdentifier>{3d702505-990f-4814-b61b-c6bb6e7f52d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cameras\Header">
+      <UniqueIdentifier>{61381f07-68e8-41ce-89b0-d0126ab9bda1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cameras\Source">
+      <UniqueIdentifier>{edb2bb82-6501-4664-a4d2-b18d7f65ef29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ParticleSystem">
+      <UniqueIdentifier>{1fb4dcd3-bd0b-4e2c-a93c-de0c9686cb91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ParticleSystem\Header">
+      <UniqueIdentifier>{23db90a6-7916-49e9-8ed4-ef08428f92d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ParticleSystem\Source">
+      <UniqueIdentifier>{d9351cea-3f0b-4054-b93f-7be7dd027ad2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\ParticleShaders">
+      <UniqueIdentifier>{3ba7215b-6652-4977-8433-9e183aa7562f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -114,9 +135,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CosmicEngine.cpp">
@@ -191,6 +209,21 @@
     <ClCompile Include="TextBox.cpp">
       <Filter>UISystem\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Cameras\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeCamera.cpp">
+      <Filter>Cameras\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="FirstPersonCamera.cpp">
+      <Filter>Cameras\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdPersonCamera.cpp">
+      <Filter>Cameras\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Emitter.cpp">
+      <Filter>ParticleSystem\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXCore.h">
@@ -209,9 +242,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
@@ -322,6 +352,27 @@
     <ClInclude Include="TextBox.h">
       <Filter>UISystem\Header</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Cameras\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeCamera.h">
+      <Filter>Cameras\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="FirstPersonCamera.h">
+      <Filter>Cameras\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdPersonCamera.h">
+      <Filter>Cameras\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Emitter.h">
+      <Filter>ParticleSystem\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>ParticleSystem\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleVertex.h">
+      <Filter>ParticleSystem\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\DefferedShaders\InstanceDVShader.hlsl">
@@ -374,6 +425,12 @@
     </FxCompile>
     <FxCompile Include="Shaders\CanvasShader\CanvasPTShader.hlsl">
       <Filter>Shaders\CanvasShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ParticleShaders\ParticlePShader.hlsl">
+      <Filter>Shaders\ParticleShaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ParticleShaders\ParticleVShader.hlsl">
+      <Filter>Shaders\ParticleShaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

@@ -11,6 +11,7 @@ struct RigidBody {
 	float maxSpeed;
 	float fricStrength;
 	bool applyFriction;
+	bool applyGravity;
 	bool isMoving;
 
 	void ApplyForce(DirectX::XMFLOAT3 force) {
@@ -61,6 +62,10 @@ struct RigidBody {
 	}
 	void UpdateVelocity(Transform* transform, float dt)
 	{
+		if(applyGravity)
+		{
+			ApplyForce(0.0f, -9.81f, 0.0f);
+		}
 		if (applyFriction)
 		{
 			ApplyFriction();
