@@ -224,6 +224,9 @@
     <ClCompile Include="Emitter.cpp">
       <Filter>ParticleSystem\Source</Filter>
     </ClCompile>
+    <ClCompile Include="MainHUBWorld.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXCore.h">
@@ -372,6 +375,9 @@
     </ClInclude>
     <ClInclude Include="ParticleVertex.h">
       <Filter>ParticleSystem\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MainHUBWorld.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -51,6 +51,7 @@ void AssetManager::LoadMeshes()
 {
 	LoadHandCraftedMeshes();
 	StoreMesh(new Mesh("Assets/Models/sphere.obj", "Sphere", device));
+	StoreMesh(new Mesh("Assets/Models/sphere.obj", "Worlds", device));
 	StoreMesh(new Mesh("Assets/Models/cube.obj", "Cube", device));
 	StoreMesh(new Mesh("Assets/Models/cone.obj", "Cone", device));
 	StoreMesh(new Mesh("Assets/Models/torus.obj", "Torus", device));
@@ -68,6 +69,7 @@ void AssetManager::AssLoadMeshes()
 	//meshStorage.get_allocator().allocate(15);
 	LoadHandCraftedMeshes();
 	AssimpLoadMeshes("Assets/Models/sphere.obj", "Sphere");
+	AssimpLoadMeshes("Assets/Models/sphere.obj", "Worlds");
 	AssimpLoadMeshes("Assets/Models/cube.obj", "Cube");
 	AssimpLoadMeshes("Assets/Models/cone.obj", "Cone");
 	AssimpLoadMeshes("Assets/Models/torus.obj", "Torus");
@@ -184,6 +186,11 @@ void AssetManager::LoadSurfaceTextures()
 	StoreSurfaceTexture("water", L"Assets/Textures/water.jpg");
 	StoreSurfaceTexture("grass", L"Assets/Textures/grass.jpg");
 	StoreSurfaceTexture("star", L"Assets/Textures/stars.jpg");
+	StoreSurfaceTexture("dry", L"Assets/Textures/dryGround.jpg");
+	StoreSurfaceTexture("sand", L"Assets/Textures/sandGround.jpg");
+	StoreSurfaceTexture("rainbow", L"Assets/Textures/rainbow.jpg");
+	StoreSurfaceTexture("lava", L"Assets/Textures/lava.jpg");
+	StoreSurfaceTexture("lavaGround", L"Assets/Textures/lavaGround.jpg");
 	StoreSurfaceTexture("failed1", L"Assets/Textures/failed1.jpg");
 	StoreSurfaceTexture("failed2", L"Assets/Textures/failed2.jpg");
 	StoreSurfaceTexture("failed3", L"Assets/Textures/failed3.jpg");
@@ -197,6 +204,8 @@ void AssetManager::LoadSurfaceTextures()
 	StoreSurfaceTexture("complete1", L"Assets/Textures/complete1.jpg");
 	StoreSurfaceTexture("dragonSur", L"Assets/Textures/BlackDragon/Dragon_ground_color.jpg");
 	StoreSurfaceTexture("fighterShipSur", L"Assets/Textures/FighterShip/vj2c.jpg");
+	StoreSurfaceTexture("metalBack", L"Assets/Textures/metalBackText.jpg");
+	StoreSurfaceTexture("metalTab", L"Assets/Textures/metalTabText.jpg");
 	StoreSurfaceTexture("orangeFire", L"Assets/Textures/orangeFire.png");
 	StoreSurfaceTexture("blackFire", L"Assets/Textures/blackFire.png");
 	StoreSurfaceTexture("whiteBox", L"Assets/Textures/whiteBox.jpg");
@@ -204,6 +213,11 @@ void AssetManager::LoadSurfaceTextures()
 	StoreSurfaceTexture("goldStar", L"Assets/Textures/goldStar.png");
 	StoreSurfaceTexture("grayStar", L"Assets/Textures/grayStar.png");
 	StoreSurfaceTexture("snowFlake", L"Assets/Textures/snowFlake.png");
+	StoreSurfaceTexture("yellowTri", L"Assets/Textures/yellowTriangleText.png");
+	StoreSurfaceTexture("statsText", L"Assets/Textures/statsText.jpg");
+	StoreSurfaceTexture("shopText", L"Assets/Textures/shopText.jpg");
+	StoreSurfaceTexture("upgradesText", L"Assets/Textures/upgradesText.jpg");
+	StoreSurfaceTexture("abilitiesText", L"Assets/Textures/abilitiesText.jpg");
 	//StoreSurfaceTexture("raygun", L"Assets/Textures/raygunUVTest.tga");
 }
 

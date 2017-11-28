@@ -20,6 +20,8 @@ public:
 
 	std::vector<GameEntity*> gameObjects;
 
+	Emitter* explosion;
+
 	Emitter* goldStars;
 	Emitter* grayStars;
 

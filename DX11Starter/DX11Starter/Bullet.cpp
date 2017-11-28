@@ -49,5 +49,7 @@ void Bullet::DeactivateTimer(float dt)
 
 void Bullet::Deactivate()
 {
+	bullet->transform.position = {0.0f, 60.0f, 0.0f};
+	bullet->SetWorld();
 	bullet->SetActive(false);
 }

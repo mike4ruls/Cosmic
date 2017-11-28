@@ -75,7 +75,41 @@ void Tyrian2000::SetUpLevel()
 	SpawnWaveEnemies();
 	SpawnWaveBlockers();
 	LoadBulletPool();
-	LoadBackgroundTilePool("grass");
+
+	float choice = ((float)rand() / RAND_MAX) * 100;
+
+	if (choice > 90.0f) {
+		LoadBackgroundTilePool("grass");
+	}
+	else if (choice > 80.0f) {
+		LoadBackgroundTilePool("water");
+	}
+	else if (choice > 70.0f) {
+		LoadBackgroundTilePool("brick");
+	}
+	else if (choice > 60.0f) {
+		LoadBackgroundTilePool("checker");
+	}
+	else if (choice > 50.0f) {
+		LoadBackgroundTilePool("dry");
+	}
+	else if (choice > 40.0f) {
+		LoadBackgroundTilePool("rainbow");
+	}
+	else if (choice > 30.0f) {
+		LoadBackgroundTilePool("lava");
+	}
+	else if (choice > 20.0f) {
+		LoadBackgroundTilePool("sand");
+	}
+	else if (choice > 10.0f) {
+		LoadBackgroundTilePool("lavaGround");
+	}
+	else{
+		LoadBackgroundTilePool("star");
+	}
+
+
 
 }
 
@@ -144,6 +178,10 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		}
 		if (p1->isDead && !endGame)
 		{
+			shipExhaust->isLooping = false;
+			leftWing->isLooping = false;
+			rightWing->isLooping = false;
+
 			ChooseEndPanelText();
 		}
 		fLine->Update(deltaTime);
@@ -613,7 +651,7 @@ void Tyrian2000::SetUpParticles()
 	leftWingPos = {-0.7f, 0.3f, -1.3f};
 	rightWingPos = { 0.7f, 0.3f, -1.3f};
 
-	shipExhaust = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("blackFire"), Emitter::BlendingType::CutOut);
+	shipExhaust = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("blackFire"), Emitter::BlendingType::CutOut, Emitter::EmitterType::Cone);
 	shipExhaust->transform.Rotate(0.0f, 200.0f, 0.0f);
 	shipExhaust->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + exhaustPos.x, p1->player->transform.position.y + exhaustPos.y, p1->player->transform.position.z + exhaustPos.z);
 	shipExhaust->accelerationDir = shipExhaust->transform.foward;
@@ -626,7 +664,7 @@ void Tyrian2000::SetUpParticles()
 	shipExhaust->lifeTime = 0.15f;
 	shipExhaust->localSpace = false;
 
-	leftWing = engine->CreateParticalEmitter(200, engine->rend->assets->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive);
+	leftWing = engine->CreateParticalEmitter(200, engine->rend->assets->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive, Emitter::EmitterType::Cone);
 	leftWing->transform.Rotate(0.0f, 180.0f, 0.0f);
 	leftWing->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + leftWingPos.x, p1->player->transform.position.y + leftWingPos.y, p1->player->transform.position.z + leftWingPos.z);
 	leftWing->accelerationDir = leftWing->transform.foward;
@@ -639,7 +677,7 @@ void Tyrian2000::SetUpParticles()
 	leftWing->lifeTime = 0.5f;
 	leftWing->localSpace = false;
 
-	rightWing = engine->CreateParticalEmitter(200, engine->rend->assets->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive);
+	rightWing = engine->CreateParticalEmitter(200, engine->rend->assets->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive, Emitter::EmitterType::Cone);
 	rightWing->transform.Rotate(0.0f, 180.0f, 0.0f);
 	rightWing->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + rightWingPos.x, p1->player->transform.position.y + rightWingPos.y, p1->player->transform.position.z + rightWingPos.z);
 	rightWing->accelerationDir = leftWing->accelerationDir;
@@ -651,6 +689,29 @@ void Tyrian2000::SetUpParticles()
 	rightWing->emissionRate = leftWing->emissionRate;
 	rightWing->lifeTime = leftWing->lifeTime;
 	rightWing->localSpace = leftWing->localSpace;
+
+
+	for(int i = 0; i < 20; i++)
+	{
+		explosionPool.push_back(engine->CreateExplosionEmitter(engine->rend->assets->GetSurfaceTexture("blackFire")));
+		explosionPool[i]->isActive = false;
+		explosionPool[i]->startSize = 1.0f;
+		explosionPool[i]->endSize = 8.0f;
+	}
+
+	for (int i = 0; i < 20; i++)
+	{
+		explosionStarPool.push_back(engine->CreateExplosionEmitter(engine->rend->assets->GetSurfaceTexture("orangeFire")));
+		explosionStarPool[i]->isActive = false;
+		explosionStarPool[i]->startSize = 1.0f;
+		explosionStarPool[i]->endSize = 6.0f;
+
+		/*explosionStarPool[i]->isActive = false;
+		explosionStarPool[i]->endColor = {1.0f, 1.0f, 1.0f, 0.5f};
+		explosionStarPool[i]->startSize = 0.1f;
+		explosionStarPool[i]->endSize = 2.0f;
+		explosionStarPool[i]->lifeTime = 1.0f;*/
+	}
 }
 
 void Tyrian2000::CreateFinishLine()
@@ -669,7 +730,7 @@ void Tyrian2000::SpawnWaveEnemies()
 	int numOfEnemies = 10;
 	for(int i = 0; i < numOfEnemies; i++)
 	{
-		Enemy* newEnemy = new Enemy(engine->CreateGameObject("Cone"), 4.0f, -3.0f, 1.0f, Enemy::EnemyType::Regular);
+		Enemy* newEnemy = new Enemy(engine->CreateGameObject("Cone"), 2.5f, -3.0f, 1.0f, Enemy::EnemyType::Regular);
 		newEnemy->enemyObj->transform.Translate(-18.0f + (i*4), p1->player->transform.position.y, 18.0f);
 		newEnemy->enemyObj->transform.Scale(1.3f);
 		newEnemy->enemyObj->transform.Rotate(0.0f, 0.0f, 90.0f);
@@ -697,7 +758,7 @@ void Tyrian2000::LoadBulletPool()
 	for (unsigned int i = 0; i < numOfBullets; i++) 
 	{
 		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
-		newBullet->bullet->transform.Translate(0.0f, 10.0f, 0.0f);
+		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
 		newBullet->bullet->SetWorld();
 		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
 
@@ -743,6 +804,28 @@ void Tyrian2000::CalculateCamPos()
 void Tyrian2000::KillEnemy(int pos)
 {
 	Enemy* deleteEnemy = enemyPool[pos];
+
+	if(deleteEnemy->isDead)
+	{
+		for (unsigned int i = 0; i < explosionPool.size(); i++)
+		{
+			if (!explosionPool[i]->isActive)
+			{
+				explosionPool[i]->transform.position = deleteEnemy->enemyObj->transform.position;
+				explosionPool[i]->Reset();
+				break;
+			}
+		}
+		for (unsigned int i = 0; i < explosionStarPool.size(); i++)
+		{
+			if (!explosionStarPool[i]->isActive)
+			{
+				explosionStarPool[i]->transform.position = deleteEnemy->enemyObj->transform.position;
+				explosionStarPool[i]->Reset();
+				break;
+			}
+		}
+	}
 	engine->DestroyGameObject(deleteEnemy->enemyObj);
 	enemyPool.erase(enemyPool.begin() + pos);
 	delete deleteEnemy;
@@ -842,6 +925,13 @@ void Tyrian2000::ResetLevel()
 	p1->botDisplayHealth = p1->maxHealth;
 	p1->player->SetVisibility(true);
 	p1->isDead = false;
+
+	shipExhaust->Reset();
+	shipExhaust->isLooping = true;
+	leftWing->Reset();
+	leftWing->isLooping = true;
+	rightWing->Reset();
+	rightWing->isLooping = true;
 	
 	fLine->finishLine->SetActive(false);
 	fLine->finishLine->transform.position = { 0.0f, p1->player->transform.position.y, 18.0f };

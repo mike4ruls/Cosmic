@@ -87,6 +87,8 @@ public:
 	std::vector<Enemy*> enemyPool;
 	std::vector<Bullet*> bulletPool;
 	std::vector<BackGroundTiles*> backgroundTilePool;
+	std::vector<Emitter*> explosionPool;
+	std::vector<Emitter*> explosionStarPool;
 
 	// Game Values
 	float xConstraint;

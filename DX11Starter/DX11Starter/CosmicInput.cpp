@@ -265,32 +265,77 @@ float CosmicInput::GetRStickMagnitude()
 
 void CosmicInput::UpdateLStick()
 {
+	//LeftStick.x = (float)currentData.Gamepad.sThumbLX;
+	//LeftStick.y = (float)currentData.Gamepad.sThumbLY;
+
+
+	////determine how far the controller is pushed
+	//LeftStick.magnitude = std::sqrtf((LeftStick.x  * LeftStick.x) + (LeftStick.y * LeftStick.y));
+
+	////determine the direction the controller is pushed
+	//LeftStick.normalizedX = (LeftStick.x / LeftStick.magnitude);
+	////LeftStick.normalizedX -= 9.0f;
+	//LeftStick.normalizedY = LeftStick.y / LeftStick.magnitude;
+
+	//LeftStick.normalizedMagnitude = 0;
+
+	////check if the controller is outside a circular dead zone
+	//if (LeftStick.magnitude > LeftStick.deadZone)
+	//{
+	//	//clip the magnitude at its expected maximum value
+	//	if (LeftStick.magnitude > 32767) LeftStick.magnitude = 32767;
+
+	//	//adjust magnitude relative to the end of the dead zone
+	//	LeftStick.magnitude -= LeftStick.deadZone;
+
+	//	//optionally normalize the magnitude with respect to its expected range
+	//	//giving a magnitude value of 0.0 to 1.0
+	//	LeftStick.normalizedMagnitude = LeftStick.magnitude / (32767 - LeftStick.deadZone);
+	//}
+	//else //if the controller is in the deadzone zero out the magnitude
+	//{
+	//	LeftStick.normalizedX = 0.0f;
+	//	LeftStick.normalizedY = 0.0f;
+
+	//	LeftStick.magnitude = 0.0;
+	//	LeftStick.normalizedMagnitude = 0.0;
+	//}
+
+	//if(std::abs(LeftStick.normalizedX) < deadzone)
+	//{
+	//	LeftStick.normalizedX = 0.0f;
+	//}
+	//if (std::abs(LeftStick.normalizedY) < deadzone)
+	//{
+	//	LeftStick.normalizedY = 0.0f;
+	//}
+
 	LeftStick.x = (float)currentData.Gamepad.sThumbLX;
 	LeftStick.y = (float)currentData.Gamepad.sThumbLY;
 
 
 	//determine how far the controller is pushed
-	LeftStick.magnitude = std::sqrtf((LeftStick.x  * LeftStick.x) + (LeftStick.y * LeftStick.y));
+	LeftStick.magnitude = (LeftStick.x  * LeftStick.x) + (LeftStick.y * LeftStick.y);
 
 	//determine the direction the controller is pushed
-	LeftStick.normalizedX = (LeftStick.x / LeftStick.magnitude);
+	LeftStick.normalizedX = LeftStick.x / 32767.0f;
 	//LeftStick.normalizedX -= 9.0f;
-	LeftStick.normalizedY = LeftStick.y / LeftStick.magnitude;
+	LeftStick.normalizedY = LeftStick.y / 32767.0f;
 
 	LeftStick.normalizedMagnitude = 0;
 
 	//check if the controller is outside a circular dead zone
-	if (LeftStick.magnitude > LeftStick.deadZone)
+	if (LeftStick.magnitude > (LeftStick.deadZone * LeftStick.deadZone))
 	{
 		//clip the magnitude at its expected maximum value
-		if (LeftStick.magnitude > 32767) LeftStick.magnitude = 32767;
+		if (LeftStick.magnitude > (32767 * 32767)) LeftStick.magnitude = 32767.0f * 32767.0f;
 
 		//adjust magnitude relative to the end of the dead zone
-		LeftStick.magnitude -= LeftStick.deadZone;
+		LeftStick.magnitude -= LeftStick.deadZone * LeftStick.deadZone;
 
 		//optionally normalize the magnitude with respect to its expected range
 		//giving a magnitude value of 0.0 to 1.0
-		LeftStick.normalizedMagnitude = LeftStick.magnitude / (32767 - LeftStick.deadZone);
+		LeftStick.normalizedMagnitude = LeftStick.magnitude / ((32767 * 32767) - (LeftStick.deadZone * LeftStick.deadZone));
 	}
 	else //if the controller is in the deadzone zero out the magnitude
 	{
@@ -301,7 +346,7 @@ void CosmicInput::UpdateLStick()
 		LeftStick.normalizedMagnitude = 0.0;
 	}
 
-	if(std::abs(LeftStick.normalizedX) < deadzone)
+	if (std::abs(LeftStick.normalizedX) < deadzone)
 	{
 		LeftStick.normalizedX = 0.0f;
 	}

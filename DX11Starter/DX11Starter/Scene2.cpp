@@ -51,9 +51,10 @@ void Scene2::Init()
 
 	engine->rend->LoadSkyBox(2);
 
-	goldStars = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("goldStar"),Emitter::BlendingType::CutOut);
-	grayStars = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("grayStar"), Emitter::BlendingType::CutOut);
-	blizzard = engine->CreateParticalEmitter(2000, engine->rend->assets->GetSurfaceTexture("snowFlake"), Emitter::BlendingType::CutOut);
+	goldStars = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("goldStar"),Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere);
+	grayStars = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("grayStar"), Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere);
+	blizzard = engine->CreateSnowEmitter(engine->rend->assets->GetSurfaceTexture("snowFlake"));
+	explosion = engine->CreateExplosionEmitter(engine->rend->assets->GetSurfaceTexture("blackFire"));
 
 
 	goldStars->emitterAcceleration = 2.0f;
@@ -64,27 +65,17 @@ void Scene2::Init()
 	goldStars->endRadius = 1.5f;
 	goldStars->endSize = 2.0f;
 
+
 	grayStars->emitterAcceleration = 2.0f;
 	grayStars->transform.Rotate(0.0f, -90.0f, 0.0f);
 	grayStars->accelerationDir = grayStars->transform.foward;
 	grayStars->emissionRate = 0.4f;
 	grayStars->lifeTime = 6.0f;
 	grayStars->endRadius = 1.5f;
-
-	blizzard->emitterAcceleration = 5.0f;
-	blizzard->transform.Rotate(0.0f, 90.0f, 0.0f);
-	blizzard->accelerationDir = blizzard->transform.foward;
-	blizzard->emissionRate = 0.005f;
-	blizzard->lifeTime = 10.0f;
-	blizzard->endRadius = 50.0f;
-	//blizzard->localSpace = true;
-	blizzard->startSize = 1.0f;
-	blizzard->endSize = 1.0f;
-
 }
 void Scene2::Update(float deltaTime, float totalTime)
 {
-	blizzard->transform.position = { cam->transform.position.x, cam->transform.position.y + 30.0f, cam->transform.position.z};
+	blizzard->transform.position = { cam->transform.position.x, cam->transform.position.y + 100.0f, cam->transform.position.z};
 	//blizzard->transform.position = {cam->transform.position.x + (cam->transform.foward.x * 2.0f), cam->transform.position.y + 30.0f, cam->transform.position.z + (cam->transform.foward.z * 2.0f)};
 	//blizzard->transform.position = { gameObjects[1]->transform.position.x, gameObjects[1]->transform.position.y + 30.0f, gameObjects[1]->transform.position.z};
 
@@ -151,6 +142,8 @@ void Scene2::CheckInputs(float deltaTime)
 		float distInfront = 2.0f;
 		DirectX::XMFLOAT3 spawnPoint = { cam->transform.position.x + (cam->transform.foward.x * distInfront), cam->transform.position.y + (cam->transform.foward.y * distInfront), cam->transform.position.z + (cam->transform.foward.z * distInfront) };
 		SpawnGameObject("RayGun", spawnPoint, false);
+
+		explosion->Reset();
 	}
 	if (inputManager->IsKeyDown(49) || inputManager->IsButtonDown(CosmicInput::BUTTON_L1))
 	{

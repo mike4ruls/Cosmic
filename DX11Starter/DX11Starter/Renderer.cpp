@@ -1261,6 +1261,8 @@ void Renderer::DrawEmiters()
 	{
 		Emitter* curEmitter = particleEmitters[i];
 
+		if (!curEmitter->isActive) { continue; }
+
 		switch (curEmitter->blendType) {
 		case Emitter::BlendingType::Additive:
 			context->OMSetBlendState(addBlendState, blend, 0xFFFFFFFF);  // Additive blending

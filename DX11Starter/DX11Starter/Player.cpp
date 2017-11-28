@@ -117,7 +117,7 @@ void Player::Strafe(float dt)
 	{
 		currentRot -= strafeRotSpeed * dt;
 	}
-	player->transform.SetRotatation(0.0f, 0.0f, currentRot);
+	player->transform.SetRotatation(player->transform.rotation.x, player->transform.rotation.y, currentRot);
 
 	if (currentRot >= 360.0f || currentRot <= -360.0f)
 	{
@@ -146,14 +146,14 @@ void Player::Tilt(float dt)
 		if (currentTilt < tiltDegrees) {
 			currentTilt += tiltSpeed * dt;
 		}
-		player->transform.SetRotatation(0.0f, 0.0f, currentTilt);
+		player->transform.SetRotatation(player->transform.rotation.x, player->transform.rotation.y, currentTilt);
 	}
 	else if (currentTurnState == RIGHT)
 	{
 		if (currentTilt > -tiltDegrees) {
 			currentTilt -= tiltSpeed * dt;
 		}
-		player->transform.SetRotatation(0.0f, 0.0f, currentTilt);
+		player->transform.SetRotatation(player->transform.rotation.x, player->transform.rotation.y, currentTilt);
 	}
 	else {
 		if (previousTurnState == LEFT) {
@@ -174,7 +174,7 @@ void Player::Tilt(float dt)
 				currentTilt = 0.0f;
 			}
 		}
-		player->transform.SetRotatation(0.0f, 0.0f, currentTilt);
+		player->transform.SetRotatation(player->transform.rotation.x, player->transform.rotation.y, currentTilt);
 	}
 }
 

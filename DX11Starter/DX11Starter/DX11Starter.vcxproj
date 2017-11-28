@@ -172,6 +172,7 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MainHUBWorld.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="mGui\imgui.cpp" />
     <ClCompile Include="mGui\imgui_demo.cpp" />
@@ -213,6 +214,7 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstanceData.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="MainHUBWorld.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="mGui\imconfig.h" />

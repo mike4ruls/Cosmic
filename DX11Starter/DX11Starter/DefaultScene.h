@@ -5,7 +5,7 @@
 #include "Scene.h"
 #include "Tyrian2000.h"
 #include "FrameRateTestScene.h"
-
+#include "MainHUBWorld.h"
 class DefaultScene :
 	public Game
 {

@@ -60,7 +60,9 @@ public:
 	TextBox* CreateCanvasTextBox();
 	Button* CreateCanvasButton();
 	Image* CreateCanvasImage();
-	Emitter* CreateParticalEmitter(int maxP, ID3D11ShaderResourceView* text, Emitter::BlendingType type);
+	Emitter* CreateParticalEmitter(int maxP, ID3D11ShaderResourceView* text, Emitter::BlendingType type, Emitter::EmitterType emit);
+	Emitter* CreateSnowEmitter(ID3D11ShaderResourceView* text);
+	Emitter* CreateExplosionEmitter(ID3D11ShaderResourceView* text);
 
 	// Loading new scenes
 	void LoadDefaultScene(Game* newScene);

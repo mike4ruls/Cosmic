@@ -12,8 +12,14 @@ public:
 		Additive
 	};
 
+	enum EmitterType {
+		Sphere,
+		Cylinder,
+		Cone
+	};
+
 	Emitter();
-	Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, ID3D11Device* device);
+	Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, EmitterType emit, ID3D11Device* device);
 	~Emitter();
 
 	Transform transform;
@@ -24,6 +30,7 @@ public:
 	void UpdateParticle(float dt, int pos);
 	void CopyParticle(int pos);
 	void LoadParticlesForGPU(ID3D11DeviceContext* context);
+	void Reset();
 
 	Particle* particles;
 	ParticleVertex* particlesVerts;
@@ -33,6 +40,7 @@ public:
 
 	Material particleMat;
 	BlendingType blendType;
+	EmitterType emitterType;
 
 	DirectX::XMFLOAT4 startColor;
 	DirectX::XMFLOAT4 endColor;
@@ -44,6 +52,10 @@ public:
 	float startRadius;
 	float endRadius;
 
+	float cylinderRad;
+
+	float sphereRad;
+
 	float lifeTime;
 	float timeSinceEmit;
 	float emissionRate;
@@ -52,6 +64,7 @@ public:
 	int newestParticlePos;
 	bool isLooping;
 	bool isActive;
+	bool stopEmitting;
 	bool pauseEmitter;
 	bool localSpace;	
 	int particleCount;

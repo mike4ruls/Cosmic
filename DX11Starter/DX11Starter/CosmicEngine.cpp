@@ -351,10 +351,57 @@ Image * CosmicEngine::CreateCanvasImage()
 
 	return newObj;
 }
-Emitter * CosmicEngine::CreateParticalEmitter(int maxP, ID3D11ShaderResourceView * text, Emitter::BlendingType type)
+Emitter * CosmicEngine::CreateParticalEmitter(int maxP, ID3D11ShaderResourceView * text, Emitter::BlendingType type, Emitter::EmitterType emit)
 {
-	Emitter* newEmitter = new Emitter(maxP, text, type, device);
+	Emitter* newEmitter = new Emitter(maxP, text, type, emit, device);
 	//newEmitter->InitBuffers(device);
+
+	newEmitter->engineID = allEmitter.size();
+
+	allEmitter.push_back(newEmitter);
+
+	rend->PushToEmitter(newEmitter);
+
+	return newEmitter;
+}
+Emitter * CosmicEngine::CreateSnowEmitter(ID3D11ShaderResourceView * text)
+{
+	Emitter* newEmitter = new Emitter(2000, text, Emitter::BlendingType::CutOut, Emitter::EmitterType::Cone, device);
+	
+	//newEmitter->startColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+	newEmitter->endColor = { 1.0f, 1.0f, 1.0f, 0.8f};
+	newEmitter->emitterAcceleration = 10.0f;
+	newEmitter->transform.Rotate(0.0f, 90.0f, 0.0f);
+	newEmitter->accelerationDir = newEmitter->transform.foward;
+	newEmitter->emissionRate = 0.005f;
+	newEmitter->lifeTime = 10.0f;
+	newEmitter->startRadius = 50.0f;
+	newEmitter->endRadius = 60.0f;
+	newEmitter->cylinderRad = 200.0f;
+	//newEmitter->localSpace = true;
+	newEmitter->startSize = 1.5f;
+	newEmitter->endSize = 1.5f;
+
+	newEmitter->engineID = allEmitter.size();
+
+	allEmitter.push_back(newEmitter);
+
+	rend->PushToEmitter(newEmitter);
+
+	return newEmitter;
+}
+Emitter * CosmicEngine::CreateExplosionEmitter(ID3D11ShaderResourceView * text)
+{
+	Emitter* newEmitter = new Emitter(10, text, Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere, device);
+
+	newEmitter->emitterAcceleration = 5.0f;
+	newEmitter->emissionRate = 0.0f;
+	newEmitter->lifeTime = 2.0f;
+	newEmitter->sphereRad = 1.0f;
+	newEmitter->startSize = 1.0f;
+	newEmitter->endSize = 20.0f;
+	newEmitter->isLooping = false;
+	
 
 	newEmitter->engineID = allEmitter.size();
 

@@ -6,7 +6,7 @@ Emitter::Emitter()
 {
 }
 
-Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, ID3D11Device* device)
+Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, EmitterType emit, ID3D11Device* device)
 {
 	transform = Transform();
 
@@ -16,6 +16,7 @@ Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, ID
 
 	particleMat.LoadSurfaceTexture(text);
 	blendType = type;
+	emitterType = emit;
 
 	startColor = {1.0f, 1.0f, 1.0f, 1.0f};
 	endColor = { 1.0f, 1.0f, 1.0f, 0.0f };
@@ -27,6 +28,10 @@ Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, ID
 	startRadius = 0.0f;
 	endRadius = 1.0f;
 
+	cylinderRad = 1.0f;
+
+	sphereRad = 1.0f;
+
 	lifeTime = 1.0f;
 	timeSinceEmit = 0.0f;
 	emissionRate = 0.1f;
@@ -35,6 +40,7 @@ Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, ID
 	particleCount = 0;
 	isLooping = true;
 	isActive = true;
+	stopEmitting = false;
 	pauseEmitter = false;
 	//localSpace = true;
 	localSpace = false;
@@ -43,6 +49,7 @@ Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, ID
 	for ( ; i < maxParticles; i++)
 	{
 		particles[i] = Particle();
+		particles[i].isDead = false;
 
 		particlesVerts[(i * 4) + 0] = ParticleVertex({ -1.0f, 1.0f, 0.0f }, { 0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
 		particlesVerts[(i * 4) + 1] = ParticleVertex({ 1.0f, 1.0f, 0.0f }, { 1.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
@@ -128,43 +135,51 @@ void Emitter::InitBuffers(ID3D11Device* device)
 
 void Emitter::Update(float dt)
 {
-	// Update all particles - Check cyclic buffer first
-	if (oldestParticlePos < newestParticlePos)
+	if(isActive)
 	{
-		// First alive is BEFORE first dead, so the "living" particles are contiguous
-		// 
-		// 0 -------- FIRST ALIVE ----------- FIRST DEAD -------- MAX
-		// |    dead    |            alive       |         dead    |
+		// Update all particles - Check cyclic buffer first
+		if (oldestParticlePos < newestParticlePos)
+		{
+			// First alive is BEFORE first dead, so the "living" particles are contiguous
+			// 
+			// 0 -------- FIRST ALIVE ----------- FIRST DEAD -------- MAX
+			// |    dead    |            alive       |         dead    |
 
-		// First alive is before first dead, so no wrapping
-		for (int i = oldestParticlePos; i < newestParticlePos; i++)
-			UpdateParticle(dt, i);
-	}
-	else
-	{
-		// First alive is AFTER first dead, so the "living" particles wrap around
-		// 
-		// 0 -------- FIRST DEAD ----------- FIRST ALIVE -------- MAX
-		// |    alive    |            dead       |         alive   |
+			// First alive is before first dead, so no wrapping
+			for (int i = oldestParticlePos; i < newestParticlePos; i++)
+				UpdateParticle(dt, i);
+		}
+		else
+		{
+			// First alive is AFTER first dead, so the "living" particles wrap around
+			// 
+			// 0 -------- FIRST DEAD ----------- FIRST ALIVE -------- MAX
+			// |    alive    |            dead       |         alive   |
 
-		// Update first half (from firstAlive to max particles)
-		for (int i = oldestParticlePos; i < maxParticles; i++)
-			UpdateParticle(dt, i);
+			// Update first half (from firstAlive to max particles)
+			for (int i = oldestParticlePos; i < maxParticles; i++)
+				UpdateParticle(dt, i);
 
-		// Update second half (from 0 to first dead)
-		for (int i = 0; i < newestParticlePos; i++)
-			UpdateParticle(dt, i);
-	}
+			if(particles[maxParticles - 1].isDead && stopEmitting)
+			{
+				isActive = false;
+			}
 
-	// Add to the time
-	timeSinceEmit += dt;
+			// Update second half (from 0 to first dead)
+			for (int i = 0; i < newestParticlePos; i++)
+				UpdateParticle(dt, i);
+		}
 
-	// Enough time to emit?
-	if (timeSinceEmit > emissionRate)
-	{
-		SpawnParticle();
-		timeSinceEmit = 0.0f;
-	}
+		// Add to the time
+		timeSinceEmit += dt;
+
+		// Enough time to emit?
+		if (timeSinceEmit > emissionRate && !stopEmitting)
+		{
+			SpawnParticle();
+			timeSinceEmit = 0.0f;
+		}
+	}	
 }
 
 void Emitter::SpawnParticle()
@@ -179,15 +194,47 @@ void Emitter::SpawnParticle()
 	particles[newestParticlePos].isDead = false;
 	particles[newestParticlePos].size = startSize;
 	particles[newestParticlePos].color = startColor;
-	particles[newestParticlePos].originalPos = transform.position;
-	particles[newestParticlePos].startingPos = particles[newestParticlePos].originalPos;
-	particles[newestParticlePos].velocity = transform.foward;
-	particles[newestParticlePos].velocity.x += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.x + transform.up.x)) * endRadius;
-	particles[newestParticlePos].velocity.y += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.y + transform.up.y)) * endRadius;
-	particles[newestParticlePos].velocity.z += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.z + transform.up.z)) * endRadius; //((float)rand() / RAND_MAX) * 0.4f - 0.2f;
+	particles[newestParticlePos].accelDir = accelerationDir;
+	switch (emitterType)
+	{
+	case EmitterType::Sphere:
+		particles[newestParticlePos].age = lifeTime/5.0f;
+		particles[newestParticlePos].originalPos = transform.position;
+		particles[newestParticlePos].velocity = {0.0f, 0.0f, 0.0f};
+		particles[newestParticlePos].velocity.x += (((((float)rand() * 2) / RAND_MAX) - 1) * sphereRad);
+		particles[newestParticlePos].velocity.y += (((((float)rand() * 2) / RAND_MAX) - 1) * sphereRad);
+		particles[newestParticlePos].velocity.z += (((((float)rand() * 2) / RAND_MAX) - 1) * sphereRad); //((float)rand() / RAND_MAX) * 0.4f - 0.2f;
 
+		break;
+	case EmitterType::Cylinder:
+		particles[newestParticlePos].originalPos = transform.position;
+		particles[newestParticlePos].originalPos.x += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.x + transform.up.x)) * cylinderRad;
+		particles[newestParticlePos].originalPos.y += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.y + transform.up.y)) * cylinderRad;
+		particles[newestParticlePos].originalPos.z += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.z + transform.up.z)) * cylinderRad;
+		particles[newestParticlePos].velocity = transform.foward;
+		break;
+	case EmitterType::Cone:
+		particles[newestParticlePos].originalPos = transform.position;
+		particles[newestParticlePos].originalPos.x += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.x + transform.up.x)) * startRadius;
+		particles[newestParticlePos].originalPos.y += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.y + transform.up.y)) * startRadius;
+		particles[newestParticlePos].originalPos.z += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.z + transform.up.z)) * startRadius; //((float)rand() / RAND_MAX) * 0.4f - 0.2f;
+
+		particles[newestParticlePos].velocity = transform.foward;
+
+		particles[newestParticlePos].velocity.x += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.x + transform.up.x)) * endRadius;
+		particles[newestParticlePos].velocity.y += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.y + transform.up.y)) * endRadius;
+		particles[newestParticlePos].velocity.z += (((((float)rand() * 2) / RAND_MAX) - 1)* (transform.right.z + transform.up.z)) * endRadius; //((float)rand() / RAND_MAX) * 0.4f - 0.2f;
+
+		break;
+	}
+	particles[newestParticlePos].startingPos = particles[newestParticlePos].originalPos;
 	// Increment and wrap
 	newestParticlePos++;
+	if (!isLooping && newestParticlePos >= maxParticles)
+	{
+		stopEmitting = true;
+	}
+
 	newestParticlePos %= maxParticles;
 
 	particleCount++;
@@ -207,6 +254,7 @@ void Emitter::UpdateParticle(float dt, int pos)
 		oldestParticlePos++;
 		oldestParticlePos %= maxParticles;
 		particleCount--;
+		particles[pos].isDead = true;
 		return;
 	}
 
@@ -224,8 +272,17 @@ void Emitter::UpdateParticle(float dt, int pos)
 	// Lerp size
 	particles[pos].size = startSize + agePercent * (endSize - startSize);
 
-	DirectX::XMFLOAT3 xmaccel = { accelerationDir.x * emitterAcceleration, accelerationDir.y * emitterAcceleration ,accelerationDir.z * emitterAcceleration };
-	
+	DirectX::XMFLOAT3 xmaccel;
+
+	if (emitterType == EmitterType::Sphere)
+	{
+		xmaccel = { particles[pos].velocity.x * emitterAcceleration, particles[pos].velocity.y * emitterAcceleration ,particles[pos].velocity.z * emitterAcceleration };
+	}
+	else
+	{
+		//xmaccel = { accelerationDir.x * emitterAcceleration, accelerationDir.y * emitterAcceleration ,accelerationDir.z * emitterAcceleration };
+		xmaccel = { particles[pos].accelDir.x * emitterAcceleration, particles[pos].accelDir.y * emitterAcceleration , particles[pos].accelDir.z * emitterAcceleration };
+	}
 	DirectX::XMVECTOR startPos;
 	// Adjust the position
 	if (localSpace) {
@@ -290,5 +347,15 @@ void Emitter::LoadParticlesForGPU(ID3D11DeviceContext* context)
 	memcpy(mapped.pData, particlesVerts, sizeof(ParticleVertex) * 4 * maxParticles);
 
 	context->Unmap(emitterBuffer, 0);
+}
+
+void Emitter::Reset()
+{
+	oldestParticlePos = 0;
+	newestParticlePos = 0;
+	timeSinceEmit = 0.0f;
+	particleCount = 0;
+	isActive = true;
+	stopEmitting = false;
 }
 
