@@ -1,6 +1,8 @@
 #pragma once
 #include "CosmicEngine.h"
 #include "DefaultScene.h"
+#include "TyrianGameManager.h"
+#include "ShopMenu.h"
 #include "Game.h"
 #include "Bullet.h"
 #include "Player.h"
@@ -30,6 +32,8 @@ public:
 	MainHUBWorld(CosmicEngine* eng);
 	~MainHUBWorld();
 	CosmicEngine* engine;
+	TyrianGameManager* gameManager = 0;
+	ShopMenu* myShop;
 
 	void Init();
 	void SetUpLevel();
@@ -42,19 +46,9 @@ public:
 	void CreatePlayer();
 	void SetUpParticles();
 	void LoadBulletPool();
-	void Shoot();
 	void CalculateCamPos(float dt);
 	void SetUpActions();
-
-	void TurnOnStatsUI();
-	void TurnOnShopUI();
-	void TurnOnUpgradesUI();
-	void TurnOnAbilitiesUI();
-
-	void TurnOffStatsUI();
-	void TurnOffShopUI();
-	void TurnOffUpgradesUI();
-	void TurnOffAbilitiesUI();
+	void Quit();
 
 	Player* p1 = nullptr;
 
@@ -62,17 +56,6 @@ public:
 	Image* healthBarFade = nullptr;
 	Image* healthBarBack = nullptr;
 	Image* healthBarBorder = nullptr;
-
-	Image* yellowTriangle;
-	Button* metalTab;
-	Image* metalTopBar;
-	Image* metalForeGround;
-	Image* metalBackGround;
-
-	Button* statsButton;
-	Button* shopButton;
-	Button* upgradesButton;
-	Button* abilitiesButton;
 
 	Emitter* shipExhaust;
 	Emitter* leftWing;
@@ -85,11 +68,8 @@ public:
 	DirectX::XMFLOAT3 curCamPos;
 
 	std::vector<GameEntity*> worlds;
-	std::vector<Bullet*> bulletPool;
 	std::vector<Emitter*> goldStarPool;
 	std::vector<Emitter*> grayStarPool;
-
-	std::vector<UI*> shopUI;
 
 	float posXConstraint;
 	float negXConstraint;
@@ -103,12 +83,5 @@ public:
 	float moveDownHeight;
 	float camSpeed;
 	float worldRotSpeed;
-
-	float UIMoveDownHieght;
-	float UIMoveSpeed;
-
-	int shopUIcount;
-
-	bool UITurnedOn;
 };
 

@@ -2,6 +2,7 @@
 #include "CosmicEngine.h"
 #include "DefaultScene.h"
 #include "FinishLine.h"
+#include "TyrianGameManager.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Bullet.h"
@@ -29,8 +30,10 @@ public:
 	}currentState;
 
 	Tyrian2000(CosmicEngine* eng);
+	Tyrian2000(CosmicEngine* eng, char* tile);
 	~Tyrian2000();
 	CosmicEngine* engine;
+	TyrianGameManager* gameManager = 0;
 
 	void Init();
 	void SetUpLevel();
@@ -47,13 +50,13 @@ public:
 	void SpawnWaveBlockers();
 	void LoadBulletPool();
 	void LoadBackgroundTilePool(std::string textureName);
-	void Shoot();
 	void CalculateCamPos();
 	void KillEnemy(int pos);
 	void SetUpActions();
 	void ChooseEndPanelText();
 	void TogglePauseMenu();
 	void ResetLevel();
+	void Quit();
 
 	Player* p1 = nullptr;
 	FinishLine* fLine = nullptr;
@@ -85,10 +88,11 @@ public:
 	DirectX::XMFLOAT3 rightWingPos;
 
 	std::vector<Enemy*> enemyPool;
-	std::vector<Bullet*> bulletPool;
 	std::vector<BackGroundTiles*> backgroundTilePool;
 	std::vector<Emitter*> explosionPool;
 	std::vector<Emitter*> explosionStarPool;
+
+	char* tileName = nullptr;
 
 	// Game Values
 	float xConstraint;

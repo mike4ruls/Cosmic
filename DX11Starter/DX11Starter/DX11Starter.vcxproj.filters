@@ -117,6 +117,15 @@
     <Filter Include="Shaders\ParticleShaders">
       <UniqueIdentifier>{3ba7215b-6652-4977-8433-9e183aa7562f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scenes\Tyrian2000\HubWorld">
+      <UniqueIdentifier>{89f9ce3d-df09-4a6b-ac51-5707fe96db29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Tyrian2000\HubWorld\Header">
+      <UniqueIdentifier>{1035e834-5f51-4f14-87ec-89ad12c036ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Tyrian2000\HubWorld\Source">
+      <UniqueIdentifier>{a3909066-b946-4642-ac98-489accee6684}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -225,7 +234,43 @@
       <Filter>ParticleSystem\Source</Filter>
     </ClCompile>
     <ClCompile Include="MainHUBWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GrassHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TyrianGameManager.cpp">
       <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ShopMenu.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="BrickHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CheckerHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DryHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="LavaGroundHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="LavaHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="RainbowHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="SandHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StarHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WaterHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -377,7 +422,49 @@
       <Filter>ParticleSystem\Header</Filter>
     </ClInclude>
     <ClInclude Include="MainHUBWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GrassHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="TyrianGameManager.h">
       <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimsVertex.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneInfo.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="ShopMenu.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="BrickHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="CheckerHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="DryHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="LavaGroundHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="LavaHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="RainbowHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="SandHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="StarHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterHubWorld.h">
+      <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

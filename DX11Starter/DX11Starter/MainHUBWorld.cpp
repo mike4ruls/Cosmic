@@ -11,12 +11,14 @@ MainHUBWorld::MainHUBWorld(CosmicEngine* eng)
 
 MainHUBWorld::~MainHUBWorld()
 {
+	gameManager->SavePlayer(p1);
 	if (p1 != nullptr) { delete p1; p1 = nullptr; }
+	if (myShop != nullptr) { delete myShop; myShop = nullptr; }
 
-	for (unsigned int i = 0; i < bulletPool.size(); i++)
+	/*for (unsigned int i = 0; i < bulletPool.size(); i++)
 	{
 		if (bulletPool[i] != nullptr) { delete bulletPool[i]; bulletPool[i] = nullptr; }
-	}
+	}*/
 }
 
 void MainHUBWorld::Init()
@@ -24,6 +26,8 @@ void MainHUBWorld::Init()
 	// ========== IMPORTANT ==========//
 	inputManager = engine->inputManager;
 	cam->inputManager = inputManager;
+	gameManager = TyrianGameManager::GetInstance();
+	gameManager->SetEngine(engine);
 	SetUpActions();
 	InitUI();
 	// ========== ====================//
@@ -32,15 +36,15 @@ void MainHUBWorld::Init()
 	engine->lockCamera = true;
 	cam->lockCameraPos = true;
 	engine->lockSunLight = true;
-	//engine->rend->skyBoxOn = false;
-	cam->transform.Rotate(0.0f, 89.5f, 0.0f);
+	engine->rend->skyBoxOn = true;
 	cam->transform.Translate(0.0f, 20.0f, 0.0f);
+	cam->transform.Rotate(0.0f, 89.5f, 0.0f);
 
 	engine->rend->sunLight->ligComponent->lightDir = { -0.7f, -1.0f, 0.0f };
-	engine->rend->instanceThreshold = 11;
 
 	currentState = GameState::Game;
 	SetUpLevel();
+	myShop = new ShopMenu(engine, p1);
 	worldRotSpeed = 20.0f;
 
 	for (int i = 0; i < 10; i++)
@@ -68,29 +72,37 @@ void MainHUBWorld::Init()
 		switch (i) {
 		case 0:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture( engine->rend->assets->GetSurfaceTexture("grass"));
+			worlds[i]->name = "grass";
 			//grayStarPool[i]->isActive = true;
 			//goldStarPool[i]->isActive = true;
 			break;
 		case 1:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("water"));
+			worlds[i]->name = "water";
 			break;
 		case 2:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("sand"));
+			worlds[i]->name = "sand";
 			break;
 		case 3:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("dry"));
+			worlds[i]->name = "dry";
 			break;
 		case 4:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("brick"));
+			worlds[i]->name = "brick";
 			break;
 		case 5:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("star"));
+			worlds[i]->name = "star";
 			break;
 		case 6:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("lava"));
+			worlds[i]->name = "lava";
 			break;
 		case 7:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("lavaGround"));
+			worlds[i]->name = "lavaGround";
 			worlds[i]->transform.Scale(20.0f);
 			worlds[i]->rigidBody.myCollider.radius = 11.0f;
 			worlds[i]->transform.position = { -60.0f, p1->player->transform.position.y, worlds[i]->transform.position.z };
@@ -107,9 +119,23 @@ void MainHUBWorld::Init()
 			break;
 		case 8:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("checker"));
+			worlds[i]->name = "checker";
 			break;
 		case 9:
 			worlds[i]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("rainbow"));
+			worlds[i]->name = "rainbow";
+			break;
+		}
+
+		switch(gameManager->GetActiveWorld(i))
+		{
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			goldStarPool[i]->Reset();
+			grayStarPool[i]->Reset();
 			break;
 		}
 
@@ -133,17 +159,15 @@ void MainHUBWorld::SetUpLevel()
 	posZCamConstraint = 11.8f;
 	negZCamConstraint = 12.5f;
 
-	curCamPos = {0.0f, 0.0f, 0.0f};
+	curCamPos = {gameManager->GetWorldPosistion().x, 0.0f, gameManager->GetWorldPosistion().z};
 
 	camSpeed = 25.0f;
 
-	shopUIcount = 0;
 	/*xCamConstraint = 1.0f;
 	posZCamConstraint = 1.0f;
 	negZCamConstraint = 1.0f;*/
 
 	CreatePlayer();
-	LoadBulletPool();
 }
 
 void MainHUBWorld::Update(float deltaTime, float totalTime)
@@ -160,79 +184,13 @@ void MainHUBWorld::Update(float deltaTime, float totalTime)
 		healthBar->SetWidth(healthBarBack->GetWidth() * (p1->topDisplayHealth / p1->maxHealth));
 		healthBarFade->SetWidth(healthBarBack->GetWidth() * (p1->botDisplayHealth / p1->maxHealth));
 
-		if (metalTab->IsClicked()) { UITurnedOn = UITurnedOn ? false : true; }
+		myShop->Update(deltaTime);
 
-		if (statsButton->IsClicked()) { shopUIcount = 0; }
-		if (shopButton->IsClicked()) { shopUIcount = 1; }
-		if (upgradesButton->IsClicked()) { shopUIcount = 2; }
-		if (abilitiesButton->IsClicked()) { shopUIcount = 3; }
-
-		if (UITurnedOn)
+		for (unsigned int i = 0; i < p1->frontBulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
 		{
-			switch(shopUIcount)
+			if (p1->frontBulletPool[i]->bullet->isActive)
 			{
-			case 0:
-				if(!statsButton->constantHighlight)
-				{
-					TurnOnStatsUI();
-					TurnOffShopUI();
-					TurnOffUpgradesUI();
-					TurnOffAbilitiesUI();
-				}
-				break;
-			case 1:
-				if (!shopButton->constantHighlight)
-				{
-					TurnOffStatsUI();
-					TurnOnShopUI();
-					TurnOffUpgradesUI();
-					TurnOffAbilitiesUI();
-				}
-				break;
-			case 2:
-				if (!upgradesButton->constantHighlight)
-				{
-					TurnOffStatsUI();
-					TurnOffShopUI();
-					TurnOnUpgradesUI();
-					TurnOffAbilitiesUI();
-				}
-				break;
-			case 3:
-				if (!abilitiesButton->constantHighlight)
-				{
-					TurnOffStatsUI();
-					TurnOffShopUI();
-					TurnOffUpgradesUI();
-					TurnOnAbilitiesUI();
-				}
-				break;
-
-			}
-			if(metalBackGround->posY < -0.2f)
-			{
-				for(unsigned int i = 0; i < shopUI.size(); i++)
-				{
-					shopUI[i]->posY += UIMoveSpeed * deltaTime;
-				}
-			}
-		}
-		else 
-		{
-			if (metalBackGround->posY > UIMoveDownHieght)
-			{
-				for (unsigned int i = 0; i < shopUI.size(); i++)
-				{
-					shopUI[i]->posY -= UIMoveSpeed * deltaTime;
-				}
-			}
-		}
-
-		for (unsigned int i = 0; i < bulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
-		{
-			if (bulletPool[i]->bullet->isActive)
-			{
-				bulletPool[i]->Update(deltaTime);
+				p1->frontBulletPool[i]->Update(deltaTime);
 
 				//for (unsigned int j = 0; j < enemyPool.size(); j++)
 				//{
@@ -246,9 +204,60 @@ void MainHUBWorld::Update(float deltaTime, float totalTime)
 				//}
 			}
 		}
+		for (unsigned int i = 0; i < p1->leftBulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
+		{
+			if (p1->leftBulletPool[i]->bullet->isActive)
+			{
+				p1->leftBulletPool[i]->Update(deltaTime);
+
+				//for (unsigned int j = 0; j < enemyPool.size(); j++)
+				//{
+				//	if (engine->physicEngine->SphereVSphereCollision(bulletPool[i]->bullet, enemyPool[j]->enemyObj))
+				//	{
+				//		enemyPool[j]->TakeDamage(p1->atkDamage);
+				//		bulletPool[i]->Deactivate();
+				//		bulletPool[i]->bullet->transform.Translate(0.0f, 100.0f, 0.0f);
+				//		bulletPool[i]->bullet->SetWorld();
+				//	}
+				//}
+			}
+		}
+		for (unsigned int i = 0; i < p1->rightBulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
+		{
+			if (p1->rightBulletPool[i]->bullet->isActive)
+			{
+				p1->rightBulletPool[i]->Update(deltaTime);
+
+				//for (unsigned int j = 0; j < enemyPool.size(); j++)
+				//{
+				//	if (engine->physicEngine->SphereVSphereCollision(bulletPool[i]->bullet, enemyPool[j]->enemyObj))
+				//	{
+				//		enemyPool[j]->TakeDamage(p1->atkDamage);
+				//		bulletPool[i]->Deactivate();
+				//		bulletPool[i]->bullet->transform.Translate(0.0f, 100.0f, 0.0f);
+				//		bulletPool[i]->bullet->SetWorld();
+				//	}
+				//}
+			}
+		}
+
 		for (unsigned int i = 0; i < worlds.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
 		{
+			float originalRad = worlds[i]->rigidBody.myCollider.radius;
 			worlds[i]->transform.Rotate( worldRotSpeed * deltaTime, 0.0f,0.0f);
+
+			worlds[i]->rigidBody.myCollider.radius += 2.0f;
+			if (engine->physicEngine->SphereVSphereCollision(p1->player, worlds[i]))
+			{
+				gameManager->SetTileLoadName(&worlds[i]->name[0]);
+				if (inputManager->IsActionPressed(Actions::Start))
+				{
+					gameManager->StoreWorldPosistion({ worlds[i]->transform.position.x, p1->player->transform.position.y,worlds[i]->transform.position.z - 1.0f});
+					gameManager->LoadWorld();
+					return;
+				}
+			}
+			worlds[i]->rigidBody.myCollider.radius = originalRad;
 			if (engine->physicEngine->SphereVSphereCollision(p1->player, worlds[i]))
 			{
 				DirectX::XMFLOAT3 dir = { (p1->player->transform.position.x - worlds[i]->transform.position.x) * 30.0f ,
@@ -280,6 +289,8 @@ void MainHUBWorld::Update(float deltaTime, float totalTime)
 	}
 	if (inputManager->IsKeyDown(96))
 	{
+		TyrianGameManager::Release();
+
 		DefaultScene* defaultScene = new DefaultScene(engine);
 		engine->rend->skyBoxOn = true;
 		engine->LoadScene(defaultScene);
@@ -380,9 +391,9 @@ void MainHUBWorld::CheckInputs(float dt)
 				rightWing->stopEmitting = true;
 			}
 		}
-		if (inputManager->IsActionDown(Actions::Fire) && p1->canAttack)
+		if (inputManager->IsActionDown(Actions::Fire))
 		{
-			Shoot();
+			p1->ShootBullets();
 		}
 		if (inputManager->IsActionPressed(Actions::Strafe) && !p1->canStrafe)
 		{
@@ -404,7 +415,7 @@ void MainHUBWorld::CheckInputs(float dt)
 	}
 	if (inputManager->IsActionPressed(Actions::Select))
 	{
-		UITurnedOn = UITurnedOn ? false : true;
+		myShop->UITurnedOn = myShop->UITurnedOn ? false : true;
 	}
 }
 
@@ -417,6 +428,8 @@ void MainHUBWorld::CheckControllerInputs(float dt)
 		float LX = inputManager->GetLeftStickX();
 		float LY = inputManager->GetLeftStickY();
 
+		UI* uiToChange = nullptr;
+
 		if (inputManager->IsActionDown(Actions::ButtonLeft) || LX < 0.0f) //A
 		{
 			butCheckX = true;
@@ -426,16 +439,20 @@ void MainHUBWorld::CheckControllerInputs(float dt)
 			//shopButton
 			//upgradesButton
 			//abilitiesButton
-			//abilitiesButton->posX -= 0.1f * dt;
-			//printf("%f\n", abilitiesButton->posX);
+			if (uiToChange != nullptr) {
+				uiToChange->posX -= 0.1f * dt;
+				printf("X: %f\n", uiToChange->posX);
+			}
 		}
 		if (inputManager->IsActionDown(Actions::ButtonRight) || LX > 0.0f) //D
 		{
 			butCheckX = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed)  * dt, 0.0f, (p1->player->transform.foward.z * p1->speed)  * dt);
 
-			//abilitiesButton->posX += 0.1f * dt;
-			//printf("%f\n", abilitiesButton->posX);
+			if (uiToChange != nullptr) {
+				uiToChange->posX += 0.1f * dt;
+				printf("X: %f\n", uiToChange->posX);
+			}
 		}
 
 		if (inputManager->IsActionDown(Actions::ButtonUp) || LY > 0.0f) //W
@@ -443,16 +460,40 @@ void MainHUBWorld::CheckControllerInputs(float dt)
 			butCheckY = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * p1->speed) * dt);
 
-			//abilitiesButton->posY += 0.1f * dt;
-			//printf("%f\n", abilitiesButton->posY);
+			if (uiToChange != nullptr) {
+				uiToChange->posY += 0.1f * dt;
+				printf("Y%f\n", uiToChange->posY);
+			}
 		}
 		if (inputManager->IsActionDown(Actions::ButtonDown) || LY < 0.0f) //S
 		{
 			butCheckY = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * p1->speed) * dt);
 
-			//abilitiesButton->posY -= 0.1f * dt;
-			//printf("%f\n", abilitiesButton->posY);
+			if (uiToChange != nullptr) {
+				uiToChange->posY -= 0.1f * dt;
+				printf("Y: %f\n", uiToChange->posY);
+			}
+		}
+		if (inputManager->IsKeyDown(81)) //Q
+		{
+			if (uiToChange != nullptr) {
+				/*uiToChange->SetWidth(uiToChange->GetWidth() + (0.1f * dt));
+				printf("Width: %f\n", uiToChange->GetWidth());*/
+
+				uiToChange->SetHeight(uiToChange->GetHeight() + (0.1f * dt));
+				printf("Width: %f\n", uiToChange->GetHeight());
+			}
+		}
+		if (inputManager->IsKeyDown(69)) //Q
+		{
+			if (uiToChange != nullptr) {
+				/*uiToChange->SetWidth(uiToChange->GetWidth() - (0.1f * dt));
+				printf("Width: %f\n", uiToChange->GetWidth());*/
+
+				uiToChange->SetHeight(uiToChange->GetHeight() - (0.1f * dt));
+				printf("Width: %f\n", uiToChange->GetHeight());
+			}
 		}
 		if (butCheckX || butCheckY)
 		{
@@ -495,23 +536,9 @@ void MainHUBWorld::CheckControllerInputs(float dt)
 				rightWing->stopEmitting = true;
 			}
 		}
-		if (inputManager->IsActionDown(Actions::Fire) && p1->canAttack)
+		if (inputManager->IsActionDown(Actions::Fire))
 		{
-			Shoot();
-		}
-		if (inputManager->IsActionPressed(Actions::LB))
-		{
-			if (shopUIcount > 0)
-			{
-				shopUIcount--;
-			}
-		}
-		if (inputManager->IsActionPressed(Actions::RB))
-		{
-			if (shopUIcount < 3)
-			{
-				shopUIcount++;
-			}
+			p1->ShootBullets();
 		}
 		if (inputManager->IsActionPressed(Actions::Strafe) && !p1->canStrafe)
 		{
@@ -533,7 +560,7 @@ void MainHUBWorld::CheckControllerInputs(float dt)
 	}
 	if (inputManager->IsActionPressed(Actions::Select))
 	{
-		UITurnedOn = UITurnedOn ? false : true;
+		myShop->UITurnedOn = myShop->UITurnedOn ? false : true;
 	}
 }
 
@@ -592,114 +619,19 @@ void MainHUBWorld::InitUI()
 	healthBarBorder->posY = healthBar->posY + healthBar->GetYOffSet();
 	healthBarBorder->SetWidth(healthBar->GetWidth() + 0.04f);
 	healthBarBorder->SetHeight(healthBar->GetHeight() + 0.04f);
-
-	UIMoveDownHieght = -2.510f;
-
-	yellowTriangle = engine->CreateCanvasImage();
-	yellowTriangle->SetAlignment(UI::Bottom);
-	yellowTriangle->SetUIColor({1.0f, 0.0f, 0.0f, 1.0f});
-	yellowTriangle->SetWidth(0.12f);
-	yellowTriangle->SetHeight(0.04f);
-	//metalTab->posY = -1.149f;
-	yellowTriangle->posY = -0.213f;
-
-	shopUI.push_back(yellowTriangle);
-
-	metalTab = engine->CreateCanvasButton();
-	metalTab->SetAlignment(UI::Bottom);
-	metalTab->LoadTexture(engine->rend->assets->GetSurfaceTexture("metalTab"));
-	metalTab->SetWidth(0.18f);
-	metalTab->SetHeight(0.08f);
-	//metalTab->posY = -1.149f;
-	metalTab->posY = -0.259f;
-
-	shopUI.push_back(metalTab);
-
-	metalTopBar = engine->CreateCanvasImage();
-	metalTopBar->LoadTexture(engine->rend->assets->GetSurfaceTexture("metalBack"));
-	metalTopBar->SetAlignment(UI::Bottom);
-	metalTopBar->obj->renderingComponent.mat.uvXOffSet = 3.0f;
-	metalTopBar->obj->renderingComponent.mat.uvYOffSet = 0.2f;
-	metalTopBar->SetWidth(2.1f);
-	metalTopBar->SetHeight(0.04f);
-	metalTopBar->posY = -0.668f;
-
-	shopUI.push_back(metalTopBar);
-
-	float buttonHieght = -0.584f;
-
-	statsButton = engine->CreateCanvasButton();
-	statsButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("statsText"));
-	statsButton->SetAlignment(UI::Bottom);
-	statsButton->SetWidth(0.525f);
-	statsButton->SetHeight(0.1f);
-	statsButton->posX = -1.569f;
-	statsButton->posY = buttonHieght;
-
-	shopUI.push_back(statsButton);
-
-	shopButton = engine->CreateCanvasButton();
-	shopButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("shopText"));
-	shopButton->SetAlignment(UI::Bottom);
-	shopButton->SetWidth(0.525f);
-	shopButton->SetHeight(0.1f);
-	shopButton->posX = -0.516f;
-	shopButton->posY = buttonHieght;
-
-	shopUI.push_back(shopButton);
-
-	upgradesButton = engine->CreateCanvasButton();
-	upgradesButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("upgradesText"));
-	upgradesButton->SetAlignment(UI::Bottom);
-	upgradesButton->SetWidth(0.525f);
-	upgradesButton->SetHeight(0.1f);
-	upgradesButton->posX = 0.536f;
-	upgradesButton->posY = buttonHieght;
-
-	shopUI.push_back(upgradesButton);
-
-	abilitiesButton = engine->CreateCanvasButton();
-	abilitiesButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("abilitiesText"));
-	abilitiesButton->SetAlignment(UI::Bottom);
-	abilitiesButton->SetWidth(0.525f);
-	abilitiesButton->SetHeight(0.1f);
-	abilitiesButton->posX = 1.57f;
-	abilitiesButton->posY = buttonHieght;
-
-	shopUI.push_back(abilitiesButton);
-
-
-	metalForeGround = engine->CreateCanvasImage();
-	metalForeGround->SetUIColor({ 0.05f, 0.05f, 0.05f, 1.0f });
-	metalForeGround->SetWidth(2.1f);
-	metalForeGround->SetHeight(0.90f);
-	metalForeGround->posY = UIMoveDownHieght + 0.23f;
-
-	shopUI.push_back(metalForeGround);
-
-	metalBackGround = engine->CreateCanvasImage();
-	metalBackGround->LoadTexture(engine->rend->assets->GetSurfaceTexture("metalBack")); 
-	metalBackGround->SetWidth(2.22f);
-	metalBackGround->SetHeight(1.25f);
-	metalBackGround->obj->renderingComponent.mat.uvXOffSet = 3.5f;
-	metalBackGround->obj->renderingComponent.mat.uvYOffSet = 3.0f;
-	metalBackGround->posY = UIMoveDownHieght;
-
-	shopUI.push_back(metalBackGround);
-
-
-	UIMoveSpeed = 5.0f;
-	UITurnedOn = false;
 }
 
 void MainHUBWorld::CreatePlayer()
 {
-	p1 = new Player(engine->CreateGameObject("FighterShip"), 100.0f, 0.1f, 1.0f);
+	p1 = new Player(engine, engine->CreateGameObject("FighterShip"), 100.0f, 0.1f, 1.0f);
 	p1->player->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("fighterShipSur"));
 	p1->player->renderingComponent.mat.surfaceReflectance = 0.3f;
 	p1->player->transform.Scale(0.005f);
 	p1->player->transform.Translate(0.0f, 4.0f + moveDownHeight, -4.0f);
 	p1->player->rigidBody.fricStrength = 60.0f;
+
+	gameManager->LoadPlayer(p1);
+	p1->player->transform.position = gameManager->GetWorldPosistion();
 
 	SetUpParticles();
 }
@@ -750,34 +682,6 @@ void MainHUBWorld::SetUpParticles()
 	rightWing->localSpace = leftWing->localSpace;
 }
 
-void MainHUBWorld::LoadBulletPool()
-{
-	unsigned int numOfBullets = 40;
-
-	for (unsigned int i = 0; i < numOfBullets; i++)
-	{
-		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
-		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
-		newBullet->bullet->SetWorld();
-		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
-
-		bulletPool.push_back(newBullet);
-	}
-}
-
-void MainHUBWorld::Shoot()
-{
-	for (unsigned int i = 0; i < bulletPool.size(); i++)
-	{
-		if (!bulletPool[i]->bullet->isActive)
-		{
-			bulletPool[i]->Activate(p1->FindDistAway(p1->player->transform.foward, 2.0f), { p1->player->transform.foward.x * 80.0f, p1->player->transform.foward.y * 80.0f, p1->player->transform.foward.z * 80.0f }, Bullet::Regular);
-			p1->canAttack = false;
-			break;
-		}
-	}
-}
-
 void MainHUBWorld::CalculateCamPos(float dt)
 {
 	if (p1->player->transform.position.x <= (-xCamConstraint + cam->transform.position.x))
@@ -815,42 +719,7 @@ void MainHUBWorld::SetUpActions()
 	inputManager->AddActionBinding(Actions::RB, { 8, CosmicInput::ControllerButton::BUTTON_R1 });
 }
 
-void MainHUBWorld::TurnOnStatsUI()
+void MainHUBWorld::Quit()
 {
-	statsButton->constantHighlight = true;
-}
-
-void MainHUBWorld::TurnOnShopUI()
-{
-	shopButton->constantHighlight = true;
-}
-
-void MainHUBWorld::TurnOnUpgradesUI()
-{
-	upgradesButton->constantHighlight = true;
-}
-
-void MainHUBWorld::TurnOnAbilitiesUI()
-{
-	abilitiesButton->constantHighlight = true;
-}
-
-void MainHUBWorld::TurnOffStatsUI()
-{
-	statsButton->constantHighlight = false;
-}
-
-void MainHUBWorld::TurnOffShopUI()
-{
-	shopButton->constantHighlight = false;
-}
-
-void MainHUBWorld::TurnOffUpgradesUI()
-{
-	upgradesButton->constantHighlight = false;
-}
-
-void MainHUBWorld::TurnOffAbilitiesUI()
-{
-	abilitiesButton->constantHighlight = false;
+	TyrianGameManager::Release();
 }

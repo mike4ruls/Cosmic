@@ -80,7 +80,6 @@ public:
 	ID3D11BlendState* subBlendState;
 	ID3D11BlendState* cutBlendState;
 
-	unsigned int instanceThreshold;
 	bool instanceRenderingOn;
 	bool defferedRenderingOn;
 	bool HdrOn;

@@ -1,5 +1,7 @@
 #pragma once
 #include "GameEntity.h"
+#include "Bullet.h"
+#include "CosmicEngine.h"
 
 class Player
 {
@@ -11,29 +13,55 @@ public:
 	};
 
 	Player();
-	Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg);
+	Player(CosmicEngine* eng, GameEntity* obj, float hlt, float atkSpd, float atkdmg);
 	~Player();
+	CosmicEngine* engine;
 
 	TurnState currentTurnState;
 	TurnState previousTurnState;
 	TurnState staticCurTurnState;
+
+	std::vector<Bullet*> frontBulletPool;
+	std::vector<Bullet*> leftBulletPool;
+	std::vector<Bullet*> rightBulletPool;
 
 	float health;
 	float topDisplayHealth;
 	float botDisplayHealth;
 	float maxHealth;
 
+	float sheild;
+	float topDisplaySheild;
+	float botDisplaySheild;
+	float maxSheild;
+
 	float speed;
 	float normSpeed;
 	float strafeSpeed;
 
-	float atkSpeed;
-	float atkDamage;
+	float frontAtkSpeed;
+	float frontAtkDamage;
+
+	float leftAtkSpeed;
+	float leftAtkDamage;
+
+	float rightAtkSpeed;
+	float rightAtkDamage;
+
+	float sheildRechargeRate;
+	float SheildTimer;
+
+	float guidedMissleRechargeRate;
+	float guidedMissleTimer;
+	float guidedMissleDamage;
 
 	float strafeForce;
 	float strafeRotSpeed;
 	float currentRot;
-	float timer;
+
+	float frontTimer;
+	float leftTimer;
+	float rightTimer;
 
 	float tiltDegrees;
 	float tiltSpeed;
@@ -44,7 +72,17 @@ public:
 	float strafeImmuneTimer;
 	float damageImmuneTimer;
 
-	bool canAttack;
+	int guidedMissleCount;
+	int guidedMissleMax;
+
+	int curLevel;
+	int currency;
+
+	bool frontCanAttack;
+	bool leftCanAttack;
+	bool rightCanAttack;
+
+
 	bool canStrafe;
 	bool canTilt;
 	bool isDead;
@@ -54,6 +92,16 @@ public:
 
 	bool canStrafeImmuneTimer;
 	bool canDamageImmuneTimer;
+
+	bool leftBlasterBought;
+	bool rightBlasterBought;
+	bool guidedMissleBought;
+	bool sheildComponentBought;
+
+	bool leftBlasterBroken;
+	bool rightBlasterBroken;
+	bool guidedMissleBroken;
+	bool sheildComponentBroken;
 
 	DirectX::XMFLOAT3 originalRot;
 
@@ -68,5 +116,12 @@ public:
 	void StrafeImmuneCD(float dt);
 	void DamageImmuneCD(float dt);
 	DirectX::XMFLOAT3 FindDistAway(DirectX::XMFLOAT3 dir, float dist);
+	void LoadBullets();
+
+	void ShootBullets();
+
+	void FrontShoot();
+	void LeftShoot();
+	void RightShoot();
 };
 

@@ -18,6 +18,8 @@ Renderer::Renderer(Camera * c, ID3D11Device * dev, ID3D11DeviceContext * con, ID
 	swap = sw;
 
 	assets = new AssetManager(dev, con);
+	assets->GetMesh("BackGroundTile")->instanceThreshold = 1000;
+	assets->GetMesh("Worlds")->instanceThreshold = 1000;
 
 	Init();
 	InitSkyBox();
@@ -105,7 +107,6 @@ void Renderer::Init()
 	wireFrameOn = false;
 	skyBoxOn = true;
 	prevWireStatus = wireFrameOn;
-	instanceThreshold = 5;
 	skyBoxNum = 1;
 
 	LoadShaders();
@@ -331,6 +332,9 @@ void Renderer::Render(float dt)
 	}
 
 	// Drawing translucent objects with forward rendering
+	float blend[4] = { 1,1,1,1 };
+	context->OMSetDepthStencilState(particleDepthState, 0);
+	context->OMSetBlendState(cutBlendState, blend, 0xFFFFFFFF);  // Additive blending
 	for (unsigned int i = 0; i < transRendComponents.size(); i++)
 	{
 		if (transRendComponents[i]->canRender)
@@ -338,7 +342,8 @@ void Renderer::Render(float dt)
 			DrawForwardPass(transRendComponents[i]);
 		}
 	}
-
+	context->OMSetBlendState(0, blend, 0xffffffff);
+	context->OMSetDepthStencilState(0, 0);
 	// HDR //
 
 	if (HdrOn)
@@ -449,7 +454,7 @@ void Renderer::PushToRenderer(RenderingComponent * com)
 	assets->meshStorage[com->meshName]->instances++;
 				
 	assets->meshStorage[com->meshName]->inUse = assets->meshStorage[com->meshName]->instances != 0 ? true : false;
-	assets->meshStorage[com->meshName]->canInstRender = assets->meshStorage[com->meshName]->instances >= instanceThreshold ? true : false;
+	assets->meshStorage[com->meshName]->canInstRender = assets->meshStorage[com->meshName]->instances >= assets->meshStorage[com->meshName]->instanceThreshold ? true : false;
 
 }
 
@@ -845,7 +850,7 @@ void Renderer::RemoveFromRenderer(std::string meshName, unsigned int Id)
 	}
 
 	assets->meshStorage[meshName]->inUse = assets->meshStorage[meshName]->instances != 0 ? true : false;
-	assets->meshStorage[meshName]->canInstRender = assets->meshStorage[meshName]->instances >= instanceThreshold ? true : false;
+	assets->meshStorage[meshName]->canInstRender = assets->meshStorage[meshName]->instances >= assets->meshStorage[meshName]->instanceThreshold ? true : false;
 }
 
 void Renderer::RemoveFromTranslucent(unsigned int Id)
@@ -1309,6 +1314,10 @@ void Renderer::DrawEmiters()
 
 void Renderer::DrawCanvas()
 {
+	//float blend[4] = { 1,1,1,1 };
+	//context->OMSetDepthStencilState(particleDepthState, 0);
+	//context->OMSetBlendState(cutBlendState, blend, 0xFFFFFFFF);  // Additive blending
+
 	for(unsigned int i = 0; i < canvasRendComponents.size(); i ++)
 	{
 		if(canvasRendComponents[i]->canRender)
@@ -1345,5 +1354,7 @@ void Renderer::DrawCanvas()
 			context->DrawIndexed(assets->meshStorage[canvasRendComponents[i]->meshName]->indCount, 0, 0);
 		}
 	}
+	//context->OMSetBlendState(0, blend, 0xffffffff);
+	//context->OMSetDepthStencilState(0, 0);
 }
 

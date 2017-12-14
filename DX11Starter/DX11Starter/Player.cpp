@@ -6,16 +6,25 @@ Player::Player()
 {
 }
 
-Player::Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg)
+Player::Player(CosmicEngine* eng, GameEntity* obj, float hlt, float atkSpd, float atkdmg)
 {
+	engine = eng;
 	player = obj;
 	currentTilt = LEFT;
 	previousTurnState = LEFT;
+
+	curLevel = 0;
+	currency = 0;
 
 	maxHealth = hlt;
 	health = maxHealth;
 	topDisplayHealth = maxHealth;
 	botDisplayHealth = maxHealth;
+
+	maxSheild = 0;
+	sheild = maxSheild;
+	topDisplaySheild = maxSheild;
+	botDisplaySheild = maxSheild;
 
 	normSpeed = 20.0f;
 	strafeSpeed = 0.0f;
@@ -31,7 +40,20 @@ Player::Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg)
 
 	originalRot = obj->transform.rotation;
 
-	canAttack = true;
+	sheildRechargeRate = 0.1f;
+	SheildTimer = 0.0f;
+
+	guidedMissleRechargeRate = 5.0f;
+	guidedMissleTimer = 0.0f;
+	guidedMissleDamage = 0.0f;
+
+	guidedMissleMax = 3;
+	guidedMissleCount = guidedMissleMax;
+
+	frontCanAttack = true;
+	leftCanAttack = true;
+	rightCanAttack = true;
+
 	canStrafe = false;
 	canTilt = true;
 	isDead = false;
@@ -42,36 +64,91 @@ Player::Player(GameEntity* obj, float hlt, float atkSpd, float atkdmg)
 	canStrafeImmuneTimer = false;
 	canDamageImmuneTimer = false;
 
+	leftBlasterBought = false;
+	rightBlasterBought = false;
+	guidedMissleBought = false;
+	sheildComponentBought = false;
+
+	leftBlasterBroken = false;
+	rightBlasterBroken = false;
+	guidedMissleBroken = false;
+	sheildComponentBroken = false;
+
 	strafeImmuneCD = 1.0f;
 	damageImmuneCD = 0.01f;
 
 	strafeImmuneTimer = strafeImmuneCD;
 	damageImmuneTimer = damageImmuneCD;
 
-	atkSpeed = atkSpd;
-	atkDamage = atkdmg;
-	timer = atkSpeed;
+	frontAtkSpeed = atkSpd;
+	frontAtkDamage = atkdmg;
+	frontTimer = frontAtkSpeed;
+
+	leftAtkSpeed = 100;
+	leftAtkDamage = 0;
+	leftTimer = leftAtkSpeed;
+
+	rightAtkSpeed = 100;
+	rightAtkDamage = 0;
+	rightTimer = rightAtkSpeed;
+
 	player->renderingComponent.mat.surfaceColor = { 1.0f,0.0f,0.0f,1.0f };
 	player->rigidBody.applyFriction = true;
 	player->rigidBody.mass = 0.2f;
+
+	LoadBullets();
 }
 
 
 Player::~Player()
 {
+	for (unsigned int i = 0; i < frontBulletPool.size(); i++)
+	{
+		if (frontBulletPool[i] != nullptr) { delete frontBulletPool[i]; frontBulletPool[i]; }
+	}
+	for (unsigned int i = 0; i < leftBulletPool.size(); i++)
+	{
+		if (leftBulletPool[i] != nullptr) { delete leftBulletPool[i]; leftBulletPool[i]; }
+	}
+	for (unsigned int i = 0; i < rightBulletPool.size(); i++)
+	{
+		if (rightBulletPool[i] != nullptr) { delete rightBulletPool[i]; rightBulletPool[i]; }
+	}
 }
 
 void Player::Update(float dt)
 {
-	if (!canAttack)
+	if (!frontCanAttack)
 	{
-		timer -= dt;
-		if (timer <= 0.0f)
+		frontTimer -= dt;
+		if (frontTimer <= 0.0f)
 		{
-			canAttack = true;
-			timer = atkSpeed;
+			frontCanAttack = true;
+			frontTimer = frontAtkSpeed;
 		}
 	}
+
+
+	if (!leftCanAttack)
+	{
+		leftTimer -= dt;
+		if (leftTimer <= 0.0f)
+		{
+			leftCanAttack = true;
+			leftTimer = leftAtkSpeed;
+		}
+	}
+
+	if (!rightCanAttack)
+	{
+		rightTimer -= dt;
+		if (rightTimer <= 0.0f)
+		{
+			rightCanAttack = true;
+			rightTimer = rightAtkSpeed;
+		}
+	}
+
 	if (canStrafe)
 	{
 		Strafe(dt);
@@ -103,6 +180,23 @@ void Player::Update(float dt)
 		if (topDisplayHealth > health)
 		{
 			topDisplayHealth = health;
+		}
+	}
+
+	if (sheild < botDisplaySheild)
+	{
+		botDisplaySheild -= 20.0f * dt;
+		if(botDisplaySheild < sheild)
+		{
+			botDisplaySheild = sheild;
+		}
+	}
+	if(sheild > topDisplaySheild)
+	{
+		topDisplaySheild += 20.0f * dt;
+		if (topDisplaySheild > sheild)
+		{
+			topDisplaySheild = sheild;
 		}
 	}
 }
@@ -231,4 +325,93 @@ DirectX::XMFLOAT3 Player::FindDistAway(DirectX::XMFLOAT3 dir, float dist)
 {
 	DirectX::XMFLOAT3 pos = { player->transform.position.x + (dir.x * dist), player->transform.position.y + (dir.y * dist), player->transform.position.z + (dir.z * dist) };
 	return pos;
+}
+
+void Player::LoadBullets()
+{
+	unsigned int numOfBullets = 60;
+
+	for (unsigned int i = 0; i < numOfBullets; i++)
+	{
+		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
+		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
+		newBullet->bullet->SetWorld();
+		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
+
+		frontBulletPool.push_back(newBullet);
+	}
+
+	for (unsigned int i = 0; i < numOfBullets; i++)
+	{
+		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
+		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
+		newBullet->bullet->SetWorld();
+		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
+
+		leftBulletPool.push_back(newBullet);
+	}
+
+	for (unsigned int i = 0; i < numOfBullets; i++)
+	{
+		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
+		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
+		newBullet->bullet->SetWorld();
+		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
+
+		rightBulletPool.push_back(newBullet);
+	}
+
+}
+
+void Player::ShootBullets()
+{
+	if (frontCanAttack)
+	{
+		FrontShoot();
+	}
+	if (leftBlasterBought && !leftBlasterBroken && leftCanAttack)
+	{
+		LeftShoot();
+	}
+	if (rightBlasterBought && !rightBlasterBroken && rightCanAttack)
+	{
+		RightShoot();
+	}
+}
+
+void Player::FrontShoot()
+{
+	for (unsigned int i = 0; i < frontBulletPool.size(); i++)
+	{
+		if (!frontBulletPool[i]->bullet->isActive)
+		{
+			frontBulletPool[i]->Activate(FindDistAway(player->transform.foward, 2.0f), { player->transform.foward.x * 80.0f, player->transform.foward.y * 80.0f, player->transform.foward.z * 80.0f }, Bullet::Regular);
+			frontCanAttack = false;
+			break;
+		}
+	}
+}
+void Player::LeftShoot()
+{
+	for (unsigned int i = 0; i < leftBulletPool.size(); i++)
+	{
+		if (!leftBulletPool[i]->bullet->isActive)
+		{
+			leftBulletPool[i]->Activate(FindDistAway(player->transform.right, -2.0f), { player->transform.foward.x * 80.0f, player->transform.foward.y * 80.0f, player->transform.foward.z * 80.0f }, Bullet::Regular);
+			leftCanAttack = false;
+			break;
+		}
+	}
+}
+void Player::RightShoot()
+{
+	for (unsigned int i = 0; i < rightBulletPool.size(); i++)
+	{
+		if (!rightBulletPool[i]->bullet->isActive)
+		{
+			rightBulletPool[i]->Activate(FindDistAway(player->transform.right, 2.0f), { player->transform.foward.x * 80.0f, player->transform.foward.y * 80.0f, player->transform.foward.z * 80.0f }, Bullet::Regular);
+			rightCanAttack = false;
+			break;
+		}
+	}
 }

@@ -21,6 +21,7 @@ public:
 
 	virtual void Init() = 0;
 	virtual void Update(float deltaTime, float totalTime) = 0;
+	virtual void Quit(){};
 
 	Camera* cam;
 	InputManager* inputManager;

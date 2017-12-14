@@ -15,6 +15,7 @@ Mesh::Mesh(Vertex * vArr, int * iArr, unsigned int vSize, unsigned int iSize, st
 	indCount = iSize;
 	meshName = name;
 	instances = 0;
+	instanceThreshold = 5;
 	canInstRender = true;
 	inUse = false;
 	broken = false;
@@ -58,6 +59,62 @@ Mesh::Mesh(Vertex * vArr, int * iArr, unsigned int vSize, unsigned int iSize, st
 	// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
 	device->CreateBuffer(&ibd, &initialIndexData, &indArr);
 	broken = false;
+}
+
+Mesh::Mesh(AnimsVertex * vArr, int * iArr, unsigned int vSize, unsigned int iSize, std::string name, ID3D11Device * device)
+{
+	rendComponents = new std::vector<RenderingComponent*>();
+	// Create the VERTEX BUFFER description -----------------------------------
+	// - The description is created on the stack because we only need
+	//    it to create the buffer.  The description is then useless.
+	indCount = iSize;
+	meshName = name;
+	instances = 0;
+	instanceThreshold = 5;
+	canInstRender = true;
+	inUse = false;
+	broken = false;
+
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(AnimsVertex) * vSize;       // 3 = number of vertices in the buffer
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER; // Tells DirectX this is a vertex buffer
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	vbd.StructureByteStride = 0;
+
+	// Create the proper struct to hold the initial vertex data
+	// - This is how we put the initial data into the buffer
+	D3D11_SUBRESOURCE_DATA initialVertexData;
+	initialVertexData.pSysMem = vArr;
+
+	// Actually create the buffer with the initial data
+	// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
+	device->CreateBuffer(&vbd, &initialVertexData, &vertArr);
+
+
+
+	// Create the INDEX BUFFER description ------------------------------------
+	// - The description is created on the stack because we only need
+	//    it to create the buffer.  The description is then useless.
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(int) * iSize;         // 3 = number of indices in the buffer
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER; // Tells DirectX this is an index buffer
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	// Create the proper struct to hold the initial index data
+	// - This is how we put the initial data into the buffer
+	D3D11_SUBRESOURCE_DATA initialIndexData;
+	initialIndexData.pSysMem = iArr;
+
+	// Actually create the buffer with the initial data
+	// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
+	device->CreateBuffer(&ibd, &initialIndexData, &indArr);
+	broken = false;
+	hasAnimations = true;
 }
 
 Mesh::Mesh(const char* fileName, std::string name, ID3D11Device * device)
@@ -230,6 +287,7 @@ Mesh::Mesh(const char* fileName, std::string name, ID3D11Device * device)
 	indCount = vertCounter;
 	meshName = name;
 	instances = 0;
+	instanceThreshold = 5;
 	canInstRender = true;
 	inUse = false;
 	broken = false;

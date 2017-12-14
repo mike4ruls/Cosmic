@@ -8,17 +8,20 @@ Tyrian2000::Tyrian2000(CosmicEngine* eng)
 	cam = new FreeCamera();
 }
 
+Tyrian2000::Tyrian2000(CosmicEngine * eng, char * tile)
+{
+	engine = eng;
+	cam = new FreeCamera();
+	tileName = tile;
+}
+
 
 Tyrian2000::~Tyrian2000()
 {
+	gameManager->SavePlayer(p1);
 	if (p1 != nullptr) { delete p1; p1 = nullptr; }
 
 	if (fLine != nullptr) { delete fLine; fLine = nullptr; }
-
-	for (unsigned int i = 0; i < bulletPool.size(); i++)
-	{
-		if (bulletPool[i] != nullptr) { delete bulletPool[i]; bulletPool[i] = nullptr; }
-	}
 	for (unsigned int i = 0; i < enemyPool.size(); i++)
 	{
 		if (enemyPool[i] != nullptr) { delete enemyPool[i]; enemyPool[i] = nullptr; }
@@ -34,6 +37,8 @@ void Tyrian2000::Init()
 	// ========== IMPORTANT ==========//
 	inputManager = engine->inputManager;
 	cam->inputManager = inputManager;
+	gameManager = TyrianGameManager::GetInstance();
+	gameManager->SetEngine(engine);
 	SetUpActions();
 	InitUI();
 	// ========== ====================//
@@ -74,43 +79,57 @@ void Tyrian2000::SetUpLevel()
 	CreateFinishLine();
 	SpawnWaveEnemies();
 	SpawnWaveBlockers();
-	LoadBulletPool();
 
-	float choice = ((float)rand() / RAND_MAX) * 100;
+	if (tileName == nullptr) {
+		float choice = ((float)rand() / RAND_MAX) * 100;
 
-	if (choice > 90.0f) {
-		LoadBackgroundTilePool("grass");
+		if (choice > 90.0f) {
+			LoadBackgroundTilePool("grass");
+		}
+		else if (choice > 80.0f) {
+			LoadBackgroundTilePool("water");
+		}
+		else if (choice > 70.0f) {
+			LoadBackgroundTilePool("brick");
+		}
+		else if (choice > 60.0f) {
+			LoadBackgroundTilePool("checker");
+		}
+		else if (choice > 50.0f) {
+			LoadBackgroundTilePool("dry");
+		}
+		else if (choice > 40.0f) {
+			LoadBackgroundTilePool("rainbow");
+		}
+		else if (choice > 30.0f) {
+			LoadBackgroundTilePool("lava");
+		}
+		else if (choice > 20.0f) {
+			LoadBackgroundTilePool("sand");
+		}
+		else if (choice > 10.0f) {
+			LoadBackgroundTilePool("lavaGround");
+		}
+		else {
+			LoadBackgroundTilePool("star");
+		}
 	}
-	else if (choice > 80.0f) {
-		LoadBackgroundTilePool("water");
-	}
-	else if (choice > 70.0f) {
-		LoadBackgroundTilePool("brick");
-	}
-	else if (choice > 60.0f) {
-		LoadBackgroundTilePool("checker");
-	}
-	else if (choice > 50.0f) {
-		LoadBackgroundTilePool("dry");
-	}
-	else if (choice > 40.0f) {
-		LoadBackgroundTilePool("rainbow");
-	}
-	else if (choice > 30.0f) {
-		LoadBackgroundTilePool("lava");
-	}
-	else if (choice > 20.0f) {
-		LoadBackgroundTilePool("sand");
-	}
-	else if (choice > 10.0f) {
-		LoadBackgroundTilePool("lavaGround");
-	}
-	else{
-		LoadBackgroundTilePool("star");
-	}
+	else
+	{
+		LoadBackgroundTilePool(tileName);
 
+		startButton->SetVisibility(false);
+		startButton->SetActive(false);
 
+		Tyrian2000Logo->SetVisibility(false);
 
+		healthBar->SetVisibility(true);
+		healthBarFade->SetVisibility(true);
+		healthBarBack->SetVisibility(true);
+		healthBarBorder->SetVisibility(true);
+
+		currentState = GameState::Game;
+	}
 }
 
 void Tyrian2000::Update(float deltaTime, float totalTime)
@@ -132,7 +151,7 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 			healthBarBorder->SetVisibility(true);
 
 
-			currentState = GameState::Game;
+			gameManager->LoadHubWorld();
 		}
 		else
 		{
@@ -185,20 +204,56 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 			ChooseEndPanelText();
 		}
 		fLine->Update(deltaTime);
-		for (unsigned int i = 0; i < bulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
+		for (unsigned int i = 0; i < p1->frontBulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
 		{
-			if (bulletPool[i]->bullet->isActive)
+			if (p1->frontBulletPool[i]->bullet->isActive)
 			{
-				bulletPool[i]->Update(deltaTime);
+				p1->frontBulletPool[i]->Update(deltaTime);
 
 				for (unsigned int j = 0; j < enemyPool.size(); j++)
 				{
-					if (engine->physicEngine->SphereVSphereCollision(bulletPool[i]->bullet, enemyPool[j]->enemyObj))
+					if (engine->physicEngine->SphereVSphereCollision(p1->frontBulletPool[i]->bullet, enemyPool[j]->enemyObj))
 					{
-						enemyPool[j]->TakeDamage(p1->atkDamage);
-						bulletPool[i]->Deactivate();
-						bulletPool[i]->bullet->transform.Translate(0.0f, 100.0f, 0.0f);
-						bulletPool[i]->bullet->SetWorld();
+						enemyPool[j]->TakeDamage(p1->frontAtkDamage);
+						p1->frontBulletPool[i]->Deactivate();
+						p1->frontBulletPool[i]->bullet->transform.Translate(0.0f, 100.0f, 0.0f);
+						p1->frontBulletPool[i]->bullet->SetWorld();
+					}
+				}
+			}
+		}
+		for (unsigned int i = 0; i < p1->leftBulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
+		{
+			if (p1->leftBulletPool[i]->bullet->isActive)
+			{
+				p1->leftBulletPool[i]->Update(deltaTime);
+
+				for (unsigned int j = 0; j < enemyPool.size(); j++)
+				{
+					if (engine->physicEngine->SphereVSphereCollision(p1->leftBulletPool[i]->bullet, enemyPool[j]->enemyObj))
+					{
+						enemyPool[j]->TakeDamage(p1->leftAtkDamage);
+						p1->leftBulletPool[i]->Deactivate();
+						p1->leftBulletPool[i]->bullet->transform.Translate(0.0f, 100.0f, 0.0f);
+						p1->leftBulletPool[i]->bullet->SetWorld();
+					}
+				}
+			}
+		}
+		for (unsigned int i = 0; i < p1->rightBulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
+		{
+			if (p1->rightBulletPool[i]->bullet->isActive)
+			{
+				p1->rightBulletPool[i]->Update(deltaTime);
+
+				for (unsigned int j = 0; j < enemyPool.size(); j++)
+				{
+					if (engine->physicEngine->SphereVSphereCollision(p1->rightBulletPool[i]->bullet, enemyPool[j]->enemyObj))
+					{
+						enemyPool[j]->TakeDamage(p1->rightAtkDamage);
+						p1->rightBulletPool[i]->Deactivate();
+						p1->rightBulletPool[i]->bullet->transform.Translate(0.0f, 100.0f, 0.0f);
+						p1->rightBulletPool[i]->bullet->SetWorld();
 					}
 				}
 			}
@@ -317,8 +372,7 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		}
 		else if (quitButton->IsClicked() || (pauseOption == 3 && inputManager->IsActionDown(Actions::Strafe)))
 		{
-			Tyrian2000* tyrian = new Tyrian2000(engine);
-			engine->LoadScene(tyrian);
+			gameManager->LoadWorld();
 		}
 		break;
 	case GameState::EndLevel:
@@ -334,14 +388,15 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 			}
 			else
 			{
-				Tyrian2000* tyrian = new Tyrian2000(engine);
-				engine->LoadScene(tyrian);
+				gameManager->CompleteLevels();
 			}
 		}
 		break;
 	}
 	if (inputManager->IsKeyDown(96))
 	{
+		TyrianGameManager::Release();
+
 		DefaultScene* defaultScene = new DefaultScene(engine);
 		engine->rend->skyBoxOn = true;
 		engine->LoadScene(defaultScene);
@@ -396,9 +451,9 @@ void Tyrian2000::CheckInputs(float dt)
 		{
 			p1->currentTurnState = Player::STRAIGHT;
 		}
-		if (inputManager->IsActionDown(Actions::Fire) && p1->canAttack)
+		if (inputManager->IsActionDown(Actions::Fire))
 		{
-			Shoot();
+			p1->ShootBullets();
 		}
 		if (inputManager->IsActionPressed(Actions::Strafe) && !p1->canStrafe)
 		{
@@ -468,9 +523,9 @@ void Tyrian2000::CheckControllerInputs(float dt)
 		{
 			p1->currentTurnState = Player::STRAIGHT;
 		}
-		if (inputManager->IsActionDown(Actions::Fire) && p1->canAttack)
+		if (inputManager->IsActionDown(Actions::Fire))
 		{
-			Shoot();
+			p1->ShootBullets();
 		}
 		if (inputManager->IsActionPressed(Actions::Strafe) && !p1->canStrafe)
 		{
@@ -636,11 +691,13 @@ void Tyrian2000::InitUI()
 
 void Tyrian2000::CreatePlayer()
 {
-	p1 = new Player(engine->CreateGameObject("FighterShip"), 100.0f, 0.1f, 1.0f);
+	p1 = new Player(engine, engine->CreateGameObject("FighterShip"), 100.0f, 0.1f, 1.0f);
 	p1->player->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("fighterShipSur"));
 	p1->player->renderingComponent.mat.surfaceReflectance = 0.3f;
 	p1->player->transform.Scale(0.005f);
 	p1->player->transform.Translate(0.0f, 4.0f + moveDownHeight, -4.0f);
+
+	gameManager->LoadPlayer(p1);
 
 	SetUpParticles();
 }
@@ -751,21 +808,6 @@ void Tyrian2000::SpawnWaveBlockers()
 	}
 }
 
-void Tyrian2000::LoadBulletPool()
-{
-	unsigned int numOfBullets = 40;
-
-	for (unsigned int i = 0; i < numOfBullets; i++) 
-	{
-		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
-		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
-		newBullet->bullet->SetWorld();
-		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
-
-		bulletPool.push_back(newBullet);
-	}
-}
-
 void Tyrian2000::LoadBackgroundTilePool(std::string textureName)
 {
 	unsigned int numOfTiles = 4;
@@ -773,7 +815,7 @@ void Tyrian2000::LoadBackgroundTilePool(std::string textureName)
 
 	for (unsigned int i = 0; i < numOfTiles; i++)
 	{
-		BackGroundTiles* newTile = new BackGroundTiles(engine->CreateGameObject("Plane"), { 0,0,-1.0f * 5.0f });
+		BackGroundTiles* newTile = new BackGroundTiles(engine->CreateGameObject("BackGroundTile"), { 0,0,-1.0f * 5.0f });
 		newTile->tile->transform.Scale(tileSize + 2, tileSize + 1, tileSize + 1);
 		newTile->tile->transform.Translate(0.0f, moveDownHeight, (i * tileDist));
 		newTile->tile->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture(textureName));
@@ -781,19 +823,6 @@ void Tyrian2000::LoadBackgroundTilePool(std::string textureName)
 		newTile->tile->renderingComponent.mat.uvYOffSet = 5.0f;
 
 		backgroundTilePool.push_back(newTile);
-	}
-}
-
-void Tyrian2000::Shoot()
-{
-	for (unsigned int i = 0; i < bulletPool.size(); i++)
-	{
-		if (!bulletPool[i]->bullet->isActive)
-		{
-			bulletPool[i]->Activate(p1->FindDistAway({ 0.0f, 0.0f, 1.0f }, 2.0f), {0.0f, 0.0f, 80.0f}, Bullet::Regular);
-			p1->canAttack = false;
-			break;
-		}
 	}
 }
 void Tyrian2000::CalculateCamPos()
@@ -903,10 +932,10 @@ void Tyrian2000::ResetLevel()
 {
 	float tileDist = 12.2222221f * tileSize;
 
-	for (unsigned int i = 0; i < bulletPool.size(); i++)
+	for (unsigned int i = 0; i < p1->frontBulletPool.size(); i++)
 	{
-		bulletPool[i]->bullet->transform.position = {0.0f, 10.0f, 0.0f};
-		bulletPool[i]->bullet->SetWorld();
+		p1->frontBulletPool[i]->bullet->transform.position = {0.0f, 10.0f, 0.0f};
+		p1->frontBulletPool[i]->bullet->SetWorld();
 	}
 	for (unsigned int i = 0; i < enemyPool.size(); i++)
 	{
@@ -951,4 +980,9 @@ void Tyrian2000::ResetLevel()
 
 	SpawnWaveEnemies();
 	SpawnWaveBlockers();
+}
+
+void Tyrian2000::Quit()
+{
+	TyrianGameManager::Release();
 }

@@ -42,6 +42,7 @@ void AssetManager::Init()
 {
 	//LoadMeshes();
 	AssLoadMeshes();
+	//AssLoadMeshesAnims();
 	LoadSurfaceTextures();
 	LoadNormalTextures();
 	LoadSkyBoxTextures();
@@ -76,14 +77,18 @@ void AssetManager::AssLoadMeshes()
 	AssimpLoadMeshes("Assets/Models/helix.obj", "Helix");
 	AssimpLoadMeshes("Assets/Models/raygun.obj", "RayGun");
 	AssimpLoadMeshes("Assets/Models/plane.obj", "Plane");
+	AssimpLoadMeshes("Assets/Models/plane.obj", "BackGroundTile");
 	AssimpLoadMeshes("Assets/Models/quad.obj", "Quad");
 	AssimpLoadMeshes("Assets/Models/teapot.obj", "Teapot");
 	AssimpLoadMeshes("Assets/Models/HaloSword.obj", "HaloSword");
 	AssimpLoadMeshes("Assets/Models/RainbowRoad.obj", "RainbowRoad");
-	AssimpLoadMeshes("Assets/Models/BlackDragon/Dragon 2.5_fbx.fbx", "Dragon");
 	AssimpLoadMeshes("Assets/Models/FighterShip/WraithRaiderStarship.obj", "FighterShip");
-	//AssimpLoadMeshes("Assets/Models/BlackDragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx", "DragonAnmim");
-
+}
+void AssetManager::AssLoadMeshesAnims()
+{
+	AssimpLoadMeshesAnims("Assets/Models/BlackDragon/Dragon 2.5_fbx.fbx", 
+						  "Assets/Models/BlackDragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx",
+						  "Dragon");
 }
 void AssetManager::LoadHandCraftedMeshes()
 {
@@ -178,6 +183,131 @@ void AssetManager::AssimpLoadMeshes(char* fileName, std::string name)
  	importer.FreeScene();
 }
 
+void AssetManager::AssimpLoadMeshesAnims(char * fileName, std::string name)
+{
+	Assimp::Importer importer;
+
+	const aiScene* pScene = importer.ReadFile(fileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+
+	std::vector<AnimsVertex> verts;           // Verts we're assembling
+	std::vector<int> indices;           // Indices of these verts
+
+	unsigned int indCount = 0;
+	unsigned int vertCount = 0;
+	unsigned int vertsPerMesh = 0;
+
+	for (unsigned int i = 0; i < pScene->mNumMeshes; i++) {
+		const aiMesh* paiMesh = pScene->mMeshes[i];
+
+		const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
+
+		for (unsigned int j = 0; j < paiMesh->mNumVertices; j++) {
+			const aiVector3D* pPos = &(paiMesh->mVertices[j]);
+			const aiVector3D* pNormal = &(paiMesh->mNormals[j]);
+			const aiVector3D* pTexCoord = paiMesh->HasTextureCoords(0) ? &(paiMesh->mTextureCoords[0][j]) : &Zero3D;
+
+			AnimsVertex v;
+			v.Position = DirectX::XMFLOAT3(pPos->x, pPos->y, pPos->z);
+			v.Uv = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
+			v.Normal = DirectX::XMFLOAT3(pNormal->x, pNormal->y, pNormal->z);
+
+			verts.push_back(v);
+			vertCount++;
+		}
+		for (unsigned int j = 0; j < paiMesh->mNumFaces; j++) {
+			const aiFace& Face = paiMesh->mFaces[j];
+			assert(Face.mNumIndices == 3);
+			indices.push_back(Face.mIndices[0] + vertsPerMesh);
+			indices.push_back(Face.mIndices[1] + vertsPerMesh);
+			indices.push_back(Face.mIndices[2] + vertsPerMesh);
+
+			indCount += 3;
+		}
+		vertsPerMesh = vertCount;
+	}
+	StoreMesh(new Mesh(&verts[0], &indices[0], vertCount, indCount, name, device));
+	importer.FreeScene();
+}
+
+void AssetManager::AssimpLoadMeshesAnims(char * fileName, char * binarFileName, std::string name)
+{
+	Assimp::Importer importer;
+
+	const aiScene* pScene = importer.ReadFile(fileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+	const aiScene* pAnimScene = importer.ReadFile(binarFileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+
+	std::vector<AnimsVertex> verts;           // Verts we're assembling
+	std::vector<int> indices;           // Indices of these verts
+
+	unsigned int indCount = 0;
+	unsigned int vertCount = 0;
+	unsigned int vertsPerMesh = 0;
+
+	aiMatrix4x4 globalInvTransform = pAnimScene->mRootNode->mTransformation;
+	globalInvTransform.Inverse();
+	std::map<std::string, unsigned int> m_BoneMapping;
+	std::vector<BoneInfo> m_BoneInfo;
+	unsigned int m_NumBones = 0;
+
+	for (unsigned int i = 0; i < pScene->mNumMeshes; i++) {
+		const aiMesh* paiMesh = pScene->mMeshes[i];
+		const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
+
+		for (unsigned int j = 0; j < paiMesh->mNumVertices; j++) {
+			const aiVector3D* pPos = &(paiMesh->mVertices[j]);
+			const aiVector3D* pNormal = &(paiMesh->mNormals[j]);
+			const aiVector3D* pTexCoord = paiMesh->HasTextureCoords(0) ? &(paiMesh->mTextureCoords[0][j]) : &Zero3D;
+
+			AnimsVertex v;
+			v.Position = DirectX::XMFLOAT3(pPos->x, pPos->y, pPos->z);
+			v.Uv = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
+			v.Normal = DirectX::XMFLOAT3(pNormal->x, pNormal->y, pNormal->z);
+
+			verts.push_back(v);
+			vertCount++;
+		}
+		// Load Bones
+		for (unsigned int i = 0; i < paiMesh->mNumBones; i++) {
+			unsigned int BoneIndex = 0;
+			std::string BoneName(paiMesh->mBones[i]->mName.data);
+
+			if (m_BoneMapping.find(BoneName) == m_BoneMapping.end()) {
+				BoneIndex = m_NumBones;
+				m_NumBones++;
+				BoneInfo bi;
+				m_BoneInfo.push_back(bi);
+			}
+			else {
+				BoneIndex = m_BoneMapping[BoneName];
+			}
+
+			m_BoneMapping[BoneName] = BoneIndex;
+			m_BoneInfo[BoneIndex].BoneOffset = paiMesh->mBones[i]->mOffsetMatrix;
+
+			for (unsigned int j = 0; j < paiMesh->mBones[i]->mNumWeights; j++) {
+				
+				unsigned int VertexID = paiMesh->mBones[i]->mWeights[j].mVertexId;
+				float Weight = paiMesh->mBones[i]->mWeights[j].mWeight;
+				verts[VertexID].boneIds.x = (float)BoneIndex;
+				verts[VertexID].weights.x = Weight;
+				//Bones[VertexID].AddBoneData(BoneIndex, Weight);
+			}
+		}
+		for (unsigned int j = 0; j < paiMesh->mNumFaces; j++) {
+			const aiFace& Face = paiMesh->mFaces[j];
+			assert(Face.mNumIndices == 3);
+			indices.push_back(Face.mIndices[0] + vertsPerMesh);
+			indices.push_back(Face.mIndices[1] + vertsPerMesh);
+			indices.push_back(Face.mIndices[2] + vertsPerMesh);
+
+			indCount += 3;
+		}
+		vertsPerMesh = vertCount;
+	}
+	StoreMesh(new Mesh(&verts[0], &indices[0], vertCount, indCount, name, device));
+	importer.FreeScene();
+}
+
 void AssetManager::LoadSurfaceTextures()
 {
 	StoreSurfaceTexture("brick", L"Assets/Textures/brick.jpg");
@@ -212,13 +342,32 @@ void AssetManager::LoadSurfaceTextures()
 	StoreSurfaceTexture("whiteSmoke", L"Assets/Textures/whiteSmoke.png");
 	StoreSurfaceTexture("goldStar", L"Assets/Textures/goldStar.png");
 	StoreSurfaceTexture("grayStar", L"Assets/Textures/grayStar.png");
+	StoreSurfaceTexture("redStar", L"Assets/Textures/redStar.png");
+	StoreSurfaceTexture("blueStar", L"Assets/Textures/blueStar.png");
 	StoreSurfaceTexture("snowFlake", L"Assets/Textures/snowFlake.png");
 	StoreSurfaceTexture("yellowTri", L"Assets/Textures/yellowTriangleText.png");
 	StoreSurfaceTexture("statsText", L"Assets/Textures/statsText.jpg");
 	StoreSurfaceTexture("shopText", L"Assets/Textures/shopText.jpg");
 	StoreSurfaceTexture("upgradesText", L"Assets/Textures/upgradesText.jpg");
 	StoreSurfaceTexture("abilitiesText", L"Assets/Textures/abilitiesText.jpg");
+	StoreSurfaceTexture("buyText", L"Assets/Textures/buyText.jpg");
 	//StoreSurfaceTexture("raygun", L"Assets/Textures/raygunUVTest.tga");
+
+	StoreSurfaceTexture("attackSpeedIcon", L"Assets/Textures/MenuIcons/attackSpeed.png");
+	StoreSurfaceTexture("barrierIcon", L"Assets/Textures/MenuIcons/barrier.png");
+	StoreSurfaceTexture("cannonIcon", L"Assets/Textures/MenuIcons/cannon.png");
+	StoreSurfaceTexture("defenseUpIcon", L"Assets/Textures/MenuIcons/defenseUp.png");
+	StoreSurfaceTexture("guidedMissleIcon", L"Assets/Textures/MenuIcons/guidedMissle.png");
+	StoreSurfaceTexture("healthUpIcon", L"Assets/Textures/MenuIcons/healthUp.png");
+	StoreSurfaceTexture("powerIcon", L"Assets/Textures/MenuIcons/power.png");
+	StoreSurfaceTexture("secondChanceIcon", L"Assets/Textures/MenuIcons/secondChance.png");
+	StoreSurfaceTexture("sheildComponentIcon", L"Assets/Textures/MenuIcons/sheildComponent.png");
+	StoreSurfaceTexture("sheildPowerIcon", L"Assets/Textures/MenuIcons/sheildPower.png");
+	StoreSurfaceTexture("sheildRechargeIcon", L"Assets/Textures/MenuIcons/sheildRecharge.png");
+	StoreSurfaceTexture("sheildCombIcon", L"Assets/Textures/MenuIcons/sheildComb.png");
+	StoreSurfaceTexture("starSwirlIcon", L"Assets/Textures/MenuIcons/starSwirl.png");
+	StoreSurfaceTexture("upgradeIcon", L"Assets/Textures/MenuIcons/upgrade.png");
+	StoreSurfaceTexture("jetFighterIcon", L"Assets/Textures/MenuIcons/jet-fighter.png");
 }
 
 void AssetManager::LoadNormalTextures()

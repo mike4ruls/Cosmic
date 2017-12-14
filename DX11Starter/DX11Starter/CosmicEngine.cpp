@@ -39,6 +39,7 @@ CosmicEngine::~CosmicEngine()
 	if (rend) { delete rend; rend = nullptr; }
 	if (physicEngine) { delete physicEngine; physicEngine = nullptr; }
 	inputManager->Release();
+	currentScene->Quit();
 	QuitLevel();
 }
 
@@ -191,11 +192,11 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
 
 	inputManager->Update();
-	if (inputManager->IsKeyPressed(VK_TAB) || inputManager->IsButtonPressed(CosmicInput::DPAD_DOWN))
+	if (inputManager->IsKeyPressed(VK_TAB))// || inputManager->IsButtonPressed(CosmicInput::DPAD_DOWN))
 	{
 		rend->ToggleSkyBox();
 	}
-	if (inputManager->IsKeyPressed(70) || inputManager->IsButtonPressed(CosmicInput::DPAD_RIGHT))
+	if (inputManager->IsKeyPressed(70))// || inputManager->IsButtonPressed(CosmicInput::DPAD_RIGHT))
 	{
 		rend->ToggleWireFrame();
 	}

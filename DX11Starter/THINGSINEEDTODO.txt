@@ -6,24 +6,23 @@ Make Stuff Singletons
 	-AssetManager
 	-InputManager // Done
 Look into Creating an Installer
+Look into removing renderer from GameEntity
 
-Engine->CreateGameObject() stores game entity in engine - returns GameEntity*
-Engine handles looping through all objects updates
-All GameEnities will have an isActive bool
-isActive should stop all update functionality within GameEntity
+Engine->CreateGameObject() stores game entity in engine - returns GameEntity* \\\\\\\\\\\\
+Engine handles looping through all objects updates \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+All GameEnities will have an isActive bool \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+isActive should stop all update functionality within GameEntity\\\\\\\\\\\\\\\\\\\\\\\\\
 
-Engine->CreateUIElement() stores UI in engine - returns UI*
-Engine handles looping through all objects updates
+Engine->CreateUIElement() stores UI in engine - returns UI*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+Engine handles looping through all objects updates\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-Create function ToggleActive(); in GameEntity
-Create function SetActive(bool active); in GameEntity
-Create function ToggleVisibility(); in GameEnitity
-Create function SetVisibility(Bool vis); in GameEnitity
+Create function ToggleActive(); in GameEntity\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+Create function SetActive(bool active); in GameEntity\\\\\\\\\\\\\\\\\\\\\\\\\\
+Create function ToggleVisibility(); in GameEnitity\\\\\\\\\\\\\\\\\\\\\\\\\\
+Create function SetVisibility(Bool vis); in GameEnitity\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 Create function GetObjectsWithName(char* name); in CosmicEngine - returns vector of GameEntities
 Create function GetObjectsWithTag(char* name); in CosmicEngine - returns vector of GameEntities
-
-Look into removing renderer from GameEntity
 
 Create UI Class
 UI Class stores
@@ -60,7 +59,6 @@ UI Class stores
 UI(GameEntity* o)
 {
 	obj = o;
-	prevAlign = align;
 	posX = 0.0f;
 	posY = 0.0f;
 	posXOffset = posX;

@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 #include "Mesh.h"
+#include "BoneInfo.h"
+#include "Animation.h"
 
 
 class AssetManager
@@ -15,8 +17,11 @@ public:
 
 	void LoadMeshes();
 	void AssLoadMeshes();
+	void AssLoadMeshesAnims();
 	void LoadHandCraftedMeshes();
 	void AssimpLoadMeshes(char* fileName, std::string name);
+	void AssimpLoadMeshesAnims(char* fileName, std::string name);
+	void AssimpLoadMeshesAnims(char* fileName, char* binarFileName, std::string name);
 	void LoadSurfaceTextures();
 	void LoadNormalTextures();
 	void LoadSkyBoxTextures();

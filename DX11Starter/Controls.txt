@@ -1,0 +1,73 @@
+================================================================================
+Tyrian 2000 Controls:
+'W' or Xbox DpadUp or Xbox LeftStick Up = Move Up
+'A' or Xbox DpadLeft or Xbox LeftStick Left = Move Left
+'S' or Xbox DpadDown or Xbox LeftStick Down = Move Down
+'D' or Xbox DpadRight or Xbox LeftStick Right = Move Right
+
+'SpaceBar' or Xbox ButtonA = Strafe
+'Enter' or Xbox RightTrigger(R2) = Shoot
+
+'NumPad3' or Xbox StartButton = ResetLevel
+
+'NumPad0' = Load DefaultScene
+
+================================================================================
+DefaultScene Controls:
+'NumPad1' = Load TestScene1
+'NumPad2' = Load TestScene2
+'NumPad3' = Load Tyrian 2000
+'NumPad4' = Load TestFrameRateScene
+
+(NOTE: Tyrian2000 is the only Scene with Xbox controller support for now)
+
+================================================================================
+TestScene1 Controls:
+'W' = Move Forward
+'A' = Move Left
+'S' = Move Backward
+'D' = Move Right
+'LEFT SHIFT' = Speed Up
+'SpaceBar' = Move Up
+'X' = Move Down
+
+'E' = Spawns and Launchs an object
+'F' = Toggles WireFrame Mode
+'TAB' = Cycles through all skyboxes
+
+'1' = Changes Directional Light CounterClockwise
+'2' = Changes Directional Light Clockwise
+
+LeftClick(Hold) and Drag = Rotate Camera
+
+'NumPad0' = Load DefaultScene
+'NumPad2' = Load TestScene2
+
+================================================================================
+TestScene2 Controls:
+'W' = Move Forward
+'A' = Move Left
+'S' = Move Backward
+'D' = Move Right
+'LEFT SHIFT' = Speed Up
+'SpaceBar' = Move Up
+'X' = Move Down
+
+'E' = Spawns an object
+'F' = Toggles WireFrame Mode
+'TAB' = Cycles through all skyboxes
+
+'1' = Changes Directional Light CounterClockwise
+'2' = Changes Directional Light Clockwise
+
+LeftClick(Hold) and Drag = Rotate Camera
+
+'NumPad0' = Load DefaultScene
+'NumPad1' = Load TestScene1
+
+================================================================================
+TestFrameRateScene Controls:
+
+LeftClick(Hold) and Drag = Rotate Camera
+
+'NumPad0' = Load DefaultScene
