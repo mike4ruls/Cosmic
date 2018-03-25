@@ -57,11 +57,12 @@ void TyrianGameManager::Release()
 	for (int i = 0; i < 10; i++)
 	{
 		delete worldsLevelStorage[i];
+		WorldLevels[i] = 0;
 	}
 	closingProgram = true;
 	if (instance != 0) { delete instance; instance = 0; };
-
-
+	playerWorldPos = { 0.0f, 4.0f - 30.0f, -1.0f };
+	playerLevelPos = { 0.0f,  4.0f - 30.0f, -1.0f };
 	//if (instance != 0) { delete instance; instance = nullptr; };
 }
 
@@ -288,6 +289,11 @@ int * TyrianGameManager::GetActiveLevels(int index)
 	return worldsLevelStorage[index];
 }
 
+void TyrianGameManager::SetActiveLevels(int index, int val)
+{
+	WorldLevels[index] = val;
+}
+
 int TyrianGameManager::GetActiveWorld(int index)
 {
 	return WorldLevels[index];
@@ -300,9 +306,9 @@ void TyrianGameManager::CompleteLevels()
 	{
 		GetActiveLevels(curWorld)[curLevel + 1] = 1;
 	}
-	else if(WorldLevels[curWorld] < 2)
+	else if(WorldLevels[curWorld] == 0)
 	{
-		WorldLevels[curWorld] = 2;
+		WorldLevels[curWorld] += 1;
 		LoadHubWorld();
 		return;
 	}

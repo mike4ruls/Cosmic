@@ -160,7 +160,7 @@ void StarHubWorld::Update(float deltaTime, float totalTime)
 	if (physicEngine->SphereVSphereCollision(p1->player, blueStar))
 	{
 		blueStar->transform.Rotate(worldRotSpeed * 7 * -deltaTime, 0.0f, 0.0f);
-		if (inputManager->IsActionPressed(Actions::Start))
+		if (inputManager->IsActionPressed(Actions::Start) || inputManager->IsKeyPressed(KeyCode::E))
 		{
 			gameManager->LoadHubWorld();
 			return;
@@ -182,7 +182,7 @@ void StarHubWorld::Update(float deltaTime, float totalTime)
 				{
 					levels[i]->transform.Rotate(worldRotSpeed * 4 * deltaTime, 0.0f, 0.0f);
 				}
-				if (inputManager->IsActionPressed(Actions::Start))
+				if (inputManager->IsActionPressed(Actions::Start) || inputManager->IsKeyPressed(KeyCode::E))
 				{
 					gameManager->StoreLevelPosistion(p1->player->transform.position);
 					gameManager->LoadLevel(i);

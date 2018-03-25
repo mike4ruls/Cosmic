@@ -27,7 +27,6 @@ void HubWorldEngine::Init()
 	// ========== IMPORTANT ==========//
 	gameManager = TyrianGameManager::GetInstance();
 	SetUpActions();
-	InitUI();
 	// ========== ====================//
 
 	cam->lockCameraRot = true;
@@ -40,6 +39,7 @@ void HubWorldEngine::Init()
 
 	currentState = GameState::Game;
 	SetUpLevel();
+	InitUI();
 	myShop = new ShopMenu(assetManager, p1);
 
 }
@@ -76,10 +76,7 @@ void HubWorldEngine::Update(float deltaTime, float totalTime)
 		break;
 	case GameState::Game:
 		p1->Update(deltaTime);
-
-		healthBar->SetWidth(healthBarBack->GetWidth() * (p1->topDisplayHealth / p1->maxHealth));
-		healthBarFade->SetWidth(healthBarBack->GetWidth() * (p1->botDisplayHealth / p1->maxHealth));
-
+		p1->RechargeSheild(deltaTime);
 		myShop->Update(deltaTime);
 
 		for (unsigned int i = 0; i < p1->frontBulletPool.size(); i++) // SUPER TIME CONSUMING < ---- cost tons of frames
@@ -106,14 +103,7 @@ void HubWorldEngine::Update(float deltaTime, float totalTime)
 		CheckOutOfBounds();
 		CalculateCamPos(deltaTime);
 
-		if (inputManager->IsControllerConnected())
-		{
-			CheckControllerInputs(deltaTime);
-		}
-		else
-		{
-			CheckInputs(deltaTime);
-		}
+		CheckControllerInputs(deltaTime);
 
 		break;
 	case GameState::Paused:
@@ -155,117 +145,51 @@ void HubWorldEngine::UpdateParticlesPos()
 	rightWing->accelerationDir = rightWing->transform.foward;
 }
 
-void HubWorldEngine::CheckInputs(float dt)
-{
-	if (!p1->isDead) {
-		bool butCheckX = false;
-		bool butCheckY = false;
-
-		if (inputManager->IsActionDown(Actions::ButtonLeft)) //A
-		{
-			butCheckX = true;
-			p1->currentTurnState = Player::LEFT;
-			p1->previousTurnState = Player::LEFT;
-			p1->player->transform.Translate((p1->player->transform.right.x * -p1->speed) * dt, 0.0f, (p1->player->transform.right.z * -p1->speed) * dt);
-		}
-		if (inputManager->IsActionDown(Actions::ButtonRight)) //D
-		{
-			butCheckX = true;
-			p1->currentTurnState = Player::RIGHT;
-			p1->previousTurnState = Player::RIGHT;
-			p1->player->transform.Translate((p1->player->transform.right.x * p1->speed) * dt, 0.0f, (p1->player->transform.right.z * p1->speed) * dt);
-		}
-		if (inputManager->IsActionDown(Actions::ButtonUp)) //W
-		{
-			butCheckY = true;
-			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * p1->speed) * dt);
-		}
-		if (inputManager->IsActionDown(Actions::ButtonDown)) //S
-		{
-			butCheckY = true;
-			p1->player->transform.Translate((p1->player->transform.foward.x * -p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * -p1->speed) * dt);
-		}
-		if (butCheckX || butCheckY)
-		{
-
-			if (shipExhaust->stopEmitting == true)
-			{
-				shipExhaust->Reset();
-			}
-			if (leftWing->stopEmitting == true)
-			{
-				leftWing->Reset();
-			}
-			if (rightWing->stopEmitting == true)
-			{
-				rightWing->Reset();
-			}
-
-			DirectX::XMFLOAT3 f = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-			DirectX::XMFLOAT3 genF = DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f);
-
-			DirectX::XMVECTOR newForward = DirectX::XMLoadFloat3(&f);
-			DirectX::XMVECTOR genForward = DirectX::XMLoadFloat3(&genF);
-
-			newForward = DirectX::XMVector3AngleBetweenVectors(newForward, genForward);
-
-			float turnAngle = DirectX::XMConvertToDegrees(DirectX::XMVectorGetX(newForward));
-
-			if (0 < 0) {
-				turnAngle *= -1;
-			}
-
-			p1->player->transform.rotation = { turnAngle, p1->player->transform.rotation.y, p1->player->transform.rotation.z };
-			p1->originalRot = { turnAngle, 0.0f, 0.0f };
-		}
-		else {
-			if (!p1->canStrafe)
-			{
-				shipExhaust->stopEmitting = true;
-				leftWing->stopEmitting = true;
-				rightWing->stopEmitting = true;
-			}
-		}
-		if (inputManager->IsActionDown(Actions::Fire))
-		{
-			p1->ShootBullets();
-		}
-		if (inputManager->IsActionPressed(Actions::Strafe) && !p1->canStrafe)
-		{
-			p1->currentTurnState = Player::STRAIGHT;
-			//p1->GainHealth(20.0f);
-			//p1->rotLeft = rotLeft;
-			p1->TurnOnStrafe();
-			p1->speed = p1->normSpeed * 2;
-
-			if (leftWing->stopEmitting == true)
-			{
-				leftWing->Reset();
-			}
-			if (rightWing->stopEmitting == true)
-			{
-				rightWing->Reset();
-			}
-		}
-	}
-	if (inputManager->IsActionPressed(Actions::Select))
-	{
-		myShop->UITurnedOn = myShop->UITurnedOn ? false : true;
-	}
-}
-
 void HubWorldEngine::CheckControllerInputs(float dt)
 {
 	if (!p1->isDead) {
 		bool butCheckX = false;
 		bool butCheckY = false;
 
-		float LX = inputManager->GetLeftStickX();
-		float LY = inputManager->GetLeftStickY();
+		float LX = 0.0f;
+		float LY = 0.0f;
+
+		if (inputManager->IsControllerConnected())
+		{
+			LX = inputManager->GetLeftStickX();
+			LY = inputManager->GetLeftStickY();
+		}
 
 		UI* uiToChange = nullptr;
+//===================KeyBoard Inputs====================//
+		if (inputManager->IsKeyDown(KeyCode::A)) //A
+		{
+			LX = -1.0f;
+			butCheckX = true;
+			p1->player->transform.Translate(-p1->speed * dt, 0.0f, 0.0f);
+		}
+		if (inputManager->IsKeyDown(KeyCode::D)) //D
+		{
+			LX = 1.0f;
+			butCheckX = true;
+			p1->player->transform.Translate(p1->speed * dt, 0.0f, 0.0f);
+		}
+		if (inputManager->IsKeyDown(KeyCode::W)) //W
+		{
+			LY = 1.0f;
+			butCheckY = true;
+			p1->player->transform.Translate(0.0f, 0.0f, p1->speed * dt);
+		}
+		if (inputManager->IsKeyDown(KeyCode::S)) //S
+		{
+			LY = -1.0f;
+			butCheckY = true;
+			p1->player->transform.Translate(0.0f, 0.0f, -p1->speed * dt);
+		}
+//========================================================//
 
-		if (inputManager->IsActionDown(Actions::ButtonLeft) || LX < 0.0f) //A
+//===================Controller Inputs====================//
+		if (LX < 0.0f && !butCheckX) //A
 		{
 			butCheckX = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed)  * dt, 0.0f, (p1->player->transform.foward.z * p1->speed)  * dt);
@@ -279,7 +203,7 @@ void HubWorldEngine::CheckControllerInputs(float dt)
 				printf("X: %f\n", uiToChange->posX);
 			}
 		}
-		if (inputManager->IsActionDown(Actions::ButtonRight) || LX > 0.0f) //D
+		if ( LX > 0.0f && !butCheckX) //D
 		{
 			butCheckX = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed)  * dt, 0.0f, (p1->player->transform.foward.z * p1->speed)  * dt);
@@ -290,7 +214,7 @@ void HubWorldEngine::CheckControllerInputs(float dt)
 			}
 		}
 
-		if (inputManager->IsActionDown(Actions::ButtonUp) || LY > 0.0f) //W
+		if (LY > 0.0f && !butCheckY) //W
 		{
 			butCheckY = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * p1->speed) * dt);
@@ -300,7 +224,7 @@ void HubWorldEngine::CheckControllerInputs(float dt)
 				printf("Y%f\n", uiToChange->posY);
 			}
 		}
-		if (inputManager->IsActionDown(Actions::ButtonDown) || LY < 0.0f) //S
+		if (LY < 0.0f && !butCheckY) //S
 		{
 			butCheckY = true;
 			p1->player->transform.Translate((p1->player->transform.foward.x * p1->speed) * dt, 0.0f, (p1->player->transform.foward.z * p1->speed) * dt);
@@ -310,7 +234,7 @@ void HubWorldEngine::CheckControllerInputs(float dt)
 				printf("Y: %f\n", uiToChange->posY);
 			}
 		}
-		if (inputManager->IsKeyDown(81)) //Q
+		if (inputManager->IsKeyDown(KeyCode::Q)) //Q
 		{
 			if (uiToChange != nullptr) {
 				/*uiToChange->SetWidth(uiToChange->GetWidth() + (0.1f * dt));
@@ -320,7 +244,7 @@ void HubWorldEngine::CheckControllerInputs(float dt)
 				printf("Width: %f\n", uiToChange->GetHeight());
 			}
 		}
-		if (inputManager->IsKeyDown(69)) //Q
+		if (inputManager->IsKeyDown(KeyCode::E)) //E
 		{
 			if (uiToChange != nullptr) {
 				/*uiToChange->SetWidth(uiToChange->GetWidth() - (0.1f * dt));
@@ -371,6 +295,9 @@ void HubWorldEngine::CheckControllerInputs(float dt)
 				rightWing->stopEmitting = true;
 			}
 		}
+//========================================================//
+
+
 		if (inputManager->IsActionDown(Actions::Fire))
 		{
 			p1->ShootBullets();
@@ -425,35 +352,18 @@ void HubWorldEngine::CheckOutOfBounds()
 
 void HubWorldEngine::InitUI()
 {
-	healthBar = new Image();
-	healthBar->SetUIColor({ 0.0f, 1.0f, 0.0f, 1.0f });
-	healthBar->SetAlignment(UI::Alignment::Left);
-	healthBar->posX = 0.3f;
-	healthBar->posY = -1.0f;
-	healthBar->SetWidth(0.6f);
-	healthBar->SetHeight(0.02f);
+	p1->healthBar->SetVisibility(true);
+	p1->healthBarFade->SetVisibility(true);
+	p1->healthBarBack->SetVisibility(true);
+	p1->healthBarBorder->SetVisibility(true);
 
-	healthBarFade = new Image();
-	healthBarFade->SetUIColor({ 0.3f, 0.0f, 0.0f, 1.0f });
-	healthBarFade->SetAlignment(healthBar->GetAlignment());
-	healthBarFade->posX = healthBar->posX;
-	healthBarFade->posY = healthBar->posY;
-	healthBarFade->SetWidth(healthBar->GetWidth());
-	healthBarFade->SetHeight(healthBar->GetHeight());
-
-	healthBarBack = new Image();
-	healthBarBack->SetUIColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-	healthBarBack->posX = healthBar->posX + healthBar->GetXOffSet();
-	healthBarBack->posY = healthBar->posY + healthBar->GetYOffSet();
-	healthBarBack->SetWidth(healthBar->GetWidth());
-	healthBarBack->SetHeight(healthBar->GetHeight());
-
-	healthBarBorder = new Image();
-	healthBarBorder->SetUIColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-	healthBarBorder->posX = healthBar->posX + healthBar->GetXOffSet();
-	healthBarBorder->posY = healthBar->posY + healthBar->GetYOffSet();
-	healthBarBorder->SetWidth(healthBar->GetWidth() + 0.04f);
-	healthBarBorder->SetHeight(healthBar->GetHeight() + 0.04f);
+	if (p1->sheildComponentBought)
+	{
+		p1->sheildBar->SetVisibility(true);
+		p1->sheildBarFade->SetVisibility(true);
+		p1->sheildBarBack->SetVisibility(true);
+		p1->sheildBarBorder->SetVisibility(true);
+	}
 }
 
 void HubWorldEngine::CreatePlayer()
@@ -542,14 +452,14 @@ void HubWorldEngine::CalculateCamPos(float dt)
 
 void HubWorldEngine::SetUpActions()
 {
-	inputManager->AddActionBinding(Actions::ButtonUp, { 87, CosmicInput::ControllerButton::DPAD_UP });
-	inputManager->AddActionBinding(Actions::ButtonDown, { 83, CosmicInput::ControllerButton::DPAD_DOWN });
-	inputManager->AddActionBinding(Actions::ButtonLeft, { 65, CosmicInput::ControllerButton::DPAD_LEFT });
-	inputManager->AddActionBinding(Actions::ButtonRight, { 68, CosmicInput::ControllerButton::DPAD_RIGHT });
-	inputManager->AddActionBinding(Actions::Fire, { VK_RETURN,  CosmicInput::ControllerButton::BUTTON_R2 });
-	inputManager->AddActionBinding(Actions::Strafe, { VK_SPACE, CosmicInput::ControllerButton::BUTTON_CROSS });
-	inputManager->AddActionBinding(Actions::Start, { 99, CosmicInput::ControllerButton::BUTTON_OPTIONS });
-	inputManager->AddActionBinding(Actions::Select, { VK_TAB, CosmicInput::ControllerButton::BUTTON_TOUCH_PAD });
-	inputManager->AddActionBinding(Actions::LB, { 8, CosmicInput::ControllerButton::BUTTON_L1 });
-	inputManager->AddActionBinding(Actions::RB, { 8, CosmicInput::ControllerButton::BUTTON_R1 });
+	inputManager->AddActionBinding(Actions::ButtonUp, { KeyCode::W, CosmicInput::ControllerButton::DPAD_UP });
+	inputManager->AddActionBinding(Actions::ButtonDown, { KeyCode::S, CosmicInput::ControllerButton::DPAD_DOWN });
+	inputManager->AddActionBinding(Actions::ButtonLeft, { KeyCode::A, CosmicInput::ControllerButton::DPAD_LEFT });
+	inputManager->AddActionBinding(Actions::ButtonRight, { KeyCode::D, CosmicInput::ControllerButton::DPAD_RIGHT });
+	inputManager->AddActionBinding(Actions::Fire, { KeyCode::ENTER,  CosmicInput::ControllerButton::BUTTON_R2 });
+	inputManager->AddActionBinding(Actions::Strafe, { KeyCode::SPACE, CosmicInput::ControllerButton::BUTTON_CROSS });
+	inputManager->AddActionBinding(Actions::Start, { KeyCode::DELTE, CosmicInput::ControllerButton::BUTTON_OPTIONS });
+	inputManager->AddActionBinding(Actions::Select, { KeyCode::TAB, CosmicInput::ControllerButton::BUTTON_TOUCH_PAD });
+	inputManager->AddActionBinding(Actions::LB, { KeyCode::NUM_1, CosmicInput::ControllerButton::BUTTON_L1 });
+	inputManager->AddActionBinding(Actions::RB, { KeyCode::NUM_2, CosmicInput::ControllerButton::BUTTON_R1 });
 }

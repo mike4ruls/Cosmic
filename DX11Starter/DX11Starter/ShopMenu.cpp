@@ -850,6 +850,14 @@ void ShopMenu::Buy()
 			if (!p1->sheildComponentBought)
 			{
 				p1->sheildComponentBought = true;
+				p1->sheildBar->SetVisibility(true);
+				p1->sheildBarFade->SetVisibility(true);
+				p1->sheildBarBack->SetVisibility(true);
+				p1->sheildBarBorder->SetVisibility(true);
+
+				p1->maxSheild = 50.0f;
+				p1->sheild = p1->maxSheild;
+
 				sheildCompButton->constantHighlight = false;
 				SetUpUpgradeUI();
 
@@ -861,8 +869,10 @@ void ShopMenu::Buy()
 				switch (subUpgradecount)
 				{
 				case 1:
+					p1->maxSheild += 5.0f;
 					break;
 				case 2:
+					p1->sheildRechargeRate -= 0.01f;
 					break;
 				}
 			}

@@ -21,7 +21,7 @@ Player::Player(GameEntity* obj, Mesh* bul, float hlt, float atkSpd, float atkdmg
 	topDisplayHealth = maxHealth;
 	botDisplayHealth = maxHealth;
 
-	maxSheild = 0;
+	maxSheild = 00.0f;
 	sheild = maxSheild;
 	topDisplaySheild = maxSheild;
 	botDisplaySheild = maxSheild;
@@ -41,7 +41,7 @@ Player::Player(GameEntity* obj, Mesh* bul, float hlt, float atkSpd, float atkdmg
 	originalRot = obj->transform.rotation;
 
 	sheildRechargeRate = 0.1f;
-	SheildTimer = 0.0f;
+	sheildTimer = 0.0f;
 
 	guidedMissleRechargeRate = 5.0f;
 	guidedMissleTimer = 0.0f;
@@ -97,6 +97,7 @@ Player::Player(GameEntity* obj, Mesh* bul, float hlt, float atkSpd, float atkdmg
 	player->rigidBody.mass = 0.2f;
 
 	LoadBullets();
+	InitUI();
 }
 
 
@@ -116,8 +117,88 @@ Player::~Player()
 	}
 }
 
+void Player::InitUI()
+{
+	healthBar = new Image();
+	healthBar->SetUIColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	healthBar->SetAlignment(UI::Alignment::Left);
+	healthBar->posX = 0.3f;
+	healthBar->posY = -1.0f;
+	healthBar->SetWidth(0.6f);
+	healthBar->SetHeight(0.02f);
+
+	healthBarFade = new Image();
+	healthBarFade->SetUIColor({ 0.3f, 0.0f, 0.0f, 1.0f });
+	healthBarFade->SetAlignment(healthBar->GetAlignment());
+	healthBarFade->posX = healthBar->posX;
+	healthBarFade->posY = healthBar->posY;
+	healthBarFade->SetWidth(healthBar->GetWidth());
+	healthBarFade->SetHeight(healthBar->GetHeight());
+
+	healthBarBack = new Image();
+	healthBarBack->SetUIColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+	healthBarBack->posX = healthBar->posX + healthBar->GetXOffSet();
+	healthBarBack->posY = healthBar->posY + healthBar->GetYOffSet();
+	healthBarBack->SetWidth(healthBar->GetWidth());
+	healthBarBack->SetHeight(healthBar->GetHeight());
+
+	healthBarBorder = new Image();
+	healthBarBorder->SetUIColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	healthBarBorder->posX = healthBar->posX + healthBar->GetXOffSet();
+	healthBarBorder->posY = healthBar->posY + healthBar->GetYOffSet();
+	healthBarBorder->SetWidth(healthBar->GetWidth() + 0.04f);
+	healthBarBorder->SetHeight(healthBar->GetHeight() + 0.04f);
+
+	sheildBar = new Image();
+	sheildBar->SetUIColor({ 0.0f, 0.0f, 1.0f, 1.0f });
+	//sheildBar->SetAlignment(UI::Alignment::Left);
+	sheildBar->posX = healthBar->posX - 0.4f;
+	sheildBar->posY = healthBar->posY + 0.1f;
+	sheildBar->SetWidth(0.5f);
+	sheildBar->SetHeight(0.018f);
+
+	sheildBarFade = new Image();
+	sheildBarFade->SetUIColor({ 0.0f, 0.0f, 0.3f, 1.0f });
+	sheildBarFade->SetAlignment(sheildBar->GetAlignment());
+	sheildBarFade->posX = sheildBar->posX;
+	sheildBarFade->posY = sheildBar->posY;
+	sheildBarFade->SetWidth(sheildBar->GetWidth());
+	sheildBarFade->SetHeight(sheildBar->GetHeight());
+
+	sheildBarBack = new Image();
+	sheildBarBack->SetUIColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+	sheildBarBack->posX = sheildBar->posX + sheildBar->GetXOffSet();
+	sheildBarBack->posY = sheildBar->posY + sheildBar->GetYOffSet();
+	sheildBarBack->SetWidth(sheildBar->GetWidth());
+	sheildBarBack->SetHeight(sheildBar->GetHeight());
+
+	sheildBarBorder = new Image();
+	sheildBarBorder->SetUIColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	sheildBarBorder->posX = sheildBar->posX + sheildBar->GetXOffSet();
+	sheildBarBorder->posY = sheildBar->posY + sheildBar->GetYOffSet();
+	sheildBarBorder->SetWidth(sheildBar->GetWidth() + 0.02f);
+	sheildBarBorder->SetHeight(sheildBar->GetHeight() + 0.02f);
+
+	healthBar->SetVisibility(false);
+	healthBarFade->SetVisibility(false);
+	healthBarBack->SetVisibility(false);
+	healthBarBorder->SetVisibility(false);
+	sheildBar->SetVisibility(false);
+	sheildBarFade->SetVisibility(false);
+	sheildBarBack->SetVisibility(false);
+	sheildBarBorder->SetVisibility(false);
+}
+
 void Player::Update(float dt)
 {
+	healthBar->SetWidth(healthBarBack->GetWidth() * (topDisplayHealth / maxHealth));
+	healthBarFade->SetWidth(healthBarBack->GetWidth() * (botDisplayHealth / maxHealth));
+	if (sheildComponentBought)
+	{
+		sheildBar->SetWidth(sheildBarBack->GetWidth() * (topDisplaySheild / maxSheild));
+		sheildBarFade->SetWidth(sheildBarBack->GetWidth() * (botDisplaySheild / maxSheild));
+	}
+
 	if (!frontCanAttack)
 	{
 		frontTimer -= dt;
@@ -286,14 +367,27 @@ void Player::TakeDamage(float dmg)
 {
 	if(!damageImmune && !strafeImmune && !isDead)
 	{
-		health -= dmg;
-		if (health <= 0.0f)
+		if(sheild == 0)
 		{
-			health = 0.0f;
-			isDead = true;
-			player->renderingComponent->canRender = false;
+			health -= dmg;
+			if (health <= 0.0f)
+			{
+				health = 0.0f;
+				isDead = true;
+				player->renderingComponent->canRender = false;
+			}
+			topDisplayHealth = health;
 		}
-		topDisplayHealth = health;
+		else
+		{
+			sheild -= dmg;
+			if (sheild <= 0.0f)
+			{
+				sheild = 0.0f;
+			}
+			topDisplaySheild = sheild;
+		}
+
 		damageImmune = true;
 		canDamageImmuneTimer = true;
 	}
@@ -412,6 +506,23 @@ void Player::RightShoot()
 			rightBulletPool[i]->Activate(FindDistAway(player->transform.right, 2.0f), { player->transform.foward.x * 80.0f, player->transform.foward.y * 80.0f, player->transform.foward.z * 80.0f }, Bullet::Regular);
 			rightCanAttack = false;
 			break;
+		}
+	}
+}
+void Player::RechargeSheild(float dt)
+{
+	if(sheild != maxSheild && sheildComponentBought)
+	{
+		sheildTimer += dt;
+		if (sheildTimer >= sheildRechargeRate)
+		{
+			sheild += 0.2f;
+			sheildTimer = 0.0f;
+
+			if (sheild >= maxSheild)
+			{
+				sheild = maxSheild;
+			}
 		}
 	}
 }

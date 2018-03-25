@@ -19,6 +19,43 @@ void Camera::Update(float dt)
 	}
 }
 
+void Camera::UpdateCamShake(float dt)
+{
+	float rangeX = (((((float)rand() * 2) / RAND_MAX) - 1) * totalShakeAmmount);
+	float rangeY = (((((float)rand() * 2) / RAND_MAX) - 1) * totalShakeAmmount);
+	float rangeZ = (((((float)rand() * 2) / RAND_MAX) - 1) * totalShakeAmmount);
+	camShakePos = { rangeX, rangeY, rangeZ };
+
+	for (unsigned int i = 0; i < shakeList.size(); i++)
+	{
+		CamShakeInfo newInfo = shakeList[i];
+		newInfo.timerCD -= dt;
+
+		if (newInfo.timerCD <= 0.0f)
+		{
+			totalShakeAmmount -= newInfo.shakeAmmount;
+			shakeList.erase(shakeList.begin() + i);
+			i--;
+		}
+		else
+		{
+			shakeList[i] = newInfo;
+		}
+	}
+}
+
+void Camera::ShakeCamera(CamShakeInfo newInfo)
+{
+	totalShakeAmmount += newInfo.shakeAmmount;
+	shakeList.push_back(newInfo);
+}
+
+void Camera::ShakeCamera(float shkTime, float shkAmnt)
+{
+	totalShakeAmmount += shkAmnt;
+	shakeList.push_back(CamShakeInfo(shkTime, shkAmnt));
+}
+
 void Camera::RotateCamera(float x, float y)
 {
 	transform.Rotate(x * rotSpeed, y * rotSpeed, 0.0f);
@@ -44,5 +81,7 @@ void Camera::ResetCamera()
 	rigidBody.applyFriction = true;
 	rigidBody.applyGravity = false;
 	rigidBody.isMoving = false;
+
+	shakeList.clear();
 }
 

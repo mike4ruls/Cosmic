@@ -108,6 +108,21 @@ void MainHUBWorld::Init()
 		case 0:
 			break;
 		case 1:
+			cam->ShakeCamera(1.0f, 0.1f);
+			cam->ShakeCamera(0.75f, 0.1f);
+			cam->ShakeCamera(0.70f, 0.1f);
+			cam->ShakeCamera(0.65f, 0.1f);
+			cam->ShakeCamera(0.50f, 0.1f);
+			cam->ShakeCamera(0.40f, 0.1f);
+			cam->ShakeCamera(0.30f, 0.3f);
+			cam->ShakeCamera(0.25f, 0.4f);
+			cam->ShakeCamera(0.20f, 0.5f);
+			cam->ShakeCamera(0.1f, 0.6f);
+
+			gameManager->SetActiveLevels(i,2);
+
+			goldStarPool[i]->Reset();
+			grayStarPool[i]->Reset();
 			break;
 		case 2:
 			goldStarPool[i]->Reset();

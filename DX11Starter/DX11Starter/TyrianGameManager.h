@@ -36,6 +36,7 @@ public:
 
 	static void SetTileLoadName(char* name);
 	static int* GetActiveLevels(int index);
+	static void SetActiveLevels(int index, int val);
 	static int GetActiveWorld(int index);
 	static void CompleteLevels();
 	static void StoreLevelPosistion(DirectX::XMFLOAT3 pos);

@@ -40,7 +40,6 @@ public:
 	void SetUpLevel();
 	void Update(float deltaTime, float totalTime);
 	void UpdateParticlesPos();
-	void CheckInputs(float dt);
 	void CheckControllerInputs(float dt);
 	void CheckOutOfBounds();
 	void InitUI();
@@ -51,11 +50,6 @@ public:
 	void SetUpActions();
 
 	Player* p1 = nullptr;
-
-	Image* healthBar = nullptr;
-	Image* healthBarFade = nullptr;
-	Image* healthBarBack = nullptr;
-	Image* healthBarBorder = nullptr;
 
 	Emitter* shipExhaust;
 	Emitter* leftWing;

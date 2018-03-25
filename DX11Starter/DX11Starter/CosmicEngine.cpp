@@ -186,6 +186,7 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 
 	currentScene->Update(deltaTime, totalTime);
 	UpdateObjects(deltaTime);
+	cam->UpdateCamShake(deltaTime);
 	cam->Update(deltaTime);
 
 	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));

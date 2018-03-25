@@ -13,7 +13,7 @@ FirstPersonCamera::~FirstPersonCamera()
 
 void FirstPersonCamera::SetMatricies()
 {
-	DirectX::XMVECTOR pos = DirectX::XMVectorSet(transform.position.x, transform.position.y, transform.position.z, 0);
+	DirectX::XMVECTOR pos = DirectX::XMVectorSet(transform.position.x + camShakePos.x, transform.position.y + camShakePos.y, transform.position.z + camShakePos.z, 0);
 	DirectX::XMVECTOR dir = DirectX::XMVectorSet(transform.foward.x, transform.foward.y, transform.foward.z, 0);
 	DirectX::XMVECTOR up = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMMATRIX V = DirectX::XMMatrixLookToLH(

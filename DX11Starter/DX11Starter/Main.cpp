@@ -1,5 +1,5 @@
-#define DEFAULT
-//#define TYRIAN2000
+//#define DEFAULT
+#define TYRIAN2000
 //#define TETRIS
 #if !defined DEFAULT && !defined TYRIAN2000 && !defined TETRIS
 #define DEFAULT

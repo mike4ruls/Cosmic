@@ -59,11 +59,6 @@ public:
 	Player* p1 = nullptr;
 	FinishLine* fLine = nullptr;
 
-	Image* healthBar = nullptr;
-	Image* healthBarFade = nullptr;
-	Image* healthBarBack = nullptr;
-	Image* healthBarBorder = nullptr;
-
 	Image* Tyrian2000Logo = nullptr;
 	Image* pausedLogo = nullptr;
 	Image* endGamePanel = nullptr;

@@ -37,7 +37,6 @@ void Tyrian2000::Init()
 	cam->inputManager = inputManager;
 	gameManager = TyrianGameManager::GetInstance();
 	SetUpActions();
-	InitUI();
 	// ========== ====================//
 
 	cam->lockCameraRot = true;
@@ -72,6 +71,7 @@ void Tyrian2000::SetUpLevel()
 	tileDistOffScreen = -50.0f;
 
 	CreatePlayer();
+	InitUI();
 	CreateFinishLine();
 	SpawnWaveEnemies();
 	SpawnWaveBlockers();
@@ -119,10 +119,18 @@ void Tyrian2000::SetUpLevel()
 
 		Tyrian2000Logo->SetVisibility(false);
 
-		healthBar->SetVisibility(true);
-		healthBarFade->SetVisibility(true);
-		healthBarBack->SetVisibility(true);
-		healthBarBorder->SetVisibility(true);
+		p1->healthBar->SetVisibility(true);
+		p1->healthBarFade->SetVisibility(true);
+		p1->healthBarBack->SetVisibility(true);
+		p1->healthBarBorder->SetVisibility(true);
+
+		if(p1->sheildComponentBought)
+		{ 
+			p1->sheildBar->SetVisibility(true);
+			p1->sheildBarFade->SetVisibility(true);
+			p1->sheildBarBack->SetVisibility(true);
+			p1->sheildBarBorder->SetVisibility(true);
+		}
 
 		currentState = GameState::Game;
 	}
@@ -140,11 +148,6 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 			startButton->SetActive(false);
 
 			Tyrian2000Logo->SetVisibility(false);
-
-			healthBar->SetVisibility(true);
-			healthBarFade->SetVisibility(true);
-			healthBarBack->SetVisibility(true);
-			healthBarBorder->SetVisibility(true);
 
 
 			gameManager->LoadHubWorld();
@@ -165,9 +168,6 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 		break;
 	case GameState::Game:
 		p1->Update(deltaTime);
-
-		healthBar->SetWidth(healthBarBack->GetWidth() * (p1->topDisplayHealth / p1->maxHealth));
-		healthBarFade->SetWidth(healthBarBack->GetWidth() * (p1->botDisplayHealth / p1->maxHealth));
 
 		if (waveSpawnTimer <= 0.0f && currentWave < waveCount)
 		{
@@ -628,45 +628,10 @@ void Tyrian2000::InitUI()
 	endContinueButton->SetVisibility(false);
 	endContinueButton->SetActive(false);
 
-	healthBar = new Image();
-	healthBar->SetUIColor({ 0.0f, 1.0f, 0.0f, 1.0f });
-	healthBar->SetAlignment(UI::Alignment::Left);
-	healthBar->posX = 0.3f;
-	healthBar->posY = -1.0f;
-	healthBar->SetWidth(0.6f);
-	healthBar->SetHeight(0.02f);
-
-	healthBarFade = new Image();
-	healthBarFade->SetUIColor({ 0.3f, 0.0f, 0.0f, 1.0f });
-	healthBarFade->SetAlignment(healthBar->GetAlignment());
-	healthBarFade->posX = healthBar->posX;
-	healthBarFade->posY = healthBar->posY;
-	healthBarFade->SetWidth(healthBar->GetWidth());
-	healthBarFade->SetHeight(healthBar->GetHeight());
-
-	healthBarBack = new Image();
-	healthBarBack->SetUIColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-	healthBarBack->posX = healthBar->posX + healthBar->GetXOffSet();
-	healthBarBack->posY = healthBar->posY + healthBar->GetYOffSet();
-	healthBarBack->SetWidth(healthBar->GetWidth());
-	healthBarBack->SetHeight(healthBar->GetHeight());
-
-	healthBarBorder = new Image();
-	healthBarBorder->SetUIColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-	healthBarBorder->posX = healthBar->posX + healthBar->GetXOffSet();
-	healthBarBorder->posY = healthBar->posY + healthBar->GetYOffSet();
-	healthBarBorder->SetWidth(healthBar->GetWidth() + 0.04f);
-	healthBarBorder->SetHeight(healthBar->GetHeight() + 0.04f);
-
 	endGamePanel = new Image();
 	endGamePanel->SetWidth(0.8f);
 	endGamePanel->SetHeight(0.8f);
 
-
-	healthBar->SetVisibility(false);
-	healthBarFade->SetVisibility(false);
-	healthBarBack->SetVisibility(false);
-	healthBarBorder->SetVisibility(false);
 	endGamePanel->SetVisibility(false);
 
 	Tyrian2000Logo = new Image();
@@ -850,6 +815,10 @@ void Tyrian2000::KillEnemy(int pos)
 			}
 		}
 	}
+	if(deleteEnemy->isDead)
+	{
+		cam->ShakeCamera(0.15f, 0.1f);
+	}
 	enemyPool.erase(enemyPool.begin() + pos);
 	deleteEnemy->Destroy();
 }
@@ -871,10 +840,10 @@ void Tyrian2000::ChooseEndPanelText()
 	currentState = GameState::EndLevel;
 	endGame = true;
 
-	healthBar->SetVisibility(false);
-	healthBarFade->SetVisibility(false);
-	healthBarBack->SetVisibility(false);
-	healthBarBorder->SetVisibility(false);
+	p1->healthBar->SetVisibility(false);
+	p1->healthBarFade->SetVisibility(false);
+	p1->healthBarBack->SetVisibility(false);
+	p1->healthBarBorder->SetVisibility(false);
 
 
 	if(p1->isDead)
@@ -966,10 +935,10 @@ void Tyrian2000::ResetLevel()
 
 	waveSpawnTimer = waveSpawnCD;
 
-	healthBar->SetVisibility(true);
-	healthBarFade->SetVisibility(true);
-	healthBarBack->SetVisibility(true);
-	healthBarBorder->SetVisibility(true);
+	p1->healthBar->SetVisibility(true);
+	p1->healthBarFade->SetVisibility(true);
+	p1->healthBarBack->SetVisibility(true);
+	p1->healthBarBorder->SetVisibility(true);
 
 	SpawnWaveEnemies();
 	SpawnWaveBlockers();

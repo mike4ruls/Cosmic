@@ -1,4 +1,5 @@
 #pragma once
+#include "Image.h"
 #include "GameEntity.h"
 #include "Bullet.h"
 
@@ -14,6 +15,27 @@ public:
 	Player();
 	Player(GameEntity* obj, Mesh* bul, float hlt, float atkSpd, float atkdmg);
 	~Player();
+
+	void InitUI();
+	void Update(float dt);
+	void Strafe(float dt);
+	void TurnOnStrafe();
+	void Tilt(float dt);
+	void GainHealth(float hlt);
+	void TakeDamage(float dmg);
+	void StrafeImmuneCD(float dt);
+	void DamageImmuneCD(float dt);
+	DirectX::XMFLOAT3 FindDistAway(DirectX::XMFLOAT3 dir, float dist);
+	void LoadBullets();
+
+	void ShootBullets();
+
+	void FrontShoot();
+	void LeftShoot();
+	void RightShoot();
+
+	void RechargeSheild(float dt);
+
 	Mesh* bulletMesh;
 
 	TurnState currentTurnState;
@@ -23,6 +45,16 @@ public:
 	std::vector<Bullet*> frontBulletPool;
 	std::vector<Bullet*> leftBulletPool;
 	std::vector<Bullet*> rightBulletPool;
+
+	Image* healthBar = nullptr;
+	Image* healthBarFade = nullptr;
+	Image* healthBarBack = nullptr;
+	Image* healthBarBorder = nullptr;
+
+	Image* sheildBar = nullptr;
+	Image* sheildBarFade = nullptr;
+	Image* sheildBarBack = nullptr;
+	Image* sheildBarBorder = nullptr;
 
 	float health;
 	float topDisplayHealth;
@@ -48,7 +80,7 @@ public:
 	float rightAtkDamage;
 
 	float sheildRechargeRate;
-	float SheildTimer;
+	float sheildTimer;
 
 	float guidedMissleRechargeRate;
 	float guidedMissleTimer;
@@ -105,22 +137,5 @@ public:
 	DirectX::XMFLOAT3 originalRot;
 
 	GameEntity* player = nullptr;
-
-	void Update(float dt);
-	void Strafe(float dt);
-	void TurnOnStrafe();
-	void Tilt(float dt);
-	void GainHealth(float hlt);
-	void TakeDamage(float dmg);
-	void StrafeImmuneCD(float dt);
-	void DamageImmuneCD(float dt);
-	DirectX::XMFLOAT3 FindDistAway(DirectX::XMFLOAT3 dir, float dist);
-	void LoadBullets();
-
-	void ShootBullets();
-
-	void FrontShoot();
-	void LeftShoot();
-	void RightShoot();
 };
 
