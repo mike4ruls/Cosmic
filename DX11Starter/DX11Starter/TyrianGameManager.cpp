@@ -46,6 +46,7 @@ TyrianGameManager* TyrianGameManager::GetInstance()
 	if (instance == 0) 
 	{
 		instance = new TyrianGameManager();
+		closingProgram = false;
 		//p1Store->isDead = true;
 	}
 	return instance;
@@ -161,6 +162,7 @@ void TyrianGameManager::LoadWorld()
 
 void TyrianGameManager::LoadHubWorld()
 {
+	playerLevelPos = {0.0f, playerLevelPos.y, 0.0f};
 	SceneManager::LoadScene(SceneManager::_MainHUBWorld);
 }
 

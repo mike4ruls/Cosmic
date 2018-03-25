@@ -31,6 +31,15 @@ Tetris::Tetris(Mesh &shape, int h, int w)
 	scoreCol = 1;
 	scoreRow = 0;
 	srand((unsigned int)time(NULL));
+
+	inputManager->AddActionBinding(Actions::ButtonUp, { 87, CosmicInput::ControllerButton::DPAD_UP });
+	inputManager->AddActionBinding(Actions::ButtonDown, { 83, CosmicInput::ControllerButton::DPAD_DOWN });
+	inputManager->AddActionBinding(Actions::ButtonLeft, { 65, CosmicInput::ControllerButton::DPAD_LEFT });
+	inputManager->AddActionBinding(Actions::ButtonRight, { 68, CosmicInput::ControllerButton::DPAD_RIGHT });
+	inputManager->AddActionBinding(Actions::Rotate, { VK_RETURN,  CosmicInput::ControllerButton::BUTTON_R2 });
+	inputManager->AddActionBinding(Actions::Place, { VK_SPACE, CosmicInput::ControllerButton::BUTTON_CROSS });
+	inputManager->AddActionBinding(Actions::Start, { 99, CosmicInput::ControllerButton::BUTTON_OPTIONS });
+
 	//DrawBoard(height, width);
 }
 
@@ -55,13 +64,13 @@ void Tetris::UpdateGame(float deltaTime, float totalTime)
 		//Testing AddScore()
 		
 		
-		if (inputManager->IsKeyPressed(KeyCode::N))
+		/*if (inputManager->IsKeyPressed(KeyCode::N))
 		{
 			currentState = true;
 			if (currentState != previousState) {
 				AddToScore();
 			}
-		}
+		}*/
 		
 		tTime += (float)1.0 * deltaTime;
 		previousState = currentState;
@@ -233,15 +242,17 @@ void Tetris::MoveBlock(float delta)
 	{
 		timeOfDescent = 0.09f;
 	}
-	if (inputManager->IsKeyPressed(KeyCode::ENTER) || inputManager->IsKeyPressed(KeyCode::Z))
+	if (inputManager->IsActionPressed(Actions::Rotate))
 	{
-		currentState = true;
-		if (currentState != previousState) {
-			currentBlock->rot += 1;
-			tChange = true;
-		}
+		currentBlock->rot += 1;
+		tChange = true;
+		//currentState = true;
+		//if (currentState != previousState) {
+		//	currentBlock->rot += 1;
+		//	tChange = true;
+		//}
 	}
-	if (inputManager->IsKeyPressed(KeyCode::LEFT_ARROW))
+	if (inputManager->IsActionDown(Actions::ButtonLeft))
 	{
 		currentState = true;
 		if (currentState != previousState) {
@@ -266,7 +277,7 @@ void Tetris::MoveBlock(float delta)
 
 		leftRightTime -= 0.8f * delta;
 	}
-	if (inputManager->IsKeyPressed(KeyCode::RIGHT_ARROW))
+	if (inputManager->IsActionDown(Actions::ButtonRight))
 	{
 		currentState = true;
 		if (currentState != previousState) {
@@ -291,7 +302,7 @@ void Tetris::MoveBlock(float delta)
 
 		leftRightTime -= 0.8f * delta;
 	}
-	if (inputManager->IsKeyDown(KeyCode::DOWN_ARROW))
+	if (inputManager->IsActionDown(Actions::ButtonDown))
 	{
 		currentState = true;
 		timeOfDescent = 0.05f;

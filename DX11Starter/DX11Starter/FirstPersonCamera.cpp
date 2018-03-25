@@ -13,47 +13,6 @@ FirstPersonCamera::~FirstPersonCamera()
 
 void FirstPersonCamera::SetMatricies()
 {
-	//if (transform.foward.y < ((-90 * 3.1415f) / 180.0f))
-	//{
-	//	transform.foward.y = ((-90 * 3.1415f) / 180.0f);
-	//}
-	//else if (transform.foward.y >((90 * 3.1415f) / 180.0f))
-	//{
-	//	transform.foward.y = ((90 * 3.1415f) / 180.0f);
-	//}
-
-	//printf("%f, %f, %f\n", transform.foward.x, transform.foward.y, transform.foward.z );
-
-
-	// ================================================================================= //
-	// ============================Third Person Camera Stuff============================ //
-	// ================================================================================= //
-	//radius = maxRadius * std::cosf(rotDegreesY * 0.5f);
-	//DirectX::XMFLOAT3 rotPos = { radius * std::sin(rotDegreesX), radius * std::sinf(rotDegreesY), radius * std::cos(rotDegreesX) };\
-
-	//DirectX::XMVECTOR rotPosVec = DirectX::XMLoadFloat3(&rotPos);
-	//DirectX::XMVECTOR targetVec = DirectX::XMLoadFloat3(&target);
-	////DirectX::XMVECTOR panaVec = DirectX::XMLoadFloat3(&panaramicTranslation);
-
-	//DirectX::XMVECTOR result = DirectX::XMVectorAdd(targetVec, rotPosVec);
-
-	//DirectX::XMStoreFloat3(&transform.position, result);
-
-	//DirectX::XMVECTOR result2 = DirectX::XMVectorSubtract(targetVec, result);
-	//result2 = DirectX::XMVector3Normalize(result2);
-
-	//DirectX::XMStoreFloat3(&transform.foward, result2);
-
-	//DirectX::XMVECTOR upVec = DirectX::XMVectorSet(0, 1, 0, 0);
-	//DirectX::XMVECTOR rightVec = DirectX::XMVector3Cross(upVec, result2);
-
-	//DirectX::XMVECTOR newUpVec = DirectX::XMVector3Cross(result2, rightVec);
-
-	//result = DirectX::XMVectorMultiplyAdd(DirectX::XMVectorSet(panaramicTranslation.x, panaramicTranslation.x, panaramicTranslation.x, 0.0f), rightVec, DirectX::XMLoadFloat3(&transform.position));
-	//result = DirectX::XMVectorMultiplyAdd(DirectX::XMVectorSet(panaramicTranslation.y, panaramicTranslation.y, panaramicTranslation.y, 0.0f), newUpVec, result);
-	//DirectX::XMStoreFloat3(&transform.position, result);
-	// ================================================================================= //
-
 	DirectX::XMVECTOR pos = DirectX::XMVectorSet(transform.position.x, transform.position.y, transform.position.z, 0);
 	DirectX::XMVECTOR dir = DirectX::XMVectorSet(transform.foward.x, transform.foward.y, transform.foward.z, 0);
 	DirectX::XMVECTOR up = DirectX::XMVectorSet(0, 1, 0, 0);
@@ -85,24 +44,6 @@ void FirstPersonCamera::Init(unsigned int w, unsigned int h)
 	runSpeed = 30.0f;
 	camSpeed = normSpeed;
 	rotSpeed = 1.0f;
-
-
-	// ================================================================================= //
-	// ============================Third Person Camera Stuff============================ //
-	// ================================================================================= //
-	//radius = 0.0f;
-	//maxRadius = 20.0f;
-
-	//maxRotY = (45.0f * 3.1415f) / 180.0f;
-	//minRotY = (-45.0f * 3.1415f) / 180.0f;
-
-	//rotDegreesX = 0.0f;
-	//rotDegreesY = 0.0f;
-	//rotSpeedTPV = 2.0f;
-
-	//target = { 0.0f, 0.0, 0.0f };
-	//panaramicTranslation = {6.0f, 2.0, 0.0f};
-	// ================================================================================= //
 
 	SetMatricies();
 }
@@ -162,31 +103,5 @@ void FirstPersonCamera::CheckInputs(float dt)
 	{
 		RotateCamera(0.0f, 50.0f * dt);
 	}
-	// ================================================================================= //
-	// ============================Third Person Camera Stuff============================ //
-	// ================================================================================= //
-	//if (inputManager->GetRightStickX() > 0.0f)
-	//{
-	//	rotDegreesX += rotSpeedTPV * dt;
-	//}
-	//if (inputManager->GetRightStickX() < 0.0f)
-	//{
-	//	rotDegreesX -= rotSpeedTPV * dt;
-	//}
-	//if (inputManager->GetRightStickY() > 0.0f)
-	//{
-	//	if (rotDegreesY > minRotY)
-	//	{
-	//		rotDegreesY -= rotSpeedTPV * dt;
-	//	}
-	//}
-	//if (inputManager->GetRightStickY() < 0.0f)
-	//{
-	//	if (rotDegreesY < maxRotY)
-	//	{
-	//		rotDegreesY += rotSpeedTPV * dt;
-	//	}
-	//}
-	// ================================================================================= //
 }
 

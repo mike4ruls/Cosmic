@@ -483,6 +483,8 @@ void ConsoleBuddy::SetTetrisCamera()
 	cam->transform.up = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
 	cam->transform.rotation = {};
 
+	cam->rigidBody.velocity = {};
+
 	cam->SetMatricies();
 }
 void ConsoleBuddy::Talk(std::string sentance, float deltaTime)

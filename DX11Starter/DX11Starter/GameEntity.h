@@ -1,6 +1,5 @@
 #pragma once
 #include "Mesh.h"
-#include "Renderer.h"
 #include "Transform.h"
 #include "RigidBody.h"
 #include "renderingComponent.h"
@@ -10,12 +9,10 @@ class GameEntity
 public:
 	GameEntity();
 	GameEntity(Mesh * m, bool ui);
-	GameEntity(Mesh* m, Renderer* r, bool ui);
 	~GameEntity();
 
 	std::string name;
 	Mesh* myMesh;
-	Renderer* rend;
 	Transform transform;
 	RigidBody rigidBody;
 	RenderingComponent* renderingComponent;

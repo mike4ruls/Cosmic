@@ -50,18 +50,6 @@ void ThirdPersonCamera::Init(unsigned int w, unsigned int h)
 }
 void ThirdPersonCamera::SetMatricies()
 {
-	//if (transform.foward.y < ((-90 * 3.1415f) / 180.0f))
-	//{
-	//	transform.foward.y = ((-90 * 3.1415f) / 180.0f);
-	//}
-	//else if (transform.foward.y >((90 * 3.1415f) / 180.0f))
-	//{
-	//	transform.foward.y = ((90 * 3.1415f) / 180.0f);
-	//}
-
-	//printf("%f, %f, %f\n", transform.foward.x, transform.foward.y, transform.foward.z );
-
-
 	// ================================================================================= //
 	// ============================Third Person Camera Stuff============================ //
 	// ================================================================================= //

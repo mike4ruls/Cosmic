@@ -40,38 +40,6 @@ GameEntity::GameEntity(Mesh * m, bool ui)
 	ResetGameEntity();
 }
 
-GameEntity::GameEntity(Mesh * m, Renderer* r, bool ui)
-{
-	transform = Transform();
-	rigidBody = RigidBody();
-	renderingComponent = new RenderingComponent();
-	renderingComponent->mat = Material();
-	myMesh = m;
-	rend = r;
-	name = "";
-	renderingComponent->canRender = true;
-	renderingComponent->mat.materialType = Material::Opaque;
-	renderingComponent->mat.surfaceColor = {1.0f, 1.0f, 1.0f, 1.0f};
-	renderingComponent->mat.surfaceReflectance = 0.0f;
-	renderingComponent->meshName = myMesh->meshName;
-
-	prevMatType = renderingComponent->mat.materialType;
-	isTranslucent = false;
-	isUI = ui;
-	isActive = true;
-
-	ResetGameEntity();
-	if(!isUI)
-	{
-		rend->PushToRenderer(renderingComponent);
-	}
-	else
-	{
-		rend->PushToCanvas(renderingComponent);
-	}
-}
-
-
 GameEntity::~GameEntity()
 {
 	if (renderingComponent != nullptr) { delete renderingComponent, renderingComponent = nullptr; };

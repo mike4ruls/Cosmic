@@ -429,6 +429,10 @@ void ShopMenu::Update(float dt)
 
 void ShopMenu::UpdateInputs(float dt)
 {
+	if (!buyButton->constantHighlight && (subUpgradecount == 0)&& inputManager->IsButtonPressed(CosmicInput::ControllerButton::BUTTON_CIRCLE))
+	{
+		UITurnedOn = false;
+	}
 	if (inputManager->IsButtonPressed(CosmicInput::ControllerButton::BUTTON_L1))
 	{
 		if (shopUIcount > 0)
@@ -531,7 +535,8 @@ void ShopMenu::UpdateInputs(float dt)
 			break;
 		}
 	}
-	else if (inputManager->IsButtonPressed(CosmicInput::ControllerButton::DPAD_LEFT))
+	else if (inputManager->IsButtonPressed(CosmicInput::ControllerButton::DPAD_LEFT) 
+			|| (inputManager->IsButtonPressed(CosmicInput::ControllerButton::BUTTON_CIRCLE) && subUpgradecount != 0))
 	{
 		switch (shopUIcount)
 		{
@@ -543,6 +548,7 @@ void ShopMenu::UpdateInputs(float dt)
 				subUpgradecount = 0;
 				leftSubButton->constantHighlight = false;
 				rightSubButton->constantHighlight = false;
+				buyButton->constantHighlight = false;
 				break;
 			}
 			UpgradeGraphLeft();

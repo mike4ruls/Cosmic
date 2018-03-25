@@ -2,6 +2,7 @@
 #include "Button.h"
 #include "Image.h"
 #include "Player.h"
+#include "AssetManager.h"
 
 class ShopMenu
 {

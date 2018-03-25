@@ -1,7 +1,5 @@
-﻿  CosmicEngine.cpp
-CosmicEngine.cpp(56): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-CosmicEngine.cpp(351): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+﻿  ShopMenu.cpp
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
 DirectXTK.lib(WICTextureLoader.obj) : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
-  DX11Starter.vcxproj -> D:\CosmicEngineV1.0\Debug\DX11Starter.exe
-  DX11Starter.vcxproj -> D:\CosmicEngineV1.0\Debug\DX11Starter.pdb (Partial PDB)
+  DX11Starter.vcxproj -> D:\CosmicEngineV2.0\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> D:\CosmicEngineV2.0\Debug\DX11Starter.pdb (Partial PDB)

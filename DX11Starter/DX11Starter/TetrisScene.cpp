@@ -31,7 +31,7 @@ void TetrisScene::Update(float deltaTime, float totalTime)
 	}*/
 	if (myTetris->gameStart) {
 
-		if (inputManager->IsKeyDown(KeyCode::CTRL) && inputManager->IsKeyPressed(KeyCode::C))
+		if ((inputManager->IsKeyDown(KeyCode::CTRL) && inputManager->IsKeyPressed(KeyCode::C)) || inputManager->IsButtonPressed(CosmicInput::ControllerButton::BUTTON_TOUCH_PAD))
 		{
 			cB->SetTetrisCamera();
 		}
@@ -52,7 +52,7 @@ void TetrisScene::Update(float deltaTime, float totalTime)
 			cB->playerStatus = 2;
 		}
 		// Reset Game
-		if (inputManager->IsKeyPressed(KeyCode::I))
+		if (inputManager->IsKeyPressed(KeyCode::I) || inputManager->IsButtonPressed(CosmicInput::ControllerButton::BUTTON_OPTIONS))
 		{
 			myTetris->ResetGame();
 		}
@@ -60,7 +60,7 @@ void TetrisScene::Update(float deltaTime, float totalTime)
 	else
 	{
 		// Start game
-		if (inputManager->IsKeyPressed(KeyCode::Y) || cB->playerStatus == 1)
+		if (inputManager->IsKeyPressed(KeyCode::Y) || cB->playerStatus == 1 || inputManager->IsButtonPressed(CosmicInput::ControllerButton::BUTTON_CROSS))
 		{
 			myTetris->StartGame(30, 10);
 			cB->SetTetrisCamera();

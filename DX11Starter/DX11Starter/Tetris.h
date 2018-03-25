@@ -8,6 +8,15 @@
 class Tetris
 {
 public:
+	enum Actions {
+		ButtonUp,
+		ButtonDown,
+		ButtonLeft,
+		ButtonRight,
+		Rotate,
+		Place,
+		Start
+	};
 	Tetris(Mesh &shape, int h, int w);
 	~Tetris();
 
