@@ -1,7 +1,6 @@
 #pragma once
 #include "Button.h"
 #include "Image.h"
-#include "CosmicEngine.h"
 #include "Player.h"
 
 class ShopMenu
@@ -27,7 +26,7 @@ private:
 	};
 
 public:
-	CosmicEngine* engine;
+	AssetManager* assetManager;
 	InputManager* inputManager;
 	Player* p1;
 
@@ -36,7 +35,7 @@ public:
 	std::vector<MyGraph*> upgradeGraph;
 
 	ShopMenu();
-	ShopMenu(CosmicEngine* eng, Player* player);
+	ShopMenu(AssetManager* a, Player* player);
 	~ShopMenu();
 
 	void Init();

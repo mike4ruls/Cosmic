@@ -29,7 +29,8 @@ public:
 	unsigned int width;
 	unsigned int height;
 
-	bool lockCameraPos;
+	bool lockCameraRot = false;
+	bool lockCameraPos = false;
 
 
 	void Update(float dt);

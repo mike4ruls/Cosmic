@@ -66,15 +66,6 @@
     <Filter Include="Scenes\Scene1\Source">
       <UniqueIdentifier>{c9861956-3298-4a44-af11-5dade1f0ad84}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scenes\FramRateTestScene">
-      <UniqueIdentifier>{b6eb421a-390e-4298-aa35-791bf3f0f9ef}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scenes\FramRateTestScene\Header">
-      <UniqueIdentifier>{468787a6-aa1f-4521-8d3b-9aeb6bc9e858}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scenes\FramRateTestScene\Source">
-      <UniqueIdentifier>{6e2ec99c-1087-47a2-b2c0-1f0aa5109972}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders\CanvasShaders">
       <UniqueIdentifier>{149acf03-9344-4be4-bbbb-4e236209138b}</UniqueIdentifier>
     </Filter>
@@ -125,6 +116,27 @@
     </Filter>
     <Filter Include="Scenes\Tyrian2000\HubWorld\Source">
       <UniqueIdentifier>{a3909066-b946-4642-ac98-489accee6684}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TextSystem">
+      <UniqueIdentifier>{db04b933-423c-42f2-b7a1-8f112117a3ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Tetris">
+      <UniqueIdentifier>{0964c767-65d6-4c21-9731-089062225c70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Tetris\Header">
+      <UniqueIdentifier>{cc29d541-1968-4e54-a489-29c6878c8b00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Tetris\Source">
+      <UniqueIdentifier>{9b46faf4-07cc-46fa-8fb7-7347fa2ee112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\FramRateTestScene">
+      <UniqueIdentifier>{b6eb421a-390e-4298-aa35-791bf3f0f9ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\FramRateTestScene\Header">
+      <UniqueIdentifier>{468787a6-aa1f-4521-8d3b-9aeb6bc9e858}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\FramRateTestScene\Source">
+      <UniqueIdentifier>{6e2ec99c-1087-47a2-b2c0-1f0aa5109972}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -233,12 +245,6 @@
     <ClCompile Include="Emitter.cpp">
       <Filter>ParticleSystem\Source</Filter>
     </ClCompile>
-    <ClCompile Include="MainHUBWorld.cpp">
-      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="GrassHubWorld.cpp">
-      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
-    </ClCompile>
     <ClCompile Include="TyrianGameManager.cpp">
       <Filter>Scenes\Tyrian2000\Source</Filter>
     </ClCompile>
@@ -248,10 +254,46 @@
     <ClCompile Include="BrickHubWorld.cpp">
       <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
     </ClCompile>
+    <ClCompile Include="TextClass.cpp">
+      <Filter>TextSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FontClass.cpp">
+      <Filter>TextSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleBuddy.cpp">
+      <Filter>Scenes\Tetris\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Tetris.cpp">
+      <Filter>Scenes\Tetris\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TetrisBlock.cpp">
+      <Filter>Scenes\Tetris\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TetrisScene.cpp">
+      <Filter>Scenes\Tetris\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HubWorldEngine.cpp">
+      <Filter>Scenes\Tyrian2000\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainHUBWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CheckerHubWorld.cpp">
       <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
     </ClCompile>
     <ClCompile Include="DryHubWorld.cpp">
+      <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GrassHubWorld.cpp">
       <Filter>Scenes\Tyrian2000\HubWorld\Source</Filter>
     </ClCompile>
     <ClCompile Include="LavaGroundHubWorld.cpp">
@@ -305,9 +347,6 @@
       <Filter>Structs</Filter>
     </ClInclude>
     <ClInclude Include="InstanceData.h">
-      <Filter>Structs</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
       <Filter>Structs</Filter>
     </ClInclude>
     <ClInclude Include="CosmicEngine.h">
@@ -465,6 +504,39 @@
     </ClInclude>
     <ClInclude Include="WaterHubWorld.h">
       <Filter>Scenes\Tyrian2000\HubWorld\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="TextClass.h">
+      <Filter>TextSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FontClass.h">
+      <Filter>TextSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleBuddy.h">
+      <Filter>Scenes\Tetris\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Tetris.h">
+      <Filter>Scenes\Tetris\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="TetrisBlock.h">
+      <Filter>Scenes\Tetris\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyCode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TetrisScene.h">
+      <Filter>Scenes\Tetris\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="HubWorldEngine.h">
+      <Filter>Scenes\Tyrian2000\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

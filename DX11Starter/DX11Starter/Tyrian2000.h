@@ -1,5 +1,4 @@
 #pragma once
-#include "CosmicEngine.h"
 #include "DefaultScene.h"
 #include "FinishLine.h"
 #include "TyrianGameManager.h"
@@ -29,10 +28,9 @@ public:
 		EndLevel
 	}currentState;
 
-	Tyrian2000(CosmicEngine* eng);
-	Tyrian2000(CosmicEngine* eng, char* tile);
+	Tyrian2000();
+	Tyrian2000(char* tile);
 	~Tyrian2000();
-	CosmicEngine* engine;
 	TyrianGameManager* gameManager = 0;
 
 	void Init();

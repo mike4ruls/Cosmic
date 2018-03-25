@@ -1,19 +1,9 @@
 #include "TyrianGameManager.h"
-#include "GrassHubWorld.h"
-#include "WaterHubWorld.h"
-#include "SandHubWorld.h"
-#include "DryHubWorld.h"
-#include "BrickHubWorld.h"
-#include "StarHubWorld.h"
-#include "LavaHubWorld.h"
-#include "LavaGroundHubWorld.h"
-#include "CheckerHubWorld.h"
-#include "RainbowHubWorld.h"
-#include "MainHUBWorld.h"
 #include "Tyrian2000.h"
+#include "SceneManager.h"
+#include "EngineManager.h"
 
 TyrianGameManager* instance = 0;
-CosmicEngine* engine;
 Player p1Store;
 
 std::string tileName;
@@ -61,11 +51,6 @@ TyrianGameManager* TyrianGameManager::GetInstance()
 	return instance;
 }
 
-void TyrianGameManager::SetEngine(CosmicEngine * eng)
-{
-	engine = eng;
-}
-
 void TyrianGameManager::Release()
 {
 	for (int i = 0; i < 10; i++)
@@ -81,49 +66,51 @@ void TyrianGameManager::Release()
 
 void TyrianGameManager::LoadLevel(int levelind)
 {
+	EngineManager* manager = EngineManager::GetInstance();
+
 	curLevel = levelind;
 	Tyrian2000* tyrian;
 
 	switch (curWorld) {
 	case Worlds::Grass:
-		tyrian = new Tyrian2000(engine, "grass");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("grass");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::Water:
-		tyrian = new Tyrian2000(engine, "water");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("water");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::Brick:
-		tyrian = new Tyrian2000(engine, "brick");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("brick");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::Checker:
-		tyrian = new Tyrian2000(engine, "checker");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("checker");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::Dry:
-		tyrian = new Tyrian2000(engine, "dry");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("dry");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::Rainbow:
-		tyrian = new Tyrian2000(engine, "rainbow");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("rainbow");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::Lava:
-		tyrian = new Tyrian2000(engine, "lava");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("lava");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::Sand:
-		tyrian = new Tyrian2000(engine, "sand");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("sand");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::LavaGround:
-		tyrian = new Tyrian2000(engine, "lavaGround");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("lavaGround");
+		manager->LoadScene(tyrian);
 		break;
 	case Worlds::Star:
-		tyrian = new Tyrian2000(engine, "star");
-		engine->LoadScene(tyrian);
+		tyrian = new Tyrian2000("star");
+		manager->LoadScene(tyrian);
 		break;
 	}
 }
@@ -131,61 +118,50 @@ void TyrianGameManager::LoadLevel(int levelind)
 void TyrianGameManager::LoadWorld()
 {
 	if (tileName == "grass") {
-		GrassHubWorld* grassWorld = new GrassHubWorld(engine);
-		engine->LoadScene(grassWorld);
+		SceneManager::LoadScene(SceneManager::_GrassHubWorld);
 		return;
 	}
 	else if (tileName == "water") {
-		WaterHubWorld* waterWorld = new WaterHubWorld(engine);
-		engine->LoadScene(waterWorld);
+		SceneManager::LoadScene(SceneManager::_WaterHubWorld);
 		return;
 	}
 	else if (tileName == "brick") {
-		BrickHubWorld* brickWorld = new BrickHubWorld(engine);
-		engine->LoadScene(brickWorld);
+		SceneManager::LoadScene(SceneManager::_BrickHubWorld);
 		return;
 	}
 	else if (tileName == "checker") {
-		CheckerHubWorld* checkerWorld = new CheckerHubWorld(engine);
-		engine->LoadScene(checkerWorld);
+		SceneManager::LoadScene(SceneManager::_CheckerHubWorld);
 		return;
 	}
 	else if (tileName == "dry") {
-		DryHubWorld* dryWorld = new DryHubWorld(engine);
-		engine->LoadScene(dryWorld);
+		SceneManager::LoadScene(SceneManager::_DryHubWorld);
 		return;
 	}
 	else if (tileName == "rainbow") {
-		RainbowHubWorld* rainbowWorld = new RainbowHubWorld(engine);
-		engine->LoadScene(rainbowWorld);
+		SceneManager::LoadScene(SceneManager::_RainbowHubWorld);
 		return;
 	}
 	else if (tileName == "lava") {
-		LavaHubWorld* lavaWorld = new LavaHubWorld(engine);
-		engine->LoadScene(lavaWorld);
+		SceneManager::LoadScene(SceneManager::_LavaHubWorld);
 		return;
 	}
 	else if (tileName == "sand") {
-		SandHubWorld* sandWorld = new SandHubWorld(engine);
-		engine->LoadScene(sandWorld);
+		SceneManager::LoadScene(SceneManager::_SandHubWorld);
 		return;
 	}
 	else if (tileName == "lavaGround") {
-		LavaGroundHubWorld* lavaGroundWorld = new LavaGroundHubWorld(engine);
-		engine->LoadScene(lavaGroundWorld);
+		SceneManager::LoadScene(SceneManager::_LavaGroundHubWorld);
 		return;
 	}
 	else if (tileName == "star") {
-		StarHubWorld* starWorld = new StarHubWorld(engine);
-		engine->LoadScene(starWorld);
+		SceneManager::LoadScene(SceneManager::_StarHubWorld);
 		return;
 	}
 }
 
 void TyrianGameManager::LoadHubWorld()
 {
-	MainHUBWorld* mainWorld = new MainHUBWorld(engine);
-	engine->LoadScene(mainWorld);
+	SceneManager::LoadScene(SceneManager::_MainHUBWorld);
 }
 
 void TyrianGameManager::LoadPlayer(Player * p1)

@@ -1,8 +1,7 @@
 #include "Scene2.h"
 
-Scene2::Scene2(CosmicEngine* eng) :Game()
+Scene2::Scene2() :Game()
 {
-	engine = eng;
 	cam = new ThirdPersonCamera();
 }
 
@@ -14,14 +13,22 @@ Scene2::~Scene2()
 
 void Scene2::Init()
 {
-	inputManager = engine->inputManager;
 	cam->inputManager = inputManager;
 	ThirdPersonCamera* tempCam = (ThirdPersonCamera*)cam; 
 
 	// Creating game objects
-	gameObjects.push_back(engine->CreateGameObject("Cube"));
-	gameObjects.push_back(engine->CreateGameObject("Sphere"));
-	gameObjects.push_back(engine->CreateGameObject("Plane"));
+	//gameObjects.push_back(engine->CreateGameObject("Cube"));
+	//gameObjects.push_back(engine->CreateGameObject("Sphere"));
+	//gameObjects.push_back(engine->CreateGameObject("Plane"));
+	//gameObjects.push_back(engine->CreateGameObject("Dragon"));
+	//gameObjects.push_back(engine->CreateCanvasElement());
+
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("Cube"),false));
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("Sphere"), false));
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("Plane"), false));
+	//gameObjects.push_back(new GameEntity(assetManager->GetMesh("Dragon"), false));
+
+
 	//gameObjects.push_back(engine->CreateGameObject("Dragon"));
 	//gameObjects.push_back(engine->CreateCanvasElement());
 
@@ -29,32 +36,33 @@ void Scene2::Init()
 
 	gameObjects[0]->transform.Translate(0.0f, 0.0f, 20.0f);
 	gameObjects[0]->transform.Scale(50.0f, 50.0f, 0.3f);
-	gameObjects[0]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("harambe"));
+	gameObjects[0]->renderingComponent->mat.LoadSurfaceTexture(assetManager->GetSurfaceTexture("harambe"));
 
-	gameObjects[1]->renderingComponent.mat.surfaceReflectance = 0.5f;
+	gameObjects[1]->renderingComponent->mat.surfaceReflectance = 0.5f;
 	tempCam->SetTarget(gameObjects[1]);
 	tempCam->drag = false;
 	tempCam->panaramicTranslation = {0.0f,0.0f,0.0f};
 
 	gameObjects[2]->transform.Scale(40.0f);
 	gameObjects[2]->transform.Translate(0.0f, -10.0f, 0.0f);
-	gameObjects[2]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("brick"));
+	gameObjects[2]->renderingComponent->mat.LoadSurfaceTexture(assetManager->GetSurfaceTexture("brick"));
 
 	//gameObjects[3]->transform.Scale(0.5f);
 	/*gameObjects[3]->transform.Rotate(180.0f,-90.0f,0.0f);
-	gameObjects[3]->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("dragonSur")); 
-	gameObjects[3]->renderingComponent.mat.surfaceReflectance = 0.5f;*/
+	gameObjects[3]->renderingComponent->mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("dragonSur")); 
+	gameObjects[3]->renderingComponent->mat.surfaceReflectance = 0.5f;*/
 
 
-	pointLight = engine->rend->CreatePointLight({0,-5,0});
-	pointLight->ligComponent->lightColor = {0.0f, 1.0f, 0.0f, 1.0f};
+	pointLight = Light::CreatePointLight();
+	pointLight->ligComponent->lightPos = { 0,-5,0 };
+	pointLight->ligComponent->lightColor = {0.0f, 1.0f, 0.0f, 1.0f}; 
 
-	engine->rend->LoadSkyBox(2);
+	*skyBoxTexture = assetManager->GetSkyBoxTexture("mars");
 
-	goldStars = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("goldStar"),Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere);
-	grayStars = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("grayStar"), Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere);
-	blizzard = engine->CreateSnowEmitter(engine->rend->assets->GetSurfaceTexture("snowFlake"));
-	explosion = engine->CreateExplosionEmitter(engine->rend->assets->GetSurfaceTexture("blackFire"));
+	goldStars = new Emitter(100, assetManager->GetSurfaceTexture("goldStar"),Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere);
+	grayStars = new Emitter(100, assetManager->GetSurfaceTexture("grayStar"), Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere);
+	blizzard = Emitter::CreateSnowEmitter(assetManager->GetSurfaceTexture("snowFlake"));
+	explosion = Emitter::CreateExplosionEmitter(assetManager->GetSurfaceTexture("blackFire"));
 
 
 	goldStars->emitterAcceleration = 2.0f;
@@ -147,30 +155,27 @@ void Scene2::CheckInputs(float deltaTime)
 	}
 	if (inputManager->IsKeyDown(49) || inputManager->IsButtonDown(CosmicInput::BUTTON_L1))
 	{
-		engine->dayTime += 1.0f * deltaTime;
+		//engine->dayTime += 1.0f * deltaTime; <-------------------------------------------------
 	}
 	if (inputManager->IsKeyDown(50) || inputManager->IsButtonDown(CosmicInput::BUTTON_R1))
 	{
-		engine->dayTime -= 1.0f * deltaTime;
+		//engine->dayTime -= 1.0f * deltaTime; <-------------------------------------------------
 	}
 	if (inputManager->IsKeyDown(96))
 	{
-		DefaultScene* defaultLevel = new DefaultScene(engine);
-		engine->rend->LoadSkyBox(1);
-		engine->LoadScene(defaultLevel);
+		SceneManager::LoadScene(SceneManager::_DefaultScene);
 	}
 	else if (inputManager->IsKeyDown(97))
 	{
-		Scene* level1 = new Scene(engine);
-		engine->LoadScene(level1);
+		SceneManager::LoadScene(SceneManager::_Scene);
 	}
 }
 
 void Scene2::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot)
 {
-	GameEntity* obj = engine->CreateGameObject(meshName);
+	GameEntity* obj = new GameEntity(assetManager->GetMesh(meshName), false);
 
-	obj->renderingComponent.mat.surfaceColor = { (float)(std::rand() % 100) * 0.01f, (float)(std::rand() % 100)* 0.01f, (float)(std::rand() % 100) * 0.01f, 1.0f };
+	obj->renderingComponent->mat.surfaceColor = { (float)(std::rand() % 100) * 0.01f, (float)(std::rand() % 100)* 0.01f, (float)(std::rand() % 100) * 0.01f, 1.0f };
 	obj->transform.position = pos;
 	obj->transform.rotation = cam->transform.rotation;
 
@@ -182,7 +187,7 @@ void Scene2::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool c
 	}
 
 	gameObjects.push_back(obj);
-	printf("\nNum of '%ss': %d", &meshName[0], engine->rend->assets->meshStorage[meshName]->instances);
-	//printf("\nColor - %f, %f, %f", obj->renderingComponent.mat.surfaceColor.x, obj->renderingComponent.mat.surfaceColor.y, obj->renderingComponent.mat.surfaceColor.z);
+	printf("\nNum of '%ss': %d", &meshName[0], assetManager->meshStorage[meshName]->instances);
+	//printf("\nColor - %f, %f, %f", obj->renderingComponent->mat.surfaceColor.x, obj->renderingComponent->mat.surfaceColor.y, obj->renderingComponent->mat.surfaceColor.z);
 
 }

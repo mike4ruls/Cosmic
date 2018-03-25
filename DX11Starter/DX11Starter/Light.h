@@ -2,7 +2,14 @@
 #include "Transform.h"
 #include <DirectXMath.h>
 
-struct Light {
+class Light {
+public:
+	Light();
+	~Light();
+
+	static Light* CreateDirectionalLight();
+	static Light* CreatePointLight();
+	static Light* CreateSpotLight();
 
 	enum LightType {
 		Directional,

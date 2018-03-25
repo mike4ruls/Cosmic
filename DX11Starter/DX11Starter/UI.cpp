@@ -1,5 +1,5 @@
 #include "UI.h"
-
+#include "EngineManager.h"
 
 
 UI::UI()
@@ -21,10 +21,28 @@ UI::UI(GameEntity* o, UIType t)
 	uiSurColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 }
 
+UI::UI(UIType t)
+{
+	EngineManager* manager = EngineManager::GetInstance();
+	obj = new GameEntity(manager->GetMesh("Quad"), true);
+	posX = 0.0f;
+	posY = 0.0f;
+	posXOffset = posX;
+	posYOffset = posY;
+	width = 1.0f;
+	height = 1.0f;
+	align = Alignment::Center;
+	uiType = t;
+	obj->transform.Translate(0.0f, 0.0f, 3.0f);
+	uiSurColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	manager->RegistarUI(*this);
+}
+
 
 UI::~UI()
 {
-	if (obj != nullptr) { delete obj; obj = nullptr; };
+
 }
 void UI::UpdateVars(float dt)
 {
@@ -87,7 +105,7 @@ void UI::SetAlignment(Alignment al)
 void UI::SetUIColor(DirectX::XMFLOAT4 color)
 {
 	uiSurColor = color;
-	obj->renderingComponent.mat.surfaceColor = uiSurColor;
+	obj->renderingComponent->mat.surfaceColor = uiSurColor;
 }
 
 void UI::SetVisibility(bool vis)
@@ -98,6 +116,12 @@ void UI::SetVisibility(bool vis)
 void UI::SetActive(bool act)
 {
 	obj->SetActive(act);
+}
+
+void UI::Destroy()
+{
+	EngineManager* manager = EngineManager::GetInstance();
+	manager->DeleteUI(*this);
 }
 
 void UI::CalculateXOffsets()

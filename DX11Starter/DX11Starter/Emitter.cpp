@@ -1,13 +1,15 @@
 #include "Emitter.h"
-
+#include "EngineManager.h"
 
 
 Emitter::Emitter()
 {
 }
 
-Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, EmitterType emit, ID3D11Device* device)
+Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, EmitterType emit)
 {
+	EngineManager* manager = EngineManager::GetInstance();
+
 	transform = Transform();
 
 	maxParticles = maxP;
@@ -63,9 +65,73 @@ Emitter::Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, Em
 
 	}
 
-	InitBuffers(device);
+	InitBuffers(manager->GetDevice());
+	manager->RegistarEmitter(*this);
 }
 
+
+Emitter::Emitter(int maxP, ID3D11ShaderResourceView * text)
+{
+	EngineManager* manager = EngineManager::GetInstance();
+
+	transform = Transform();
+
+	maxParticles = maxP;
+	particles = new Particle[maxP];
+	particlesVerts = new ParticleVertex[maxP * 4];
+
+	particleMat.LoadSurfaceTexture(text);
+	blendType = BlendingType::CutOut;
+	emitterType = EmitterType::Cone;
+
+	startColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	endColor = { 1.0f, 1.0f, 1.0f, 0.0f };
+	accelerationDir = transform.foward;
+	emitterAcceleration = 1.0f;
+	startSize = 1.0f;
+	endSize = 0.1f;
+
+	startRadius = 0.0f;
+	endRadius = 1.0f;
+
+	cylinderRad = 1.0f;
+
+	sphereRad = 1.0f;
+
+	lifeTime = 1.0f;
+	timeSinceEmit = 0.0f;
+	emissionRate = 0.1f;
+	oldestParticlePos = 0;
+	newestParticlePos = 0;
+	particleCount = 0;
+	isLooping = true;
+	isActive = true;
+	stopEmitting = false;
+	pauseEmitter = false;
+	//localSpace = true;
+	localSpace = false;
+
+	volatile int i = 0;
+	for (; i < maxParticles; i++)
+	{
+		particles[i] = Particle();
+		particles[i].isDead = false;
+
+		particlesVerts[(i * 4) + 0] = ParticleVertex({ -1.0f, 1.0f, 0.0f }, { 0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
+		particlesVerts[(i * 4) + 1] = ParticleVertex({ 1.0f, 1.0f, 0.0f }, { 1.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
+		particlesVerts[(i * 4) + 2] = ParticleVertex({ -1.0f, -1.0f, 0.0f }, { 1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+		particlesVerts[(i * 4) + 3] = ParticleVertex({ 1.0f, -1.0f, 0.0f }, { 0.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+
+		/*particlesVerts[(i * 4) + 0] = ParticleVertex({ -1.0f, 1.0f, 0.0f }, { 0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
+		particlesVerts[(i * 4) + 1] = ParticleVertex({ 1.0f, 1.0f, 0.0f }, { 1.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
+		particlesVerts[(i * 4) + 2] = ParticleVertex({ -1.0f, -1.0f, 0.0f }, { 0.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+		particlesVerts[(i * 4) + 3] = ParticleVertex({ 1.0f, -1.0f, 0.0f }, { 1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });*/
+
+	}
+
+	InitBuffers(manager->GetDevice());
+	manager->RegistarEmitter(*this);
+}
 
 Emitter::~Emitter()
 {
@@ -74,6 +140,42 @@ Emitter::~Emitter()
 
 	emitterBuffer->Release();
 	indBuffer->Release();
+}
+
+Emitter * Emitter::CreateSnowEmitter(ID3D11ShaderResourceView * text)
+{
+	Emitter* newEmitter = new Emitter(2000, text, Emitter::BlendingType::CutOut, Emitter::EmitterType::Cone);
+
+	//newEmitter->startColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+	newEmitter->endColor = { 1.0f, 1.0f, 1.0f, 0.8f };
+	newEmitter->emitterAcceleration = 10.0f;
+	newEmitter->transform.Rotate(0.0f, 90.0f, 0.0f);
+	newEmitter->accelerationDir = newEmitter->transform.foward;
+	newEmitter->emissionRate = 0.005f;
+	newEmitter->lifeTime = 10.0f;
+	newEmitter->startRadius = 50.0f;
+	newEmitter->endRadius = 60.0f;
+	newEmitter->cylinderRad = 200.0f;
+	//newEmitter->localSpace = true;
+	newEmitter->startSize = 1.5f;
+	newEmitter->endSize = 1.5f;
+
+	return newEmitter;
+}
+
+Emitter * Emitter::CreateExplosionEmitter(ID3D11ShaderResourceView * text)
+{
+	Emitter* newEmitter = new Emitter(10, text, Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere);
+
+	newEmitter->emitterAcceleration = 5.0f;
+	newEmitter->emissionRate = 0.0f;
+	newEmitter->lifeTime = 2.0f;
+	newEmitter->sphereRad = 1.0f;
+	newEmitter->startSize = 1.0f;
+	newEmitter->endSize = 20.0f;
+	newEmitter->isLooping = false;
+
+	return newEmitter;
 }
 
 void Emitter::InitBuffers(ID3D11Device* device)
@@ -357,5 +459,11 @@ void Emitter::Reset()
 	particleCount = 0;
 	isActive = true;
 	stopEmitting = false;
+}
+
+void Emitter::Destroy()
+{
+	EngineManager* manager = EngineManager::GetInstance();
+	manager->DeleteEmitter(*this);
 }
 

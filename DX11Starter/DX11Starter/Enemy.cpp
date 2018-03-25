@@ -19,7 +19,7 @@ Enemy::Enemy(GameEntity * obj, float hlth, float spd, float dmg)
 
 	type = EnemyType::Random;
 
-	originalSurColor = enemyObj->renderingComponent.mat.surfaceColor;
+	originalSurColor = enemyObj->renderingComponent->mat.surfaceColor;
 }
 
 Enemy::Enemy(GameEntity * obj, float hlth, float spd, float dmg, Enemy::EnemyType ty)
@@ -39,7 +39,7 @@ Enemy::Enemy(GameEntity * obj, float hlth, float spd, float dmg, Enemy::EnemyTyp
 
 	type = ty;
 
-	originalSurColor = enemyObj->renderingComponent.mat.surfaceColor;
+	originalSurColor = enemyObj->renderingComponent->mat.surfaceColor;
 }
 
 Enemy::~Enemy()
@@ -84,7 +84,7 @@ void Enemy::Update(float dt)
 
 void Enemy::FlashRed()
 {
-	enemyObj->renderingComponent.mat.surfaceColor = {1.0f,0.0f,0.0f,1.0f};
+	enemyObj->renderingComponent->mat.surfaceColor = {1.0f,0.0f,0.0f,1.0f};
 	canFlash = true;
 }
 void Enemy::UpdateFlashRed(float dt)
@@ -92,7 +92,7 @@ void Enemy::UpdateFlashRed(float dt)
 	if (flashTimer <= 0.0f)
 	{
 		canFlash = false;
-		enemyObj->renderingComponent.mat.surfaceColor = originalSurColor;
+		enemyObj->renderingComponent->mat.surfaceColor = originalSurColor;
 		flashTimer = flashCD;
 		return;
 	}
@@ -107,4 +107,10 @@ void Enemy::TakeDamage(float dmg)
 		isDead = true;
 	}
 	FlashRed();
+}
+
+void Enemy::Destroy()
+{
+	enemyObj->Destroy();
+	delete this;
 }

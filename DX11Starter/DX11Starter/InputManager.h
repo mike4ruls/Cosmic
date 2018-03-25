@@ -1,9 +1,15 @@
 #pragma once
 #include "CosmicInput.h"
+#include "KeyCode.h"
 #include <unordered_map>
 struct Binding {
 	int keyboard;
 	int controller;
+};
+struct MouseScreen
+{
+	float x;
+	float y;
 };
 class InputManager {
 public:
@@ -40,6 +46,10 @@ public:
 	static void ChangeActionBinding(int act, int keyboardBind, int controllerBind);
 	static void ChangeActionKeyBoardBinding(int act, int keyboardBind);
 	static void ChangeActionControllerBinding(int act, int controllerBind);
+
+	MouseScreen currentMousePos;
+	bool click;
+	bool prevClick;
 private:
 	InputManager();
 	static InputManager* instance;

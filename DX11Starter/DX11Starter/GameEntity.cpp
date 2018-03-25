@@ -1,5 +1,5 @@
 #include "GameEntity.h"
-
+#include "EngineManager.h"
 
 
 GameEntity::GameEntity()
@@ -7,30 +7,55 @@ GameEntity::GameEntity()
 	// Do i need to declare structs?
 	transform = Transform();
 	rigidBody = RigidBody();
-	renderingComponent = RenderingComponent();
+	renderingComponent = new RenderingComponent();
 	myMesh = new Mesh();
 	name = "";
-	renderingComponent.canRender = true;
+	renderingComponent->canRender = true;
 	ResetGameEntity();
 	isActive = true;
+}
+
+GameEntity::GameEntity(Mesh * m, bool ui)
+{
+	transform = Transform();
+	rigidBody = RigidBody();
+	renderingComponent = new RenderingComponent();
+	renderingComponent->mat = Material();
+	myMesh = m;
+	name = "";
+	renderingComponent->canRender = true;
+	renderingComponent->mat.materialType = Material::Opaque;
+	renderingComponent->mat.surfaceColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	renderingComponent->mat.surfaceReflectance = 0.0f;
+	renderingComponent->meshName = myMesh->meshName;
+
+	prevMatType = renderingComponent->mat.materialType;
+	isTranslucent = false;
+	isUI = ui;
+	isActive = true;
+
+	EngineManager* manager = EngineManager::GetInstance();
+	manager->RegistarGameObject(*this);
+
+	ResetGameEntity();
 }
 
 GameEntity::GameEntity(Mesh * m, Renderer* r, bool ui)
 {
 	transform = Transform();
 	rigidBody = RigidBody();
-	renderingComponent = RenderingComponent();
-	renderingComponent.mat = Material();
+	renderingComponent = new RenderingComponent();
+	renderingComponent->mat = Material();
 	myMesh = m;
 	rend = r;
 	name = "";
-	renderingComponent.canRender = true;
-	renderingComponent.mat.materialType = Material::Opaque;
-	renderingComponent.mat.surfaceColor = {1.0f, 1.0f, 1.0f, 1.0f};
-	renderingComponent.mat.surfaceReflectance = 0.0f;
-	renderingComponent.meshName = myMesh->meshName;
+	renderingComponent->canRender = true;
+	renderingComponent->mat.materialType = Material::Opaque;
+	renderingComponent->mat.surfaceColor = {1.0f, 1.0f, 1.0f, 1.0f};
+	renderingComponent->mat.surfaceReflectance = 0.0f;
+	renderingComponent->meshName = myMesh->meshName;
 
-	prevMatType = renderingComponent.mat.materialType;
+	prevMatType = renderingComponent->mat.materialType;
 	isTranslucent = false;
 	isUI = ui;
 	isActive = true;
@@ -38,18 +63,18 @@ GameEntity::GameEntity(Mesh * m, Renderer* r, bool ui)
 	ResetGameEntity();
 	if(!isUI)
 	{
-		rend->PushToRenderer(&renderingComponent);
+		rend->PushToRenderer(renderingComponent);
 	}
 	else
 	{
-		rend->PushToCanvas(&renderingComponent);
+		rend->PushToCanvas(renderingComponent);
 	}
 }
 
 
 GameEntity::~GameEntity()
 {
-
+	if (renderingComponent != nullptr) { delete renderingComponent, renderingComponent = nullptr; };
 }
 
 void GameEntity::ResetGameEntity()
@@ -75,7 +100,7 @@ void GameEntity::ResetGameEntity()
 	rigidBody.myCollider.center = {0.0f, 0.0f, 0.0f};
 	rigidBody.myCollider.radius = 1.0f;
 
-	DirectX::XMStoreFloat4x4(&renderingComponent.worldMat, DirectX::XMMatrixIdentity());
+	DirectX::XMStoreFloat4x4(&renderingComponent->worldMat, DirectX::XMMatrixIdentity());
 }
 
 void GameEntity::SetWorld()
@@ -95,8 +120,8 @@ void GameEntity::SetWorld()
 
 	DirectX::XMMATRIX invTrans = DirectX::XMMatrixInverse(&deter, DirectX::XMMatrixTranspose(world));
 
-	DirectX::XMStoreFloat4x4(&renderingComponent.worldMat, world);
-	DirectX::XMStoreFloat4x4(&renderingComponent.worldInvTrans, invTrans);
+	DirectX::XMStoreFloat4x4(&renderingComponent->worldMat, world);
+	DirectX::XMStoreFloat4x4(&renderingComponent->worldInvTrans, invTrans);
 }
 
 void GameEntity::Update(float dt)
@@ -104,26 +129,27 @@ void GameEntity::Update(float dt)
 	if(isActive)
 	{
 		rigidBody.UpdateVelocity(&transform, dt);
-		CheckMatType();
+		ChangeMatType();
 		SetWorld();
 	}
 }
 
-void GameEntity::CheckMatType()
+void GameEntity::ChangeMatType()
 {
-	if(prevMatType != renderingComponent.mat.materialType)
+	if(prevMatType != renderingComponent->mat.materialType)
 	{
-		if(renderingComponent.mat.materialType == Material::Transulcent)
+		EngineManager* manager = EngineManager::GetInstance();
+		if(renderingComponent->mat.materialType == Material::Transulcent)
 		{
-			rend->PushToTranslucent(&renderingComponent);
+			manager->GetRender()->PushToTranslucent(renderingComponent);
 			isTranslucent = true;
 		}
 		else if(isTranslucent)
 		{
-			rend->RemoveFromTranslucent(renderingComponent.mat.translucentID);
+			manager->GetRender()->RemoveFromTranslucent(renderingComponent->mat.translucentID);
 			isTranslucent = false;
 		}
-		prevMatType = renderingComponent.mat.materialType;
+		prevMatType = renderingComponent->mat.materialType;
 	}
 }
 
@@ -139,10 +165,17 @@ void GameEntity::SetActive(bool act)
 
 void GameEntity::ToggleVisibility()
 {
-	renderingComponent.canRender = renderingComponent.canRender ? false : true;
+	renderingComponent->canRender = renderingComponent->canRender ? false : true;
 }
 
 void GameEntity::SetVisibility(bool act)
 {
-	renderingComponent.canRender = act;
+	renderingComponent->canRender = act;
+}
+
+void GameEntity::Destroy()
+{
+	
+	EngineManager* manager = EngineManager::GetInstance();
+	manager->DeleteGameObject(*this);
 }

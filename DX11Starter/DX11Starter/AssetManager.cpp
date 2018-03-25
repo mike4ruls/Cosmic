@@ -83,6 +83,7 @@ void AssetManager::AssLoadMeshes()
 	AssimpLoadMeshes("Assets/Models/HaloSword.obj", "HaloSword");
 	AssimpLoadMeshes("Assets/Models/RainbowRoad.obj", "RainbowRoad");
 	AssimpLoadMeshes("Assets/Models/FighterShip/WraithRaiderStarship.obj", "FighterShip");
+
 }
 void AssetManager::AssLoadMeshesAnims()
 {

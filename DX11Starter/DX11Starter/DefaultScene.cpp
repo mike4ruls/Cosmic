@@ -1,8 +1,7 @@
 #include "DefaultScene.h"
 
-DefaultScene::DefaultScene(CosmicEngine* eng) :Game()
+DefaultScene::DefaultScene() :Game()
 {
-	engine = eng;
 	cam = new FreeCamera();
 }
 
@@ -13,8 +12,8 @@ DefaultScene::~DefaultScene()
 
 void DefaultScene::Init()
 {
-	inputManager = engine->inputManager;
 	cam->inputManager = inputManager;
+	*skyBoxTexture = assetManager->GetSkyBoxTexture("sunny");
 }
 void DefaultScene::Update(float deltaTime, float totalTime)
 {
@@ -22,25 +21,25 @@ void DefaultScene::Update(float deltaTime, float totalTime)
 }
 void DefaultScene::CheckInputs(float deltaTime)
 {
-	if (engine->inputManager->IsKeyPressed(97))
+	if (inputManager->IsKeyPressed(KeyCode::NUMPAD_1))
 	{
-		Scene* level1 = new Scene(engine);
-		engine->LoadScene(level1);
+		SceneManager::LoadScene(SceneManager::_Scene);
 	}
-	else if (engine->inputManager->IsKeyPressed(98))
+	else if (inputManager->IsKeyPressed(KeyCode::NUMPAD_2))
 	{
-		Scene2* level2 = new Scene2(engine);
-		engine->LoadScene(level2);
+		SceneManager::LoadScene(SceneManager::_Scene2);
 	}
-	else if (engine->inputManager->IsKeyPressed(99))
+	else if (inputManager->IsKeyPressed(KeyCode::NUMPAD_3))
 	{
-		Tyrian2000* tyrian = new Tyrian2000(engine);
-		engine->LoadScene(tyrian);
+		SceneManager::LoadScene(SceneManager::_Tyrian2000);
 	}
-	else if (engine->inputManager->IsKeyPressed(100))
+	else if (inputManager->IsKeyPressed(KeyCode::NUMPAD_4))
 	{
-		FrameRateTestScene* frameRate = new FrameRateTestScene(engine);
-		engine->LoadScene(frameRate);
+		SceneManager::LoadScene(SceneManager::_FrameRateTestScene);
+	}
+	else if (inputManager->IsKeyPressed(KeyCode::NUMPAD_5))
+	{
+		SceneManager::LoadScene(SceneManager::_TetrisScene);
 	}
 	/*else if (engine->inputManager->IsKeyPressed(101))
 	{

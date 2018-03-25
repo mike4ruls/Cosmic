@@ -2,15 +2,13 @@
 
 
 
-Tyrian2000::Tyrian2000(CosmicEngine* eng)
+Tyrian2000::Tyrian2000()
 {
-	engine = eng;
 	cam = new FreeCamera();
 }
 
-Tyrian2000::Tyrian2000(CosmicEngine * eng, char * tile)
+Tyrian2000::Tyrian2000(char * tile)
 {
-	engine = eng;
 	cam = new FreeCamera();
 	tileName = tile;
 }
@@ -35,22 +33,20 @@ Tyrian2000::~Tyrian2000()
 void Tyrian2000::Init()
 {
 	// ========== IMPORTANT ==========//
-	inputManager = engine->inputManager;
+	inputManager = InputManager::GetInstance();
 	cam->inputManager = inputManager;
 	gameManager = TyrianGameManager::GetInstance();
-	gameManager->SetEngine(engine);
 	SetUpActions();
 	InitUI();
 	// ========== ====================//
 
-	engine->lockCamera = true;
+	cam->lockCameraRot = true;
 	cam->lockCameraPos = true;
-	engine->lockSunLight = true;
-	engine->rend->skyBoxOn = false;
+	//engine->rend->skyBoxOn = false; <-------------------------------------------------
 	cam->transform.Rotate(0.0f, 89.5f, 0.0f);
 	cam->transform.Translate(0.0f, 5.0f, 0.0f);
 
-	engine->rend->sunLight->ligComponent->lightDir = {0.7f, -0.5f, 0.0f};
+	sunLight->ligComponent->lightDir = { -0.7f, -0.5f, 0.0f };
 
 	currentState = GameState::StartMenu;
 	SetUpLevel();
@@ -212,7 +208,7 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 
 				for (unsigned int j = 0; j < enemyPool.size(); j++)
 				{
-					if (engine->physicEngine->SphereVSphereCollision(p1->frontBulletPool[i]->bullet, enemyPool[j]->enemyObj))
+					if (physicEngine->SphereVSphereCollision(p1->frontBulletPool[i]->bullet, enemyPool[j]->enemyObj))
 					{
 						enemyPool[j]->TakeDamage(p1->frontAtkDamage);
 						p1->frontBulletPool[i]->Deactivate();
@@ -230,7 +226,7 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 
 				for (unsigned int j = 0; j < enemyPool.size(); j++)
 				{
-					if (engine->physicEngine->SphereVSphereCollision(p1->leftBulletPool[i]->bullet, enemyPool[j]->enemyObj))
+					if (physicEngine->SphereVSphereCollision(p1->leftBulletPool[i]->bullet, enemyPool[j]->enemyObj))
 					{
 						enemyPool[j]->TakeDamage(p1->leftAtkDamage);
 						p1->leftBulletPool[i]->Deactivate();
@@ -248,7 +244,7 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 
 				for (unsigned int j = 0; j < enemyPool.size(); j++)
 				{
-					if (engine->physicEngine->SphereVSphereCollision(p1->rightBulletPool[i]->bullet, enemyPool[j]->enemyObj))
+					if (physicEngine->SphereVSphereCollision(p1->rightBulletPool[i]->bullet, enemyPool[j]->enemyObj))
 					{
 						enemyPool[j]->TakeDamage(p1->rightAtkDamage);
 						p1->rightBulletPool[i]->Deactivate();
@@ -265,7 +261,7 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 				KillEnemy(i);
 				continue;
 			}
-			if (engine->physicEngine->SphereVSphereCollision(p1->player, enemyPool[i]->enemyObj))
+			if (physicEngine->SphereVSphereCollision(p1->player, enemyPool[i]->enemyObj))
 			{
 				p1->TakeDamage(enemyPool[i]->damage);
 			}
@@ -397,9 +393,8 @@ void Tyrian2000::Update(float deltaTime, float totalTime)
 	{
 		TyrianGameManager::Release();
 
-		DefaultScene* defaultScene = new DefaultScene(engine);
-		engine->rend->skyBoxOn = true;
-		engine->LoadScene(defaultScene);
+		SceneManager::LoadScene(SceneManager::_DefaultScene);
+		//engine->rend->skyBoxOn = true; <----------------------------------
 	}
 }
 void Tyrian2000::UpdateParticlesPos()
@@ -586,54 +581,54 @@ void Tyrian2000::InitUI()
 	float pauseButtondist = 0.00f;
 	float endButtondist = 1.0f;
 
-	startButton = engine->CreateCanvasButton();
-	startButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("startButtontext"));
+	startButton = new Button();
+	startButton->LoadTexture(assetManager->GetSurfaceTexture("startButtontext"));
 	startButton->SetWidth(0.3f);
 	startButton->SetHeight(0.1f);
 	startButton->posY = -0.7f;
 	//startButton->SetVisibility(false);
 
-	resumeButton = engine->CreateCanvasButton();
-	resumeButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("resumeButtontext"));
+	resumeButton = new Button();
+	resumeButton->LoadTexture(assetManager->GetSurfaceTexture("resumeButtontext"));
 	resumeButton->SetWidth(0.5f);
 	resumeButton->SetHeight(0.1f);
 	resumeButton->posY = -pauseButtondist;
 	resumeButton->SetVisibility(false);
 	resumeButton->SetActive(false);
 
-	retryButton = engine->CreateCanvasButton();
-	retryButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("retryButtontext"));
+	retryButton = new Button();
+	retryButton->LoadTexture(assetManager->GetSurfaceTexture("retryButtontext"));
 	retryButton->SetWidth(0.5f);
 	retryButton->SetHeight(0.1f);
 	retryButton->posY = -0.4f - pauseButtondist;
 	retryButton->SetVisibility(false);
 	retryButton->SetActive(false);
 
-	quitButton = engine->CreateCanvasButton();
-	quitButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("quitButtontext"));
+	quitButton = new Button();
+	quitButton->LoadTexture(assetManager->GetSurfaceTexture("quitButtontext"));
 	quitButton->SetWidth(0.5f);
 	quitButton->SetHeight(0.1f);
 	quitButton->posY = -0.8f - pauseButtondist;
 	quitButton->SetVisibility(false);
 	quitButton->SetActive(false);
 
-	endRetryButton = engine->CreateCanvasButton();
-	endRetryButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("retryButtontext"));
+	endRetryButton = new Button();
+	endRetryButton->LoadTexture(assetManager->GetSurfaceTexture("retryButtontext"));
 	endRetryButton->SetWidth(0.5f);
 	endRetryButton->SetHeight(0.1f);
 	endRetryButton->posY = -endButtondist;
 	endRetryButton->SetVisibility(false);
 	endRetryButton->SetActive(false);
 
-	endContinueButton = engine->CreateCanvasButton();
-	endContinueButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("continueButtontext"));
+	endContinueButton = new Button();
+	endContinueButton->LoadTexture(assetManager->GetSurfaceTexture("continueButtontext"));
 	endContinueButton->SetWidth(0.5f);
 	endContinueButton->SetHeight(0.1f);
 	endContinueButton->posY = -endButtondist;
 	endContinueButton->SetVisibility(false);
 	endContinueButton->SetActive(false);
 
-	healthBar = engine->CreateCanvasImage();
+	healthBar = new Image();
 	healthBar->SetUIColor({ 0.0f, 1.0f, 0.0f, 1.0f });
 	healthBar->SetAlignment(UI::Alignment::Left);
 	healthBar->posX = 0.3f;
@@ -641,7 +636,7 @@ void Tyrian2000::InitUI()
 	healthBar->SetWidth(0.6f);
 	healthBar->SetHeight(0.02f);
 
-	healthBarFade = engine->CreateCanvasImage();
+	healthBarFade = new Image();
 	healthBarFade->SetUIColor({ 0.3f, 0.0f, 0.0f, 1.0f });
 	healthBarFade->SetAlignment(healthBar->GetAlignment());
 	healthBarFade->posX = healthBar->posX;
@@ -649,21 +644,21 @@ void Tyrian2000::InitUI()
 	healthBarFade->SetWidth(healthBar->GetWidth());
 	healthBarFade->SetHeight(healthBar->GetHeight());
 
-	healthBarBack = engine->CreateCanvasImage();
+	healthBarBack = new Image();
 	healthBarBack->SetUIColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 	healthBarBack->posX = healthBar->posX + healthBar->GetXOffSet();
 	healthBarBack->posY = healthBar->posY + healthBar->GetYOffSet();
 	healthBarBack->SetWidth(healthBar->GetWidth());
 	healthBarBack->SetHeight(healthBar->GetHeight());
 
-	healthBarBorder = engine->CreateCanvasImage();
+	healthBarBorder = new Image();
 	healthBarBorder->SetUIColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	healthBarBorder->posX = healthBar->posX + healthBar->GetXOffSet();
 	healthBarBorder->posY = healthBar->posY + healthBar->GetYOffSet();
 	healthBarBorder->SetWidth(healthBar->GetWidth() + 0.04f);
 	healthBarBorder->SetHeight(healthBar->GetHeight() + 0.04f);
 
-	endGamePanel = engine->CreateCanvasImage();
+	endGamePanel = new Image();
 	endGamePanel->SetWidth(0.8f);
 	endGamePanel->SetHeight(0.8f);
 
@@ -674,15 +669,15 @@ void Tyrian2000::InitUI()
 	healthBarBorder->SetVisibility(false);
 	endGamePanel->SetVisibility(false);
 
-	Tyrian2000Logo = engine->CreateCanvasImage();
-	Tyrian2000Logo->LoadTexture(engine->rend->assets->GetSurfaceTexture("tyrian2000Logo"));
+	Tyrian2000Logo = new Image();
+	Tyrian2000Logo->LoadTexture(assetManager->GetSurfaceTexture("tyrian2000Logo"));
 	Tyrian2000Logo->SetHeight(0.5f);
 	Tyrian2000Logo->SetHeight(0.3f);
 	Tyrian2000Logo->posY = 0.6f;
 	//Tyrian2000Logo->SetVisibility(false);
 
-	pausedLogo = engine->CreateCanvasImage();
-	pausedLogo->LoadTexture(engine->rend->assets->GetSurfaceTexture("pausedLogo"));
+	pausedLogo = new Image();
+	pausedLogo->LoadTexture(assetManager->GetSurfaceTexture("pausedLogo"));
 	pausedLogo->SetHeight(0.5f);
 	pausedLogo->SetHeight(0.3f);
 	pausedLogo->posY = 0.6f;
@@ -691,9 +686,9 @@ void Tyrian2000::InitUI()
 
 void Tyrian2000::CreatePlayer()
 {
-	p1 = new Player(engine, engine->CreateGameObject("FighterShip"), 100.0f, 0.1f, 1.0f);
-	p1->player->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("fighterShipSur"));
-	p1->player->renderingComponent.mat.surfaceReflectance = 0.3f;
+	p1 = new Player(new GameEntity(assetManager->GetMesh("FighterShip"),false), assetManager->GetMesh("Sphere"),100.0f, 0.1f, 1.0f);
+	p1->player->renderingComponent->mat.LoadSurfaceTexture(assetManager->GetSurfaceTexture("fighterShipSur"));
+	p1->player->renderingComponent->mat.surfaceReflectance = 0.3f;
 	p1->player->transform.Scale(0.005f);
 	p1->player->transform.Translate(0.0f, 4.0f + moveDownHeight, -4.0f);
 
@@ -708,7 +703,7 @@ void Tyrian2000::SetUpParticles()
 	leftWingPos = {-0.7f, 0.3f, -1.3f};
 	rightWingPos = { 0.7f, 0.3f, -1.3f};
 
-	shipExhaust = engine->CreateParticalEmitter(100, engine->rend->assets->GetSurfaceTexture("blackFire"), Emitter::BlendingType::CutOut, Emitter::EmitterType::Cone);
+	shipExhaust = new Emitter(100, assetManager->GetSurfaceTexture("blackFire"), Emitter::BlendingType::CutOut, Emitter::EmitterType::Cone);
 	shipExhaust->transform.Rotate(0.0f, 200.0f, 0.0f);
 	shipExhaust->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + exhaustPos.x, p1->player->transform.position.y + exhaustPos.y, p1->player->transform.position.z + exhaustPos.z);
 	shipExhaust->accelerationDir = shipExhaust->transform.foward;
@@ -721,7 +716,7 @@ void Tyrian2000::SetUpParticles()
 	shipExhaust->lifeTime = 0.15f;
 	shipExhaust->localSpace = false;
 
-	leftWing = engine->CreateParticalEmitter(200, engine->rend->assets->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive, Emitter::EmitterType::Cone);
+	leftWing = new Emitter(200, assetManager->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive, Emitter::EmitterType::Cone);
 	leftWing->transform.Rotate(0.0f, 180.0f, 0.0f);
 	leftWing->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + leftWingPos.x, p1->player->transform.position.y + leftWingPos.y, p1->player->transform.position.z + leftWingPos.z);
 	leftWing->accelerationDir = leftWing->transform.foward;
@@ -734,7 +729,7 @@ void Tyrian2000::SetUpParticles()
 	leftWing->lifeTime = 0.5f;
 	leftWing->localSpace = false;
 
-	rightWing = engine->CreateParticalEmitter(200, engine->rend->assets->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive, Emitter::EmitterType::Cone);
+	rightWing = new Emitter(200, assetManager->GetSurfaceTexture("whiteSmoke"), Emitter::BlendingType::Additive, Emitter::EmitterType::Cone);
 	rightWing->transform.Rotate(0.0f, 180.0f, 0.0f);
 	rightWing->transform.position = DirectX::XMFLOAT3(p1->player->transform.position.x + rightWingPos.x, p1->player->transform.position.y + rightWingPos.y, p1->player->transform.position.z + rightWingPos.z);
 	rightWing->accelerationDir = leftWing->accelerationDir;
@@ -750,7 +745,7 @@ void Tyrian2000::SetUpParticles()
 
 	for(int i = 0; i < 20; i++)
 	{
-		explosionPool.push_back(engine->CreateExplosionEmitter(engine->rend->assets->GetSurfaceTexture("blackFire")));
+		explosionPool.push_back(Emitter::CreateExplosionEmitter(assetManager->GetSurfaceTexture("blackFire")));
 		explosionPool[i]->isActive = false;
 		explosionPool[i]->startSize = 1.0f;
 		explosionPool[i]->endSize = 8.0f;
@@ -758,7 +753,7 @@ void Tyrian2000::SetUpParticles()
 
 	for (int i = 0; i < 20; i++)
 	{
-		explosionStarPool.push_back(engine->CreateExplosionEmitter(engine->rend->assets->GetSurfaceTexture("orangeFire")));
+		explosionStarPool.push_back(Emitter::CreateExplosionEmitter(assetManager->GetSurfaceTexture("orangeFire")));
 		explosionStarPool[i]->isActive = false;
 		explosionStarPool[i]->startSize = 1.0f;
 		explosionStarPool[i]->endSize = 6.0f;
@@ -773,12 +768,12 @@ void Tyrian2000::SetUpParticles()
 
 void Tyrian2000::CreateFinishLine()
 {
-	fLine = new FinishLine(engine->CreateGameObject("Cube"), 2.0f);
+	fLine = new FinishLine(new GameEntity(assetManager->GetMesh("Cube"), false), 2.0f);
 	fLine->finishLine->transform.Translate(0.0f, p1->player->transform.position.y, 18.0f); //18
 	fLine->finishLine->transform.Scale(43.0f, 1.0f, 1.0f);
-	fLine->finishLine->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture("checker"));
-	fLine->finishLine->renderingComponent.mat.uvXOffSet = 0.25f;
-	fLine->finishLine->renderingComponent.mat.uvYOffSet = 10.0f;
+	fLine->finishLine->renderingComponent->mat.LoadSurfaceTexture(assetManager->GetSurfaceTexture("checker"));
+	fLine->finishLine->renderingComponent->mat.uvXOffSet = 0.25f;
+	fLine->finishLine->renderingComponent->mat.uvYOffSet = 10.0f;
 	fLine->finishLine->SetWorld();
 }
 
@@ -787,7 +782,7 @@ void Tyrian2000::SpawnWaveEnemies()
 	int numOfEnemies = 10;
 	for(int i = 0; i < numOfEnemies; i++)
 	{
-		Enemy* newEnemy = new Enemy(engine->CreateGameObject("Cone"), 2.5f, -3.0f, 1.0f, Enemy::EnemyType::Regular);
+		Enemy* newEnemy = new Enemy(new GameEntity(assetManager->GetMesh("Cone"), false), 2.5f, -3.0f, 1.0f, Enemy::EnemyType::Regular);
 		newEnemy->enemyObj->transform.Translate(-18.0f + (i*4), p1->player->transform.position.y, 18.0f);
 		newEnemy->enemyObj->transform.Scale(1.3f);
 		newEnemy->enemyObj->transform.Rotate(0.0f, 0.0f, 90.0f);
@@ -801,7 +796,7 @@ void Tyrian2000::SpawnWaveBlockers()
 	int numOfEnemies = 15;
 	for (int i = 0; i < numOfEnemies; i++)
 	{
-		Enemy* newEnemy = new Enemy(engine->CreateGameObject("Sphere"), 15.0f, -2.0f, 3.0f, Enemy::EnemyType::ZigZag);
+		Enemy* newEnemy = new Enemy(new GameEntity(assetManager->GetMesh("Sphere"), false), 15.0f, -2.0f, 3.0f, Enemy::EnemyType::ZigZag);
 		newEnemy->enemyObj->transform.Translate(-20.0f + (i * 3), p1->player->transform.position.y, 22.0f);
 		newEnemy->enemyObj->transform.Scale(2.0f);
 		enemyPool.push_back(newEnemy);
@@ -815,12 +810,12 @@ void Tyrian2000::LoadBackgroundTilePool(std::string textureName)
 
 	for (unsigned int i = 0; i < numOfTiles; i++)
 	{
-		BackGroundTiles* newTile = new BackGroundTiles(engine->CreateGameObject("BackGroundTile"), { 0,0,-1.0f * 5.0f });
+		BackGroundTiles* newTile = new BackGroundTiles(new GameEntity(assetManager->GetMesh("BackGroundTile"), false), { 0,0,-1.0f * 5.0f });
 		newTile->tile->transform.Scale(tileSize + 2, tileSize + 1, tileSize + 1);
 		newTile->tile->transform.Translate(0.0f, moveDownHeight, (i * tileDist));
-		newTile->tile->renderingComponent.mat.LoadSurfaceTexture(engine->rend->assets->GetSurfaceTexture(textureName));
-		newTile->tile->renderingComponent.mat.uvXOffSet = 5.0f;
-		newTile->tile->renderingComponent.mat.uvYOffSet = 5.0f;
+		newTile->tile->renderingComponent->mat.LoadSurfaceTexture(assetManager->GetSurfaceTexture(textureName));
+		newTile->tile->renderingComponent->mat.uvXOffSet = 5.0f;
+		newTile->tile->renderingComponent->mat.uvYOffSet = 5.0f;
 
 		backgroundTilePool.push_back(newTile);
 	}
@@ -855,9 +850,8 @@ void Tyrian2000::KillEnemy(int pos)
 			}
 		}
 	}
-	engine->DestroyGameObject(deleteEnemy->enemyObj);
 	enemyPool.erase(enemyPool.begin() + pos);
-	delete deleteEnemy;
+	deleteEnemy->Destroy();
 }
 
 void Tyrian2000::SetUpActions()
@@ -885,13 +879,13 @@ void Tyrian2000::ChooseEndPanelText()
 
 	if(p1->isDead)
 	{
-		endGamePanel->LoadTexture(engine->rend->assets->GetSurfaceTexture("failed2"));
+		endGamePanel->LoadTexture(assetManager->GetSurfaceTexture("failed2"));
 		endRetryButton->SetActive(true);
 		endRetryButton->SetVisibility(true);
 	}
 	else 
 	{
-		endGamePanel->LoadTexture(engine->rend->assets->GetSurfaceTexture("complete1"));
+		endGamePanel->LoadTexture(assetManager->GetSurfaceTexture("complete1"));
 		endContinueButton->SetActive(true);
 		endContinueButton->SetVisibility(true); 
 	}
@@ -939,8 +933,7 @@ void Tyrian2000::ResetLevel()
 	}
 	for (unsigned int i = 0; i < enemyPool.size(); i++)
 	{
-		engine->DestroyGameObject(enemyPool[i]->enemyObj);
-		if (enemyPool[i] != nullptr) { delete enemyPool[i]; enemyPool[i] = nullptr; }
+		enemyPool[i]->Destroy();
 	}
 	enemyPool.clear();
 	for (unsigned int i = 0; i < backgroundTilePool.size(); i++)

@@ -4,7 +4,8 @@ class TextBox :
 	public UI
 {
 public:
-	TextBox(GameEntity* o, UIType t);
+	TextBox(GameEntity* o);
+	TextBox();
 	~TextBox();
 
 	void Update(float dt);

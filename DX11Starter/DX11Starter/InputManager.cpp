@@ -1,4 +1,5 @@
 #include "InputManager.h"
+#include "KeyCode.h"
 #include <vector>
 
 InputManager* InputManager::instance = 0;

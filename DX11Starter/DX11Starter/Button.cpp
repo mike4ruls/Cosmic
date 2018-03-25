@@ -1,10 +1,19 @@
 #include "Button.h"
-#include "CosmicEngine.h"
 
 
-Button::Button(GameEntity* o, UIType t, void* eng):UI(o, t)
+Button::Button(GameEntity* o):UI(o, UIType::Button)
 {
-	engine = eng;
+	inputManager = InputManager::GetInstance();
+	prevMousePos = MouseScreen();
+	prevMousePos.x = 0.0f;
+	prevMousePos.y = 0.0f;
+	constantHighlight = false;
+	isHovering = false;
+}
+
+Button::Button() :UI(UIType::Button)
+{
+	inputManager = InputManager::GetInstance();
 	prevMousePos = MouseScreen();
 	prevMousePos.x = 0.0f;
 	prevMousePos.y = 0.0f;
@@ -21,25 +30,24 @@ void Button::Update(float dt)
 {
 	if (obj->isActive)
 	{
-		CosmicEngine* en = (CosmicEngine*)engine;
 		UpdateVars(dt);
 
-		if (prevMousePos.x != en->currentMousePos.x || prevMousePos.y != en->currentMousePos.y)
+		if (prevMousePos.x != inputManager->currentMousePos.x || prevMousePos.y != inputManager->currentMousePos.y)
 		{
 			CheckHovering();
 		}
 
 		if (isHovering || constantHighlight)
 		{
-			obj->renderingComponent.mat.surfaceColor = uiSurColor;
+			obj->renderingComponent->mat.surfaceColor = uiSurColor;
 		}
 		else
 		{
-			obj->renderingComponent.mat.surfaceColor = { uiSurColor.x * 0.3f, uiSurColor.y * 0.3f, uiSurColor.z * 0.3f, 1.0f };
+			obj->renderingComponent->mat.surfaceColor = { uiSurColor.x * 0.3f, uiSurColor.y * 0.3f, uiSurColor.z * 0.3f, 1.0f };
 		}
 
-		prevMousePos.x = en->currentMousePos.x;
-		prevMousePos.y = en->currentMousePos.y;
+		prevMousePos.x = inputManager->currentMousePos.x;
+		prevMousePos.y = inputManager->currentMousePos.y;
 	}
 }
 
@@ -50,13 +58,12 @@ void Button::CheckHovering()
 	maxY = (obj->transform.position.y * 0.5f) + (height / 2.0f);
 	minY = (obj->transform.position.y * 0.5f) - (height / 2.0f);
 
-	CosmicEngine* en= (CosmicEngine*)engine;
-	if(en->currentMousePos.x < minX || en->currentMousePos.x > maxX)
+	if(inputManager->currentMousePos.x < minX || inputManager->currentMousePos.x > maxX)
 	{
 		isHovering = false;
 		return;
 	}
-	if (en->currentMousePos.y < minY || en->currentMousePos.y > maxY)
+	if (inputManager->currentMousePos.y < minY || inputManager->currentMousePos.y > maxY)
 	{
 		isHovering = false;
 		return;
@@ -67,8 +74,7 @@ void Button::CheckHovering()
 
 bool Button::IsClicked()
 {
-	CosmicEngine* en = (CosmicEngine*)engine;
-	if(isHovering && en->click && !en->prevClick)
+	if(isHovering && inputManager->click && !inputManager->prevClick)
 	{
 		return true;
 	}
@@ -78,10 +84,10 @@ bool Button::IsClicked()
 
 void Button::LoadTexture(ID3D11ShaderResourceView * svr)
 {
-	obj->renderingComponent.mat.LoadSurfaceTexture(svr);
+	obj->renderingComponent->mat.LoadSurfaceTexture(svr);
 }
 
 void Button::FlushTexture()
 {
-	obj->renderingComponent.mat.FlushSurfaceTexture();
+	obj->renderingComponent->mat.FlushSurfaceTexture();
 }

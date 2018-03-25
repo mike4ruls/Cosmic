@@ -1,5 +1,7 @@
 #pragma once
 #include "UI.h"
+#include "InputManager.h"
+
 class Button :
 	public UI
 {
@@ -10,8 +12,11 @@ public:
 		float y;
 	};
 
-	Button(GameEntity* o, UIType t, void* eng);
+	Button(GameEntity* o);
+	Button();
 	~Button();
+
+	InputManager* inputManager;
 
 	MouseScreen prevMousePos;
 

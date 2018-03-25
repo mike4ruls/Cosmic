@@ -39,5 +39,6 @@ public:
 	void FlashRed();
 	void UpdateFlashRed(float dt);
 	void TakeDamage(float dmg);
+	void Destroy();
 };
 

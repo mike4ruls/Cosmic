@@ -7,10 +7,10 @@ ShopMenu::ShopMenu()
 
 }
 
-ShopMenu::ShopMenu(CosmicEngine * eng, Player* player)
+ShopMenu::ShopMenu(AssetManager* a, Player* player)
 {
-	engine = eng;
-	inputManager = eng->inputManager;
+	assetManager = a;
+	inputManager = InputManager::GetInstance();
 	p1 = player;
 	shopUIcount = 0;
 	subUpgradecount = 0;
@@ -32,7 +32,7 @@ void ShopMenu::Init()
 {
 	UIMoveDownHieght = -2.510f;
 
-	yellowTriangle = engine->CreateCanvasImage();
+	yellowTriangle = new Image();
 	yellowTriangle->SetAlignment(UI::Bottom);
 	yellowTriangle->SetUIColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 	yellowTriangle->SetWidth(0.12f);
@@ -42,9 +42,9 @@ void ShopMenu::Init()
 
 	shopUI.push_back(yellowTriangle);
 
-	metalTab = engine->CreateCanvasButton();
+	metalTab = new Button();
 	metalTab->SetAlignment(UI::Bottom);
-	metalTab->LoadTexture(engine->rend->assets->GetSurfaceTexture("metalTab"));
+	metalTab->LoadTexture(assetManager->GetSurfaceTexture("metalTab"));
 	metalTab->SetWidth(0.18f);
 	metalTab->SetHeight(0.08f);
 	//metalTab->posY = -1.149f;
@@ -52,11 +52,11 @@ void ShopMenu::Init()
 
 	shopUI.push_back(metalTab);
 
-	/*metalTopBar = engine->CreateCanvasImage();
-	metalTopBar->LoadTexture(engine->rend->assets->GetSurfaceTexture("metalBack"));
+	/*metalTopBar = new Image();
+	metalTopBar->LoadTexture(assetManager->GetSurfaceTexture("metalBack"));
 	metalTopBar->SetAlignment(UI::Bottom);
-	metalTopBar->obj->renderingComponent.mat.uvXOffSet = 0.1f;
-	metalTopBar->obj->renderingComponent.mat.uvYOffSet = 1.0f;
+	metalTopBar->obj->renderingComponent->mat.uvXOffSet = 0.1f;
+	metalTopBar->obj->renderingComponent->mat.uvYOffSet = 1.0f;
 	metalTopBar->SetWidth(0.04f);
 	metalTopBar->SetHeight(0.755f);
 	metalTopBar->posX = 0.501f;
@@ -66,8 +66,8 @@ void ShopMenu::Init()
 
 	float buttonHieght = -0.584f;
 
-	statsButton = engine->CreateCanvasButton();
-	statsButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("statsText"));
+	statsButton = new Button();
+	statsButton->LoadTexture(assetManager->GetSurfaceTexture("statsText"));
 	statsButton->SetAlignment(UI::Bottom);
 	statsButton->SetWidth(0.525f);
 	statsButton->SetHeight(0.1f);
@@ -76,8 +76,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(statsButton);
 
-	shopButton = engine->CreateCanvasButton();
-	shopButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("shopText"));
+	shopButton = new Button();
+	shopButton->LoadTexture(assetManager->GetSurfaceTexture("shopText"));
 	shopButton->SetAlignment(UI::Bottom);
 	shopButton->SetWidth(0.525f);
 	shopButton->SetHeight(0.1f);
@@ -86,8 +86,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(shopButton);
 
-	upgradesButton = engine->CreateCanvasButton();
-	upgradesButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("upgradesText"));
+	upgradesButton = new Button();
+	upgradesButton->LoadTexture(assetManager->GetSurfaceTexture("upgradesText"));
 	upgradesButton->SetAlignment(UI::Bottom);
 	upgradesButton->SetWidth(0.525f);
 	upgradesButton->SetHeight(0.1f);
@@ -96,8 +96,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(upgradesButton);
 
-	abilitiesButton = engine->CreateCanvasButton();
-	abilitiesButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("abilitiesText"));
+	abilitiesButton = new Button();
+	abilitiesButton->LoadTexture(assetManager->GetSurfaceTexture("abilitiesText"));
 	abilitiesButton->SetAlignment(UI::Bottom);
 	abilitiesButton->SetWidth(0.525f);
 	abilitiesButton->SetHeight(0.1f);
@@ -106,8 +106,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(abilitiesButton);
 
-	healthUpButton = engine->CreateCanvasButton();
-	healthUpButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("healthUpIcon"));
+	healthUpButton = new Button();
+	healthUpButton->LoadTexture(assetManager->GetSurfaceTexture("healthUpIcon"));
 	healthUpButton->SetUIColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 	healthUpButton->SetAlignment(UI::Bottom);
 	healthUpButton->SetWidth(0.2f);
@@ -117,8 +117,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(healthUpButton);
 
-	defenseUpButton = engine->CreateCanvasButton();
-	defenseUpButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("defenseUpIcon"));
+	defenseUpButton = new Button();
+	defenseUpButton->LoadTexture(assetManager->GetSurfaceTexture("defenseUpIcon"));
 	defenseUpButton->SetUIColor({ 0.0f, 1.0f, 1.0f, 1.0f });
 	defenseUpButton->SetAlignment(UI::Bottom);
 	defenseUpButton->SetWidth(0.2f);
@@ -128,7 +128,7 @@ void ShopMenu::Init()
 
 	shopUI.push_back(defenseUpButton);
 
-	displayDividerImage = engine->CreateCanvasImage();
+	displayDividerImage = new Image();
 	displayDividerImage->SetUIColor({ 0.3f, 0.3f, 0.3f, 1.0f });
 	//displayDividerImage->SetUIColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 	displayDividerImage->SetAlignment(UI::Bottom);
@@ -140,7 +140,7 @@ void ShopMenu::Init()
 
 	shopUI.push_back(displayDividerImage);
 
-	displayDividerImage2 = engine->CreateCanvasImage();
+	displayDividerImage2 = new Image();
 	displayDividerImage2->SetUIColor({ 0.3f, 0.3f, 0.3f, 1.0f });
 	//displayDividerImage->SetUIColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 	displayDividerImage2->SetAlignment(UI::Bottom);
@@ -152,8 +152,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(displayDividerImage2);
 
-	iconDisplayImage = engine->CreateCanvasImage();
-	iconDisplayImage->LoadTexture(engine->rend->assets->GetSurfaceTexture("sheildComponentIcon"));
+	iconDisplayImage = new Image();
+	iconDisplayImage->LoadTexture(assetManager->GetSurfaceTexture("sheildComponentIcon"));
 	//iconDisplayImage->SetUIColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 	iconDisplayImage->SetAlignment(UI::Bottom);
 	iconDisplayImage->SetWidth(0.15f);
@@ -163,8 +163,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(iconDisplayImage);
 
-	leftSubButton = engine->CreateCanvasButton();
-	leftSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("sheildPowerIcon"));
+	leftSubButton = new Button();
+	leftSubButton->LoadTexture(assetManager->GetSurfaceTexture("sheildPowerIcon"));
 	//leftSubButton->SetUIColor({ 0.0f, 1.0f, 1.0f, 1.0f });
 	leftSubButton->SetAlignment(UI::Bottom);
 	leftSubButton->SetWidth(0.08f);
@@ -174,8 +174,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(leftSubButton);
 
-	rightSubButton = engine->CreateCanvasButton();
-	rightSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("sheildRechargeIcon"));
+	rightSubButton = new Button();
+	rightSubButton->LoadTexture(assetManager->GetSurfaceTexture("sheildRechargeIcon"));
 	//rightSubButton->SetUIColor({ 0.0f, 0.0f, 1.0f, 1.0f });
 	rightSubButton->SetAlignment(UI::Bottom);
 	rightSubButton->SetWidth(0.08f);
@@ -185,7 +185,7 @@ void ShopMenu::Init()
 
 	shopUI.push_back(rightSubButton);
 
-	displayLineDownImage = engine->CreateCanvasImage();
+	displayLineDownImage = new Image();
 	displayLineDownImage->SetUIColor({ 0.3f, 0.3f, 0.3f, 1.0f });
 	displayLineDownImage->SetAlignment(UI::Bottom);
 	displayLineDownImage->SetWidth(0.015f);
@@ -195,7 +195,7 @@ void ShopMenu::Init()
 
 	shopUI.push_back(displayLineDownImage);
 
-	displayLineDownImage2 = engine->CreateCanvasImage();
+	displayLineDownImage2 = new Image();
 	displayLineDownImage2->SetUIColor({ 0.3f, 0.3f, 0.3f, 1.0f });
 	displayLineDownImage2->SetAlignment(UI::Bottom);
 	displayLineDownImage2->SetWidth(0.015f);
@@ -205,8 +205,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(displayLineDownImage2);
 
-	buyButton = engine->CreateCanvasButton();
-	buyButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("buyText"));
+	buyButton = new Button();
+	buyButton->LoadTexture(assetManager->GetSurfaceTexture("buyText"));
 	buyButton->SetAlignment(UI::Bottom);
 	buyButton->SetWidth(0.304f);
 	buyButton->SetHeight(0.1f);
@@ -218,8 +218,8 @@ void ShopMenu::Init()
 	// Guided Missle
 	float shipPos = -2.3f + 0.420f;
 
-	guidedMissleButton = engine->CreateCanvasButton();
-	guidedMissleButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("guidedMissleIcon"));
+	guidedMissleButton = new Button();
+	guidedMissleButton->LoadTexture(assetManager->GetSurfaceTexture("guidedMissleIcon"));
 	guidedMissleButton->SetUIColor({ 0.0f, 1.0f, 0.4f, 1.0f });
 	guidedMissleButton->SetAlignment(UI::Bottom);
 	guidedMissleButton->SetWidth(0.15f);
@@ -231,8 +231,8 @@ void ShopMenu::Init()
 
 	// Sheild Component
 
-	sheildCompButton = engine->CreateCanvasButton();
-	sheildCompButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("sheildComponentIcon"));
+	sheildCompButton = new Button();
+	sheildCompButton->LoadTexture(assetManager->GetSurfaceTexture("sheildComponentIcon"));
 	sheildCompButton->SetUIColor({ 0.0f, 1.0f, 1.0f, 1.0f });
 	sheildCompButton->SetAlignment(UI::Bottom);
 	sheildCompButton->SetWidth(0.15f);
@@ -243,8 +243,8 @@ void ShopMenu::Init()
 	shopUI.push_back(sheildCompButton);
 
 	// Front Blaster
-	frontBlasterButton = engine->CreateCanvasButton();
-	frontBlasterButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("cannonIcon"));
+	frontBlasterButton = new Button();
+	frontBlasterButton->LoadTexture(assetManager->GetSurfaceTexture("cannonIcon"));
 	frontBlasterButton->SetUIColor({ 1.0f, 0.0f, 0.3f, 1.0f });
 	frontBlasterButton->obj->transform.Rotate(0.0f, 0.0f, 135.0f);
 	frontBlasterButton->SetAlignment(UI::Bottom);
@@ -256,8 +256,8 @@ void ShopMenu::Init()
 	shopUI.push_back(frontBlasterButton);
 
 	// Left Blaster
-	leftBlasterButton = engine->CreateCanvasButton();
-	leftBlasterButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("cannonIcon"));
+	leftBlasterButton = new Button();
+	leftBlasterButton->LoadTexture(assetManager->GetSurfaceTexture("cannonIcon"));
 	leftBlasterButton->SetUIColor({ 1.0f, 0.0f, 0.3f, 1.0f });
 	leftBlasterButton->obj->transform.Rotate(0.0f, 0.0f, 135.0f);
 	leftBlasterButton->SetAlignment(UI::Bottom);
@@ -269,8 +269,8 @@ void ShopMenu::Init()
 	shopUI.push_back(leftBlasterButton);
 
 	// Right Blaster
-	rightBlasterButton = engine->CreateCanvasButton();
-	rightBlasterButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("cannonIcon"));
+	rightBlasterButton = new Button();
+	rightBlasterButton->LoadTexture(assetManager->GetSurfaceTexture("cannonIcon"));
 	rightBlasterButton->SetUIColor({ 1.0f, 0.0f, 0.3f, 1.0f });
 	rightBlasterButton->obj->transform.Rotate(0.0f, 0.0f, 135.0f);
 	rightBlasterButton->SetAlignment(UI::Bottom);
@@ -281,8 +281,8 @@ void ShopMenu::Init()
 
 	shopUI.push_back(rightBlasterButton);
 
-	myShipImage = engine->CreateCanvasImage();
-	myShipImage->LoadTexture(engine->rend->assets->GetSurfaceTexture("jetFighterIcon"));
+	myShipImage = new Image();
+	myShipImage->LoadTexture(assetManager->GetSurfaceTexture("jetFighterIcon"));
 	myShipImage->SetUIColor({ 1.0f, 0.3f, 0.0f, 1.0f });
 	myShipImage->SetAlignment(UI::Bottom);
 	myShipImage->obj->transform.Rotate(0.0f, 0.0f, 45.0f);
@@ -294,7 +294,7 @@ void ShopMenu::Init()
 
 	shopUI.push_back(myShipImage);
 
-	metalForeGround = engine->CreateCanvasImage();
+	metalForeGround = new Image();
 	//metalForeGround->SetUIColor({ 0.05f, 0.05f, 0.05f, 1.0f });
 	metalForeGround->SetUIColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	metalForeGround->SetWidth(1.277f);
@@ -304,7 +304,7 @@ void ShopMenu::Init()
 
 	shopUI.push_back(metalForeGround);
 
-	metalForeGround2 = engine->CreateCanvasImage();
+	metalForeGround2 = new Image();
 	//metalForeGround2->SetUIColor({ 0.05f, 0.05f, 0.05f, 1.0f });
 	metalForeGround2->SetUIColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	metalForeGround2->SetWidth(0.777f);
@@ -314,12 +314,12 @@ void ShopMenu::Init()
 
 	shopUI.push_back(metalForeGround2);
 
-	metalBackGround = engine->CreateCanvasImage();
-	metalBackGround->LoadTexture(engine->rend->assets->GetSurfaceTexture("metalBack"));
+	metalBackGround = new Image();
+	metalBackGround->LoadTexture(assetManager->GetSurfaceTexture("metalBack"));
 	metalBackGround->SetWidth(2.22f);
 	metalBackGround->SetHeight(1.25f);
-	metalBackGround->obj->renderingComponent.mat.uvXOffSet = 3.5f;
-	metalBackGround->obj->renderingComponent.mat.uvYOffSet = 3.0f;
+	metalBackGround->obj->renderingComponent->mat.uvXOffSet = 3.5f;
+	metalBackGround->obj->renderingComponent->mat.uvYOffSet = 3.0f;
 	metalBackGround->posY = UIMoveDownHieght;
 
 	shopUI.push_back(metalBackGround);
@@ -355,7 +355,7 @@ void ShopMenu::Update(float dt)
 				healthUpButton->constantHighlight = true;
 				defenseUpButton->constantHighlight = false;
 
-				iconDisplayImage->LoadTexture(healthUpButton->obj->renderingComponent.mat.GetSurfaceTexture());
+				iconDisplayImage->LoadTexture(healthUpButton->obj->renderingComponent->mat.GetSurfaceTexture());
 				iconDisplayImage->SetUIColor(healthUpButton->uiSurColor);
 				iconDisplayImage->SetVisibility(true);
 			}
@@ -364,7 +364,7 @@ void ShopMenu::Update(float dt)
 				defenseUpButton->constantHighlight = true;
 				healthUpButton->constantHighlight = false;
 
-				iconDisplayImage->LoadTexture(defenseUpButton->obj->renderingComponent.mat.GetSurfaceTexture());
+				iconDisplayImage->LoadTexture(defenseUpButton->obj->renderingComponent->mat.GetSurfaceTexture());
 				iconDisplayImage->SetUIColor(defenseUpButton->uiSurColor);
 				iconDisplayImage->SetVisibility(true);
 			}
@@ -622,16 +622,16 @@ void ShopMenu::SetUpUpgradeUI()
 		leftSubButton->constantHighlight = false;
 		rightSubButton->constantHighlight = false;
 
-		iconDisplayImage->LoadTexture(guidedMissleButton->obj->renderingComponent.mat.GetSurfaceTexture());
+		iconDisplayImage->LoadTexture(guidedMissleButton->obj->renderingComponent->mat.GetSurfaceTexture());
 		iconDisplayImage->SetUIColor(guidedMissleButton->uiSurColor);
 		iconDisplayImage->SetVisibility(true);
 
 		if (p1->guidedMissleBought)
 		{
-			leftSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("powerIcon"));
+			leftSubButton->LoadTexture(assetManager->GetSurfaceTexture("powerIcon"));
 			leftSubButton->SetUIColor(guidedMissleButton->uiSurColor);
 			leftSubButton->SetVisibility(true);
-			rightSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("sheildRechargeIcon"));
+			rightSubButton->LoadTexture(assetManager->GetSurfaceTexture("sheildRechargeIcon"));
 			rightSubButton->SetUIColor(guidedMissleButton->uiSurColor);
 			rightSubButton->SetVisibility(true);
 			displayLineDownImage->SetVisibility(true);
@@ -657,16 +657,16 @@ void ShopMenu::SetUpUpgradeUI()
 		leftSubButton->constantHighlight = false;
 		rightSubButton->constantHighlight = false;
 
-		iconDisplayImage->LoadTexture(sheildCompButton->obj->renderingComponent.mat.GetSurfaceTexture());
+		iconDisplayImage->LoadTexture(sheildCompButton->obj->renderingComponent->mat.GetSurfaceTexture());
 		iconDisplayImage->SetUIColor(sheildCompButton->uiSurColor);
 		iconDisplayImage->SetVisibility(true);
 
 		if (p1->sheildComponentBought)
 		{
-			leftSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("sheildPowerIcon"));
+			leftSubButton->LoadTexture(assetManager->GetSurfaceTexture("sheildPowerIcon"));
 			leftSubButton->SetUIColor(sheildCompButton->uiSurColor);
 			leftSubButton->SetVisibility(true);
-			rightSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("sheildRechargeIcon"));
+			rightSubButton->LoadTexture(assetManager->GetSurfaceTexture("sheildRechargeIcon"));
 			rightSubButton->SetUIColor(sheildCompButton->uiSurColor);
 			rightSubButton->SetVisibility(true);
 			displayLineDownImage->SetVisibility(true);
@@ -692,14 +692,14 @@ void ShopMenu::SetUpUpgradeUI()
 		leftSubButton->constantHighlight = false;
 		rightSubButton->constantHighlight = false;
 
-		iconDisplayImage->LoadTexture(frontBlasterButton->obj->renderingComponent.mat.GetSurfaceTexture());
+		iconDisplayImage->LoadTexture(frontBlasterButton->obj->renderingComponent->mat.GetSurfaceTexture());
 		iconDisplayImage->SetUIColor(frontBlasterButton->uiSurColor);
 		iconDisplayImage->SetVisibility(true);
 
-		leftSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("powerIcon"));
+		leftSubButton->LoadTexture(assetManager->GetSurfaceTexture("powerIcon"));
 		leftSubButton->SetUIColor(frontBlasterButton->uiSurColor);
 		leftSubButton->SetVisibility(true);
-		rightSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("attackSpeedIcon"));
+		rightSubButton->LoadTexture(assetManager->GetSurfaceTexture("attackSpeedIcon"));
 		rightSubButton->SetUIColor(frontBlasterButton->uiSurColor);
 		rightSubButton->SetVisibility(true);
 		displayLineDownImage->SetVisibility(true);
@@ -718,16 +718,16 @@ void ShopMenu::SetUpUpgradeUI()
 		leftSubButton->constantHighlight = false;
 		rightSubButton->constantHighlight = false;
 
-		iconDisplayImage->LoadTexture(leftBlasterButton->obj->renderingComponent.mat.GetSurfaceTexture());
+		iconDisplayImage->LoadTexture(leftBlasterButton->obj->renderingComponent->mat.GetSurfaceTexture());
 		iconDisplayImage->SetUIColor(leftBlasterButton->uiSurColor);
 		iconDisplayImage->SetVisibility(true);
 
 		if (p1->leftBlasterBought)
 		{
-			leftSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("powerIcon"));
+			leftSubButton->LoadTexture(assetManager->GetSurfaceTexture("powerIcon"));
 			leftSubButton->SetUIColor(leftBlasterButton->uiSurColor);
 			leftSubButton->SetVisibility(true);
-			rightSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("attackSpeedIcon"));
+			rightSubButton->LoadTexture(assetManager->GetSurfaceTexture("attackSpeedIcon"));
 			rightSubButton->SetUIColor(leftBlasterButton->uiSurColor);
 			rightSubButton->SetVisibility(true);
 			displayLineDownImage->SetVisibility(true);
@@ -753,16 +753,16 @@ void ShopMenu::SetUpUpgradeUI()
 		leftSubButton->constantHighlight = false;
 		rightSubButton->constantHighlight = false;
 
-		iconDisplayImage->LoadTexture(rightBlasterButton->obj->renderingComponent.mat.GetSurfaceTexture());
+		iconDisplayImage->LoadTexture(rightBlasterButton->obj->renderingComponent->mat.GetSurfaceTexture());
 		iconDisplayImage->SetUIColor(rightBlasterButton->uiSurColor);
 		iconDisplayImage->SetVisibility(true);
 
 		if (p1->rightBlasterBought)
 		{
-			leftSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("powerIcon"));
+			leftSubButton->LoadTexture(assetManager->GetSurfaceTexture("powerIcon"));
 			leftSubButton->SetUIColor(rightBlasterButton->uiSurColor);
 			leftSubButton->SetVisibility(true);
-			rightSubButton->LoadTexture(engine->rend->assets->GetSurfaceTexture("attackSpeedIcon"));
+			rightSubButton->LoadTexture(assetManager->GetSurfaceTexture("attackSpeedIcon"));
 			rightSubButton->SetUIColor(rightBlasterButton->uiSurColor);
 			rightSubButton->SetVisibility(true);
 			displayLineDownImage->SetVisibility(true);

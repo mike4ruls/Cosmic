@@ -3,12 +3,13 @@
 #include "Renderer.h"
 #include "Transform.h"
 #include "RigidBody.h"
-#include "RenderingComponent.h"
+#include "renderingComponent.h"
 
 class GameEntity
 {
 public:
 	GameEntity();
+	GameEntity(Mesh * m, bool ui);
 	GameEntity(Mesh* m, Renderer* r, bool ui);
 	~GameEntity();
 
@@ -17,18 +18,20 @@ public:
 	Renderer* rend;
 	Transform transform;
 	RigidBody rigidBody;
-	RenderingComponent renderingComponent;
+	RenderingComponent* renderingComponent;
 
 	void ResetGameEntity();
 	void SetWorld();
 	void Update(float dt);
-	void CheckMatType();
+	void ChangeMatType();
 
 	void ToggleActive();
 	void SetActive(bool act);
 
 	void ToggleVisibility();
 	void SetVisibility(bool act);
+
+	void Destroy();
 
 	unsigned int Id;
 

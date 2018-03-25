@@ -1,6 +1,5 @@
 #pragma once
 #include "Player.h"
-#include "CosmicEngine.h"
 enum LevelStatus {
 	Locked,
 	Unlocked,
@@ -27,7 +26,6 @@ public:
 	~TyrianGameManager();
 
 	static TyrianGameManager* GetInstance();
-	static void SetEngine(CosmicEngine* eng);
 	static void Release();
 	static void LoadLevel(int levelind);
 	static void LoadWorld();

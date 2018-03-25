@@ -22,11 +22,11 @@ class CosmicEngine
 {
 
 public:
-	struct MouseScreen
-	{
-		float x;
-		float y;
-	};
+	//struct MouseScreen
+	//{
+	//	float x;
+	//	float y;
+	//};
 	CosmicEngine(HINSTANCE hInstance);
 	~CosmicEngine();
 
@@ -40,12 +40,8 @@ public:
 	Camera* cam;
 	Game* currentScene = nullptr;
 
-	float dayTime;
 	bool pauseGame;
-	bool click;
-	bool prevClick;
 	bool initFinished = false;
-	bool lockSunLight = false;
 	bool lockCamera = false;
 
 	// Overridden setup and game loop methods, which
@@ -56,13 +52,9 @@ public:
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
 
-	GameEntity* CreateGameObject(std::string name);
-	TextBox* CreateCanvasTextBox();
-	Button* CreateCanvasButton();
-	Image* CreateCanvasImage();
-	Emitter* CreateParticalEmitter(int maxP, ID3D11ShaderResourceView* text, Emitter::BlendingType type, Emitter::EmitterType emit);
-	Emitter* CreateSnowEmitter(ID3D11ShaderResourceView* text);
-	Emitter* CreateExplosionEmitter(ID3D11ShaderResourceView* text);
+	void PushGameObject(GameEntity* gameobject);
+	void PushUI(UI* newUI);
+	void PushEmitter(Emitter* newEmitter);
 
 	// Loading new scenes
 	void LoadDefaultScene(Game* newScene);
@@ -73,10 +65,12 @@ public:
 	void DestroyUIObject(UI* obj);
 	void DestroyEmitter(Emitter* obj);
 
+	ID3D11Device* GetDevice();
+
 	CosmicPhysic* physicEngine;
 	InputManager* inputManager;
 
-	MouseScreen currentMousePos;
+	//MouseScreen currentMousePos;
 	POINT prevMousePos;
 
 	// Overridden mouse input helper methods

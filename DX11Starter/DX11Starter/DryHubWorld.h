@@ -1,5 +1,4 @@
 #pragma once
-#include "CosmicEngine.h"
 #include "DefaultScene.h"
 #include "Tyrian2000.h"
 #include "TyrianGameManager.h"
@@ -8,6 +7,8 @@
 #include "BackGroundTiles.h"
 #include "Player.h"
 #include "ShopMenu.h"
+#include "HubWorldEngine.h"
+
 class DryHubWorld :
 	public Game
 {
@@ -31,46 +32,18 @@ public:
 		EndLevel
 	}currentState;
 
-	DryHubWorld(CosmicEngine* eng);
+	DryHubWorld();
 	~DryHubWorld();
-	CosmicEngine* engine;
 	TyrianGameManager* gameManager = 0;
+	HubWorldEngine* hubEngine;
 
 	void Init();
-	void SetUpLevel();
 	void Update(float deltaTime, float totalTime);
-	void UpdateParticlesPos();
-	void CheckInputs(float dt);
-	void CheckControllerInputs(float dt);
-	void CheckOutOfBounds();
-	void InitUI();
 	void LoadBackgroundTilePool(std::string textureName);
-	void CreatePlayer();
-	void SetUpParticles();
-	void LoadBulletPool();
-	void CalculateCamPos(float dt);
-	void SetUpActions();
 	void CompletedLevel(int index);
 	void Quit();
 
 	Player* p1 = nullptr;
-
-	Image* healthBar = nullptr;
-	Image* healthBarFade = nullptr;
-	Image* healthBarBack = nullptr;
-	Image* healthBarBorder = nullptr;
-
-	ShopMenu* myShop;
-
-	Emitter* shipExhaust;
-	Emitter* leftWing;
-	Emitter* rightWing;
-
-	DirectX::XMFLOAT3 exhaustPos;
-	DirectX::XMFLOAT3 leftWingPos;
-	DirectX::XMFLOAT3 rightWingPos;
-
-	DirectX::XMFLOAT3 curCamPos;
 
 	GameEntity* blueStar;
 
@@ -81,22 +54,11 @@ public:
 
 	std::vector<BackGroundTiles*> backgroundTilePool;
 
-	float posXConstraint;
-	float negXConstraint;
-	float posZConstraint;
-	float negZConstraint;
-
-	float xCamConstraint;
-	float posZCamConstraint;
-	float negZCamConstraint;
-
-	float moveDownHeight;
-	float camSpeed;
 	float worldRotSpeed;
 
 	float tileSize;
 	float tileDistOffScreen;
+	float moveDownHeight;
 
 	int levelCount;
 };
-

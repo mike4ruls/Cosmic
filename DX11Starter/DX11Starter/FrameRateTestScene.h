@@ -1,5 +1,4 @@
 #pragma once
-#include "CosmicEngine.h"
 #include "DefaultScene.h"
 #include "Player.h"
 
@@ -7,7 +6,7 @@ class FrameRateTestScene :
 	public Game
 {
 public:
-	FrameRateTestScene(CosmicEngine* eng);
+	FrameRateTestScene();
 	~FrameRateTestScene();
 
 	void Init();
@@ -15,8 +14,6 @@ public:
 	void CheckInputs(float deltaTime);
 
 	std::vector<GameEntity*> gameObjects;
-
-	CosmicEngine* engine;
 	Player* p1;
 
 private:

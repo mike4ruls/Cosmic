@@ -12,6 +12,7 @@ public:
 
 	UI();
 	UI(GameEntity* o, UIType t);
+	UI(UIType t);
 	~UI();
 
 	enum Alignment {
@@ -41,6 +42,8 @@ public:
 	void SetUIColor(DirectX::XMFLOAT4 color);
 	void SetVisibility(bool vis);
 	void SetActive(bool act);
+
+	void Destroy();
 
 protected:
 	Alignment align;

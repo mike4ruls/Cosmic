@@ -1,5 +1,4 @@
 #pragma once
-#include "CosmicEngine.h"
 #include "Game.h"
 #include "DefaultScene.h"
 #include "Scene2.h"
@@ -7,7 +6,7 @@ class Scene :
 	public Game
 {
 public:
-	Scene(CosmicEngine* eng);
+	Scene();
 	~Scene();
 
 	void Init();
@@ -16,7 +15,7 @@ public:
 	void SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot);
 
 	std::vector<GameEntity*> gameObjects;
-	CosmicEngine* engine;
+	float dayTime;
 private:
 
 };

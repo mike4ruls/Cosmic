@@ -19,10 +19,12 @@ public:
 	};
 
 	Emitter();
-	Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, EmitterType emit, ID3D11Device* device);
+	Emitter(int maxP, ID3D11ShaderResourceView* text, BlendingType type, EmitterType emit);
+	Emitter(int maxP, ID3D11ShaderResourceView* text);
 	~Emitter();
 
-	Transform transform;
+	static Emitter* CreateSnowEmitter(ID3D11ShaderResourceView* text);
+	static Emitter* CreateExplosionEmitter(ID3D11ShaderResourceView* text);
 
 	void InitBuffers(ID3D11Device* device);
 	void Update(float dt);
@@ -31,6 +33,9 @@ public:
 	void CopyParticle(int pos);
 	void LoadParticlesForGPU(ID3D11DeviceContext* context);
 	void Reset();
+	void Destroy();
+
+	Transform transform;
 
 	Particle* particles;
 	ParticleVertex* particlesVerts;

@@ -4,7 +4,8 @@ class Image :
 	public UI
 {
 public:
-	Image(GameEntity* o, UIType t);
+	Image(GameEntity* o);
+	Image();
 	~Image();
 
 	void Update(float dt);

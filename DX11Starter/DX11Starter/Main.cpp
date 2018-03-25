@@ -1,5 +1,5 @@
-//#define DEFAULT
-#define TYRIAN2000
+#define DEFAULT
+//#define TYRIAN2000
 //#define TETRIS
 #if !defined DEFAULT && !defined TYRIAN2000 && !defined TETRIS
 #define DEFAULT
@@ -11,11 +11,12 @@
 #elif defined TYRIAN2000
 #include "Tyrian2000.h"
 #elif defined TETRIS
-#include "Tyrian2000.h"
+#include "TetrisScene.h"
 #endif
 
 #include <Windows.h>
 #include "CosmicEngine.h"
+#include "EngineManager.h"
 
 // --------------------------------------------------------
 // Entry point for a graphical (non-console) Windows application
@@ -79,18 +80,20 @@ int WINAPI WinMain(
 
 
 #ifdef DEFAULT
-	DefaultScene* defaultLevel = new DefaultScene(&cosmic);
+	DefaultScene* defaultLevel = new DefaultScene();
 	cosmic.LoadDefaultScene(defaultLevel);
 #elif defined TYRIAN2000
-	Tyrian2000* tyrian = new Tyrian2000(&cosmic);
+	Tyrian2000* tyrian = new Tyrian2000();
 	cosmic.LoadDefaultScene(tyrian);
 #elif defined TETRIS
-	Tyrian2000* tyrian = new Tyrian2000(&cosmic);
-	cosmic.LoadDefaultScene(tyrian); #elif TETRIS
+	TetrisScene* tetris = new TetrisScene();
+	cosmic.LoadDefaultScene(tetris);
 #endif
-
-
+	EngineManager::GetInstance();
+	EngineManager::SetUp(&cosmic);
 	// Begin the message and game loop, and then return
 	// whatever we get back once the game loop is over
-	return cosmic.Run();
+	HRESULT end = cosmic.Run();
+	EngineManager::DestroyInstance();
+	return end;
 }

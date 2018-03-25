@@ -1,7 +1,6 @@
 #pragma once
 #include "GameEntity.h"
 #include "Bullet.h"
-#include "CosmicEngine.h"
 
 class Player
 {
@@ -13,9 +12,9 @@ public:
 	};
 
 	Player();
-	Player(CosmicEngine* eng, GameEntity* obj, float hlt, float atkSpd, float atkdmg);
+	Player(GameEntity* obj, Mesh* bul, float hlt, float atkSpd, float atkdmg);
 	~Player();
-	CosmicEngine* engine;
+	Mesh* bulletMesh;
 
 	TurnState currentTurnState;
 	TurnState previousTurnState;

@@ -1,8 +1,7 @@
 #include "Scene.h"
 
-Scene::Scene(CosmicEngine* eng):Game()
+Scene::Scene():Game()
 {
-	engine = eng;
 	cam = new FreeCamera();
 }
 
@@ -14,28 +13,28 @@ Scene::~Scene()
 void Scene::Init()
 {
 	// Creating game objects
-	inputManager = engine->inputManager;
 	cam->inputManager = inputManager;
 
-	gameObjects.push_back(engine->CreateGameObject("Triangle"));
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("Triangle"), false));
 
-	
-	gameObjects.push_back(engine->CreateGameObject("Teapot"));
-	gameObjects.push_back(engine->CreateGameObject("Cube"));
-	gameObjects.push_back(engine->CreateGameObject("Sphere"));
-	gameObjects.push_back(engine->CreateGameObject("Triangle"));
-	gameObjects.push_back(engine->CreateGameObject("RainbowRoad"));
+
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("Teapot"), false));
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("Cube"), false));
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("Sphere"), false));
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("Triangle"), false));
+	gameObjects.push_back(new GameEntity(assetManager->GetMesh("RainbowRoad"), false));
 
 
 	gameObjects[2]->transform.Translate(0, 3, 4);
 	gameObjects[3]->transform.Translate(0, -3, 1);
 	gameObjects[5]->transform.Scale(0.1f);
-	gameObjects[5]->renderingComponent.mat.surfaceReflectance = 0.5f;
+	gameObjects[5]->renderingComponent->mat.surfaceReflectance = 0.5f;
 
-	gameObjects[2]->renderingComponent.mat.surfaceColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-	gameObjects[1]->renderingComponent.mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+	gameObjects[2]->renderingComponent->mat.surfaceColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+	gameObjects[1]->renderingComponent->mat.surfaceColor = { 0.0f, 1.0f, 0.0f, 1.0f };
 
-	engine->rend->LoadSkyBox(3);
+	dayTime = 0.0f;
+	*skyBoxTexture = assetManager->GetSkyBoxTexture("space");
 }
 void Scene::Update(float deltaTime, float totalTime)
 {
@@ -52,6 +51,7 @@ void Scene::Update(float deltaTime, float totalTime)
 	gameObjects[2]->transform.Rotate(10.0f * deltaTime, 30.0f * deltaTime, 30.0f * deltaTime);
 	gameObjects[3]->transform.scale = { scale,scale,scale };
 
+	sunLight->ligComponent->lightDir = { sin(dayTime),cos(dayTime),0.0f };
 	CheckInputs(deltaTime);
 }
 
@@ -102,30 +102,27 @@ void Scene::CheckInputs(float deltaTime)
 	}
 	if (inputManager->IsKeyDown(49) || inputManager->IsButtonDown(CosmicInput::BUTTON_L1))
 	{
-		engine->dayTime += 1.0f * deltaTime;
+		dayTime += 1.0f * deltaTime; 
 	}
 	if (inputManager->IsKeyDown(50) || inputManager->IsButtonDown(CosmicInput::BUTTON_R1))
 	{
-		engine->dayTime -= 1.0f * deltaTime;
+		dayTime -= 1.0f * deltaTime;
 	}
 	if (inputManager->IsKeyPressed(96))
 	{
-		DefaultScene* defaultLevel = new DefaultScene(engine);
-		engine->rend->LoadSkyBox(1);
-		engine->LoadScene(defaultLevel);
+		SceneManager::LoadScene(SceneManager::_DefaultScene);
 	}
 	else if (inputManager->IsKeyPressed(98))
 	{
-		Scene2* level2 = new Scene2(engine);
-		engine->LoadScene(level2);
+		SceneManager::LoadScene(SceneManager::_Scene2);
 	}
 }
 
 void Scene::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool canShoot)
 {
-	GameEntity* obj = engine->CreateGameObject(meshName);
+	GameEntity* obj = new GameEntity(assetManager->GetMesh(meshName), false);
 
-	obj->renderingComponent.mat.surfaceColor = { (float)(std::rand() % 100) * 0.01f, (float)(std::rand() % 100)* 0.01f, (float)(std::rand() % 100) * 0.01f, 1.0f };
+	obj->renderingComponent->mat.surfaceColor = { (float)(std::rand() % 100) * 0.01f, (float)(std::rand() % 100)* 0.01f, (float)(std::rand() % 100) * 0.01f, 1.0f };
 	obj->transform.position = pos;
 	obj->transform.rotation = cam->transform.rotation;
 	//printf("\nRot - %f, %f, %f", cam->transform.rotation.x, cam->transform.rotation.y, cam->transform.rotation.z);
@@ -138,8 +135,8 @@ void Scene::SpawnGameObject(std::string meshName, DirectX::XMFLOAT3 pos, bool ca
 	}
 
 	gameObjects.push_back(obj);
-	printf("\nNum of '%ss': %d", &meshName[0], engine->rend->assets->meshStorage[meshName]->instances);
-	//printf("\nColor - %f, %f, %f", obj->renderingComponent.mat.surfaceColor.x, obj->renderingComponent.mat.surfaceColor.y, obj->renderingComponent.mat.surfaceColor.z);
+	printf("\nNum of '%ss': %d", &meshName[0], assetManager->meshStorage[meshName]->instances);
+	//printf("\nColor - %f, %f, %f", obj->renderingComponent->mat.surfaceColor.x, obj->renderingComponent->mat.surfaceColor.y, obj->renderingComponent->mat.surfaceColor.z);
 
 }
 

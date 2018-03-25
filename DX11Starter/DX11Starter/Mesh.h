@@ -5,7 +5,7 @@
 #include <fstream>
 #include "Vertex.h"
 #include "AnimsVertex.h"
-#include "RenderingComponent.h"
+#include "renderingComponent.h"
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"

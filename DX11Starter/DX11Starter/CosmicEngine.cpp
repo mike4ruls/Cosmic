@@ -41,6 +41,7 @@ CosmicEngine::~CosmicEngine()
 	inputManager->Release();
 	currentScene->Quit();
 	QuitLevel();
+	
 }
 
 // --------------------------------------------------------
@@ -51,21 +52,19 @@ void CosmicEngine::Init()
 {
 	ImGui_ImplDX11_Init(hWnd, device, context);
 	rend = new Renderer(cam, device, context, backBufferRTV, depthStencilView, swapChain);
-
-	dayTime = 0.0f;
-	click = false;
-	click = false;
+	physicEngine = new CosmicPhysic();
+	currentScene->SetWidthHeight(width, height);
+	currentScene->SetAssetManager(rend->assets, physicEngine, rend->sunLight, &rend->skyBoxSVR);
 	pauseGame = false;
 
 	srand((unsigned int)time(NULL));
 
-	currentMousePos = MouseScreen();
-	currentMousePos.x = 0.0f;
-	currentMousePos.y = 0.0f;
-
 	currentScene->Init();
 	inputManager = InputManager::GetInstance();
-	physicEngine = new CosmicPhysic();
+	inputManager->currentMousePos = MouseScreen();
+	inputManager->currentMousePos.x = 0.0f;
+	inputManager->currentMousePos.y = 0.0f;
+	inputManager->click = false;
 	initFinished = true;
 
 
@@ -162,6 +161,7 @@ void CosmicEngine::UpdateObjects(float dt)
 		for (unsigned int i = 0; i < allObj.size(); i++)
 		{
 			allObj[i]->Update(dt);
+			allObj[i]->SetWorld();
 		}
 		for (unsigned int i = 0; i < allEmitter.size(); i++)
 		{
@@ -184,30 +184,24 @@ void CosmicEngine::Update(float deltaTime, float totalTime)
 	IO.DeltaTime = deltaTime;
 	ImGui_ImplDX11_NewFrame();
 
-	UpdateObjects(deltaTime);
-
 	currentScene->Update(deltaTime, totalTime);
+	UpdateObjects(deltaTime);
 	cam->Update(deltaTime);
 
 	//printf("\nLight Dir Vector - (%f, %f, 0.0)", sin(dayTime), cos(dayTime));
 
 	inputManager->Update();
-	if (inputManager->IsKeyPressed(VK_TAB))// || inputManager->IsButtonPressed(CosmicInput::DPAD_DOWN))
+	if (inputManager->IsKeyPressed(KeyCode::TAB))// || inputManager->IsButtonPressed(CosmicInput::DPAD_DOWN))
 	{
 		rend->ToggleSkyBox();
 	}
-	if (inputManager->IsKeyPressed(70))// || inputManager->IsButtonPressed(CosmicInput::DPAD_RIGHT))
+	if (inputManager->IsKeyPressed(KeyCode::F))// || inputManager->IsButtonPressed(CosmicInput::DPAD_RIGHT))
 	{
 		rend->ToggleWireFrame();
 	}
-
-	if (!lockSunLight)
-	{
-		rend->sunLight->ligComponent->lightDir = { sin(dayTime),cos(dayTime),0.0f };
-	}
-	prevClick = click;
+	inputManager->prevClick = inputManager->click;
 	// Quit if the escape key is pressed
-	if (inputManager->IsKeyDown(VK_ESCAPE))
+	if (inputManager->IsKeyDown(KeyCode::ESCAPE))
 	{
 		Quit();
 	}
@@ -249,7 +243,7 @@ void CosmicEngine::Draw(float deltaTime, float totalTime)
 void CosmicEngine::OnMouseDown(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
-	click = true;
+	inputManager->click = true;
 	printf("click");
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
@@ -267,7 +261,7 @@ void CosmicEngine::OnMouseDown(WPARAM buttonState, int x, int y)
 void CosmicEngine::OnMouseUp(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
-	click = false;
+	inputManager->click = false;
 	// We don't care about the tracking the cursor outside
 	// the window anymore (we're not dragging if the mouse is up)
 	ReleaseCapture();
@@ -284,12 +278,12 @@ void CosmicEngine::OnMouseMove(WPARAM buttonState, int x, int y, float dt)
 
 	float newWidth = (float)width / 2.0f;
 	float newHeigth = (float)height / 2.0f;
-	currentMousePos.x = (-newWidth + x) / (newWidth / 1.1f);
-	currentMousePos.y = (newHeigth - y) / (newHeigth / 0.62f);
+	inputManager->currentMousePos.x = (-newWidth + x) / (newWidth / 1.1f);
+	inputManager->currentMousePos.y = (newHeigth - y) / (newHeigth / 0.62f);
 
 	//printf("X: %f, Y: %f\n", currentMousePos.x, currentMousePos.y);
 	// Add any custom code here...
-	if (click && !lockCamera)
+	if (inputManager->click && !cam->lockCameraRot)
 	{
 		cam->RotateCamera((x - prevMousePos.x) * sensitivity, (y - prevMousePos.y) * sensitivity);
 
@@ -313,104 +307,34 @@ void CosmicEngine::OnMouseWheel(float wheelDelta, int x, int y)
 {
 	// Add any custom code here...
 }
-GameEntity * CosmicEngine::CreateGameObject(std::string name)
+void CosmicEngine::PushGameObject(GameEntity* gameobject)
 {
-	GameEntity* newObj = new GameEntity(rend->assets->GetMesh(name), rend, false);
-	newObj->Id = allObj.size();
+	gameobject->Id = allObj.size();
+	if (!gameobject->isUI)
+	{
+		rend->PushToRenderer(gameobject->renderingComponent);
+	}
+	else
+	{
+		rend->PushToCanvas(gameobject->renderingComponent);
+	}
 
-	allObj.push_back(newObj);
-	
-	return newObj;
+	allObj.push_back(gameobject);
 }
-TextBox * CosmicEngine::CreateCanvasTextBox()
+void CosmicEngine::PushUI(UI * newUI)
 {
-	TextBox* newObj = new TextBox(new GameEntity(rend->assets->GetMesh("Quad"), rend, true), UI::UIType::TextBox);
+	newUI->Id = allUI.size();
 
-	newObj->Id = allUI.size();
-
-	allUI.push_back(newObj);
-
-	return newObj;
+	allUI.push_back(newUI);
 }
-Button * CosmicEngine::CreateCanvasButton()
+void CosmicEngine::PushEmitter(Emitter * newEmitter)
 {
-	Button* newObj = new Button(new GameEntity(rend->assets->GetMesh("Quad"), rend, true), UI::UIType::Button, this);
-
-	newObj->Id = allUI.size();
-
-	allUI.push_back(newObj);
-
-	return newObj;
-}
-Image * CosmicEngine::CreateCanvasImage()
-{
-	Image* newObj = new Image(new GameEntity(rend->assets->GetMesh("Quad"), rend, true), UI::UIType::Image);
-
-	newObj->Id = allUI.size();
-
-	allUI.push_back(newObj);
-
-	return newObj;
-}
-Emitter * CosmicEngine::CreateParticalEmitter(int maxP, ID3D11ShaderResourceView * text, Emitter::BlendingType type, Emitter::EmitterType emit)
-{
-	Emitter* newEmitter = new Emitter(maxP, text, type, emit, device);
-	//newEmitter->InitBuffers(device);
 
 	newEmitter->engineID = allEmitter.size();
 
 	allEmitter.push_back(newEmitter);
 
 	rend->PushToEmitter(newEmitter);
-
-	return newEmitter;
-}
-Emitter * CosmicEngine::CreateSnowEmitter(ID3D11ShaderResourceView * text)
-{
-	Emitter* newEmitter = new Emitter(2000, text, Emitter::BlendingType::CutOut, Emitter::EmitterType::Cone, device);
-	
-	//newEmitter->startColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-	newEmitter->endColor = { 1.0f, 1.0f, 1.0f, 0.8f};
-	newEmitter->emitterAcceleration = 10.0f;
-	newEmitter->transform.Rotate(0.0f, 90.0f, 0.0f);
-	newEmitter->accelerationDir = newEmitter->transform.foward;
-	newEmitter->emissionRate = 0.005f;
-	newEmitter->lifeTime = 10.0f;
-	newEmitter->startRadius = 50.0f;
-	newEmitter->endRadius = 60.0f;
-	newEmitter->cylinderRad = 200.0f;
-	//newEmitter->localSpace = true;
-	newEmitter->startSize = 1.5f;
-	newEmitter->endSize = 1.5f;
-
-	newEmitter->engineID = allEmitter.size();
-
-	allEmitter.push_back(newEmitter);
-
-	rend->PushToEmitter(newEmitter);
-
-	return newEmitter;
-}
-Emitter * CosmicEngine::CreateExplosionEmitter(ID3D11ShaderResourceView * text)
-{
-	Emitter* newEmitter = new Emitter(10, text, Emitter::BlendingType::CutOut, Emitter::EmitterType::Sphere, device);
-
-	newEmitter->emitterAcceleration = 5.0f;
-	newEmitter->emissionRate = 0.0f;
-	newEmitter->lifeTime = 2.0f;
-	newEmitter->sphereRad = 1.0f;
-	newEmitter->startSize = 1.0f;
-	newEmitter->endSize = 20.0f;
-	newEmitter->isLooping = false;
-	
-
-	newEmitter->engineID = allEmitter.size();
-
-	allEmitter.push_back(newEmitter);
-
-	rend->PushToEmitter(newEmitter);
-
-	return newEmitter;
 }
 void CosmicEngine::LoadDefaultScene(Game * newScene)
 {
@@ -424,11 +348,12 @@ void CosmicEngine::LoadScene(Game* newScene)
 	QuitLevel();
 
 	currentScene = newScene;
+	currentScene->SetWidthHeight(width, height);
+	currentScene->SetAssetManager(rend->assets, physicEngine, rend->sunLight, &rend->skyBoxSVR);
 	cam = currentScene->cam;
 	cam->Init(width, height);
 	rend->cam = cam;
-	lockSunLight = false;
-	lockCamera = false;
+	cam->lockCameraRot = false;
 
 	currentScene->Init();
 }
@@ -463,7 +388,7 @@ void CosmicEngine::Flush()
 void CosmicEngine::DestroyGameObject(GameEntity * obj)
 {
 	unsigned int Id = obj->Id;
-	rend->RemoveFromRenderer(obj->renderingComponent.meshName, obj->renderingComponent.rendID);
+	rend->RemoveFromRenderer(obj->renderingComponent->meshName, obj->renderingComponent->rendID);
 	allObj.erase(allObj.begin() + Id);
 
 	if (obj != nullptr) { delete obj; obj = nullptr; }
@@ -476,7 +401,7 @@ void CosmicEngine::DestroyGameObject(GameEntity * obj)
 void CosmicEngine::DestroyUIObject(UI * obj)
 {
 	unsigned int Id = obj->Id;
-	rend->RemoveFromRenderer(obj->obj->renderingComponent.meshName, obj->obj->renderingComponent.rendID);
+	rend->RemoveFromRenderer(obj->obj->renderingComponent->meshName, obj->obj->renderingComponent->rendID);
 	allUI.erase(allUI.begin() + Id);
 
 	if (obj != nullptr) { delete obj; obj = nullptr; }
@@ -499,6 +424,10 @@ void CosmicEngine::DestroyEmitter(Emitter * obj)
 	{
 		allEmitter[i]->engineID = i;
 	}
+}
+ID3D11Device * CosmicEngine::GetDevice()
+{
+	return device;
 }
 //void CosmicEngine::SetKeyInputs()
 //{

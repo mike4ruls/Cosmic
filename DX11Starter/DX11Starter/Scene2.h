@@ -1,5 +1,4 @@
 #pragma once
-#include "CosmicEngine.h"
 #include "Game.h"
 #include "DefaultScene.h"
 #include "Scene.h"
@@ -10,7 +9,7 @@ class Scene2 :
 public:
 
 
-	Scene2(CosmicEngine* eng);
+	Scene2();
 	~Scene2();
 
 	void Init();
@@ -27,7 +26,6 @@ public:
 
 	Emitter* blizzard;
 
-	CosmicEngine* engine;
 	Light* pointLight;
 	Emitter* particleSystem;
 	Button* but;

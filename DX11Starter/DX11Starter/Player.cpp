@@ -6,9 +6,9 @@ Player::Player()
 {
 }
 
-Player::Player(CosmicEngine* eng, GameEntity* obj, float hlt, float atkSpd, float atkdmg)
+Player::Player(GameEntity* obj, Mesh* bul, float hlt, float atkSpd, float atkdmg)
 {
-	engine = eng;
+	bulletMesh = bul;
 	player = obj;
 	currentTilt = LEFT;
 	previousTurnState = LEFT;
@@ -92,7 +92,7 @@ Player::Player(CosmicEngine* eng, GameEntity* obj, float hlt, float atkSpd, floa
 	rightAtkDamage = 0;
 	rightTimer = rightAtkSpeed;
 
-	player->renderingComponent.mat.surfaceColor = { 1.0f,0.0f,0.0f,1.0f };
+	player->renderingComponent->mat.surfaceColor = { 1.0f,0.0f,0.0f,1.0f };
 	player->rigidBody.applyFriction = true;
 	player->rigidBody.mass = 0.2f;
 
@@ -291,7 +291,7 @@ void Player::TakeDamage(float dmg)
 		{
 			health = 0.0f;
 			isDead = true;
-			player->renderingComponent.canRender = false;
+			player->renderingComponent->canRender = false;
 		}
 		topDisplayHealth = health;
 		damageImmune = true;
@@ -333,30 +333,30 @@ void Player::LoadBullets()
 
 	for (unsigned int i = 0; i < numOfBullets; i++)
 	{
-		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
+		Bullet* newBullet = new Bullet(new GameEntity(bulletMesh, false));
 		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
 		newBullet->bullet->SetWorld();
-		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
+		//newBullet->bullet->renderingComponent->mat.surfaceReflectance = 0.7f;
 
 		frontBulletPool.push_back(newBullet);
 	}
 
 	for (unsigned int i = 0; i < numOfBullets; i++)
 	{
-		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
+		Bullet* newBullet = new Bullet(new GameEntity(bulletMesh, false));
 		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
 		newBullet->bullet->SetWorld();
-		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
+		//newBullet->bullet->renderingComponent->mat.surfaceReflectance = 0.7f;
 
 		leftBulletPool.push_back(newBullet);
 	}
 
 	for (unsigned int i = 0; i < numOfBullets; i++)
 	{
-		Bullet* newBullet = new Bullet(engine->CreateGameObject("Sphere"));
+		Bullet* newBullet = new Bullet(new GameEntity(bulletMesh, false));
 		newBullet->bullet->transform.Translate(0.0f, 60.0f, 0.0f);
 		newBullet->bullet->SetWorld();
-		//newBullet->bullet->renderingComponent.mat.surfaceReflectance = 0.7f;
+		//newBullet->bullet->renderingComponent->mat.surfaceReflectance = 0.7f;
 
 		rightBulletPool.push_back(newBullet);
 	}
